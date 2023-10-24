@@ -23,15 +23,18 @@ defineProps({
 
                     <ul>
                         <li v-for="book in books.data" :key="book.id" class="m-2 p-2 shadow rounded-lg">
-                            <div class="text-lg">{{ book.title }}</div>
+                            <Link :href="'/estate/' + book.id">
+                                <div class="text-lg">{{ book.title }}</div>
 
-                            <div class="flex">
-                                <a :href="book.url" target="_blank" rel="noopener noreferrer" class="text-slate-500">
-                                    {{ book.street }}
-                                </a>
 
-                                <div class="mx-2 px-1 text-sm text-slate-600 bg-slate-300 rounded-lg">{{ book.area }}</div>
-                            </div>
+                                <div class="flex">
+                                    <a :href="book.url" target="_blank" rel="noopener noreferrer" class="text-slate-500">
+                                        {{ book.street }}
+                                    </a>
+
+                                    <div class="mx-2 px-1 text-sm text-slate-600 bg-slate-300 rounded-lg">{{ book.area }}</div>
+                                </div>
+                            </Link>
                         </li>
                     </ul>
 

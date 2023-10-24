@@ -15,10 +15,18 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::orderBy('data_added')->paginate(10);
-        // return $books;
 
         return Inertia::render('Main', [
             'books' => $books
+        ]);
+    }
+    
+    public function getEstate($id)
+    {
+        $item = Book::where('id', $id)->first();
+
+        return Inertia::render('SingleBook', [
+            'item' => $item
         ]);
     }
 

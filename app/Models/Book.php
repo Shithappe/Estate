@@ -12,19 +12,28 @@ class Book extends Model
     use HasFactory;
     
 
-    protected $table = 'obj_book';
+    // protected $table = 'obj_book';
     
     protected $fillable = [ 
         'id',
         'title',
-        'stars',
-        'url',
-        'coordinate',
+        'description',
+        'builder_name',
+        'complex_name',
+        
+        'square',
+        'price_per_meter',
+        'room_count',
+        'floor',
+
+        'city',
+        'district',
         'street',
-        'area',
-        'checkin',
-        'checkout',
-        'status',
-        'data_added'
+        'coordinate',
+
+        'rate',
+        'property_type',
+        'bedrooms_count',
+        'source_url'
     ];
 }

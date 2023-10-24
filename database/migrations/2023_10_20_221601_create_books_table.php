@@ -13,16 +13,30 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
+
             $table->string('title');
-            $table->integer('stars');
-            $table->string('url')->nullable();
+            $table->string('description');
+            $table->string('builder_name');
+            $table->string('complex_name')->nullable();
+
+            $table->string('square');
+            $table->string('price_per_meter');
+            $table->string('room_count');
+            $table->integer('floor');
+            // photos
+            $table->string('main_image');
+            $table->json('images');
+            
+            $table->string('city');
+            $table->string('district')->nullable();
+            $table->string('street');
             $table->string('coordinate')->nullable();
-            $table->string('street')->nullable();
-            $table->string('area')->nullable();
-            $table->date('checkin')->nullable();
-            $table->date('checkout')->nullable();
-            $table->string('status');
-            $table->timestamp('data_added');
+
+            $table->integer('rate');
+            $table->string('property_type');
+            $table->string('bedrooms_count')->nullable();
+            $table->string('source_url')->nullable();
+
             $table->timestamps();
         });
     }

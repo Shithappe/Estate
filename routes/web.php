@@ -42,4 +42,5 @@ use App\Http\Controllers\BookController;
 // })->name('main');
 
 Route::get('/', [BookController::class, 'index']);
+Route::get('/estate/{id}', [BookController::class, 'getEstate']);
 
