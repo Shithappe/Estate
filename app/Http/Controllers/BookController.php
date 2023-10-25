@@ -16,6 +16,10 @@ class BookController extends Controller
     {
         $books = Book::paginate(10);
 
+        foreach ($books as  $book) {
+            $book->main_image = asset('storage/' . $book->main_image);
+        }
+
         return Inertia::render('Main', [
             'books' => $books
         ]);
