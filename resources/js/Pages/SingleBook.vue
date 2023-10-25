@@ -18,10 +18,11 @@ defineProps({
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
                 <div class="w-4/5">
+                    <img :src="item.main_image" alt="">
                     <div>{{ item.title }}</div>
                     <div>{{ item.street }}</div>
                     <div>{{ item.area }}</div>
-                    
+                    <div>{{ item }}</div>
                 </div>
             </div>
         </div>

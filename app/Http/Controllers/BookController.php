@@ -14,7 +14,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::orderBy('data_added')->paginate(10);
+        $books = Book::paginate(10);
 
         return Inertia::render('Main', [
             'books' => $books
@@ -24,6 +24,8 @@ class BookController extends Controller
     public function getEstate($id)
     {
         $item = Book::where('id', $id)->first();
+
+        $item->main_image = asset('storage/' . $item->main_image);
 
         return Inertia::render('SingleBook', [
             'item' => $item

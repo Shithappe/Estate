@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Book;
 use App\Http\Requests\BookRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -28,7 +29,119 @@ class BookCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Book::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/book');
-        CRUD::setEntityNameStrings('book', 'books');
+        CRUD::setEntityNameStrings('Book', 'Books');
+
+        $this->crud->addField([
+            'name' => 'title',
+            'label' => 'Title',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'description',
+            'label' => 'Description',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'builder_name',
+            'label' => 'Builder Name',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'complex_name',
+            'label' => 'Complex Name',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'square',
+            'label' => 'Square',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'price_per_meter',
+            'label' => 'Price per Meter',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'room_count',
+            'label' => 'Room Count',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'floor',
+            'label' => 'Floor',
+            'type' => 'number',
+        ]);
+
+        $this->crud->addField([  // Поле для загрузки главного изображения
+            'name' => 'main_image',
+            'label' => 'Main Image',
+            'type' => 'upload',
+            'upload' => true,
+            'disk' => 'public',
+        ]);
+
+        // $this->crud->addField([  // Поле для загрузки нескольких изображений
+        //     'name' => 'images',
+        //     'label' => 'Other images',
+        //     'type' => 'upload',
+        //     'upload' => true,
+        //     'disk' => 'public',
+        // ]);
+
+        $this->crud->addField([
+            'name' => 'city',
+            'label' => 'City',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'district',
+            'label' => 'District',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'street',
+            'label' => 'Street',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'coordinate',
+            'label' => 'Coordinate',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'rate',
+            'label' => 'Rate',
+            'type' => 'number',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'property_type',
+            'label' => 'Property Type',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'bedrooms_count',
+            'label' => 'Bedrooms Count',
+            'type' => 'text',
+        ]);
+
+        $this->crud->addField([
+            'name' => 'source_url',
+            'label' => 'Source URL',
+            'type' => 'text',
+        ]);
     }
 
     /**
@@ -73,5 +186,33 @@ class BookCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function store()
+    {
+        $this->crud->addField([
+            'name' => 'main_image',
+            'type' => 'image',
+            'upload' => true,
+            'disk' => 'public',
+        ]);
+
+        // Исключите поля _token, _method и _ajax из запроса
+        $bookData = $this->crud->getRequest()->except(['_token', '_method', '_ajax']);
+
+        // Проверьте, было ли загружено главное изображение
+        if ($this->crud->getRequest()->hasFile('main_image')) {
+            // Сохраните главное изображение в папке "main_images" на диске "public"
+            $mainImage = $this->crud->getRequest()->file('main_image')->store('main_images', 'public');
+
+            // Добавьте путь к главному изображению в данные объекта
+            $bookData['main_image'] = $mainImage;
+        }
+
+        // Создайте новый объект Book и сохраните его в базе данных
+        $book = new Book($bookData);
+        $book->save();
+
+        return redirect($this->crud->route);
     }
 }

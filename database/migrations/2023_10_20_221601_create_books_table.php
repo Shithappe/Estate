@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('floor');
             // photos
             $table->string('main_image');
-            $table->json('images');
+            $table->json('images')->nullable();
             
             $table->string('city');
             $table->string('district')->nullable();

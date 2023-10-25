@@ -25,6 +25,7 @@ class Book extends Model
         'price_per_meter',
         'room_count',
         'floor',
+        'main_image',
 
         'city',
         'district',
@@ -36,4 +37,9 @@ class Book extends Model
         'bedrooms_count',
         'source_url'
     ];
+
+    public function images()
+    {
+    return $this->morphMany(Image::class, 'imageable');
+    }
 }
