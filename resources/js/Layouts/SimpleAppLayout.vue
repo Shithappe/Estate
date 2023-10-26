@@ -20,8 +20,8 @@ defineProps({
 
         <!-- max-w-7xl -->
 
-        <div class="min-h-screen bg-gray-100">
-            <div class="w-16 h-full fixed flex-col shadow-md">
+        <div class="min-h-screen">
+            <!-- <div class="w-16 h-full fixed flex-col shadow-md">
                 <div
                     class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
                     <Lucide class="w-6 h-6" icon="AlignJustify" />
@@ -42,8 +42,8 @@ defineProps({
                     class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
                     <Lucide class="w-6 h-6" icon="Undo2" />
                 </div>
-            </div>
-            <div class="pl-16">
+            </div> -->
+            <div>
                 <nav class="text-slate-200 bg-slate-800 border-b border-gray-100">
                     <!-- Primary Navigation Menu -->
                     <div class="mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,10 +64,6 @@ defineProps({
                 <header v-if="$slots.header" class="bg-white shadow">
                     <div class=" mx-auto flex justify-between items-center py-3 px-4 sm:px-6 lg:px-8">
                         <slot name="header" />
-                        <!-- <button class="flex items-center px-2 py-1 border shadow rounded-lg">
-                            <Lucide class="w-4 h-4 mr-1" icon="ShoppingCart" />
-                            <Link href="/cart">Кошик</Link>
-                        </button> -->
                     </div>
                 </header>
 

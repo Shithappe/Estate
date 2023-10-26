@@ -1,7 +1,7 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import CardItem from '@/Components/CardItem.vue';
 
 defineProps({
     books: Object,
@@ -10,34 +10,22 @@ defineProps({
 
 <template>
     <SimpleAppLayout title="Головна">
-        <template #header>
+        <!-- <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Головна
             </h2>
-        </template>
+        </template> -->
 
-        <div class="py-12">
+        
+        <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div>
+                    filters
+                </div>
 
-                <ul class="flex gap-8">
-                    <li v-for="book in books.data" :key="book.id" class="w-min m-2 shadow rounded-lg">
-                        <Link :href="'/estate/' + book.id">
-                        <div class="w-72 h-96 parent relative bg-cover bg-center rounded-lg shadow-lg"
-                            :style="'background-image: url(' + book.main_image + ');'">
-
-
-                                <div class="child absolute w-72 p-4 pt-28 text-white rounded-lg bottom-0 w-max bg-gradient-to-t from-black to-transparent">
-
-                                    <div class="text-lg text-slate-200">{{ book.title }}</div>
-                                    
-                                    <div class="flex text-slate-500">
-                                            {{ book.city }}, {{ book.street }}
-                                        <!-- <div class="mx-2 px-1 text-sm text-slate-600 bg-slate-300 rounded-lg">{{ book.district }}</div> -->
-                                    </div>
-
-                                </div>
-                            </div>
-                        </Link>
+                <ul class="flex-col gap-8">
+                    <li v-for="book in books.data" :key="book.id" class="my-8">
+                        <CardItem :item="book" />
                     </li>
                 </ul>
 
