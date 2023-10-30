@@ -20,12 +20,15 @@ class Book extends Model
         'description',
         'builder_name',
         'complex_name',
-        
+        'price',
+
+        'main_image',
+        // 'images',
+
         'square',
         'price_per_meter',
         'room_count',
         'floor',
-        'main_image',
 
         'city',
         'district',

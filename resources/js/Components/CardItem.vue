@@ -8,19 +8,19 @@ defineProps({
 </script>
 
 <template>
-    <div class="w-full h-96 flex gap-8 bg-gray-100 rounded-md">
+    <div class="w-full flex gap-8 bg-gray-100 rounded-md">
         <div class="w-2/3 h-min-96 bg-cover bg-center rounded-lg shadow-lg" :style="'background-image: url(' + item.main_image + ');'"></div>
 
 
         <div class="relative w-96 mx-6 py-6">
-            <div class="text-2xl font-bold">{{ item.price_per_meter * item.square }} $</div>
+            <div class="text-2xl font-bold">{{ item.price }} $</div>
             <div class="text-xl font-semibold">{{ item.builder_name }}</div>
             <div class="mb-4">{{ item.city }}, {{ item.street }}</div>
 
             <div>{{ item.title }}</div>
             <div>{{ item.description }}</div>
             
-            <div class="mt-4 grid grid-cols-2 gap-y-2 font-medium justify-between">
+            <div class="mt-4 mb-16 grid grid-cols-2 gap-y-2 font-medium justify-between">
                 <div class="flex items-center gap-2"><Lucide class="w-5 h-5" icon="BedDouble" /> {{ item.room_count }}</div>
                 <div class="flex items-center gap-2"><Lucide class="w-5 h-5" icon="Layers2" /> {{ item.floor }}</div>
                 <div class="flex items-center gap-2"><Lucide class="w-5 h-5" icon="Scan" /> {{ item.square }}m²</div>

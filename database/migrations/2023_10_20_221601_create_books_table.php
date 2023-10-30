@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('title');
-            $table->string('description');
+            $table->text('description');
             $table->string('builder_name');
             $table->string('complex_name')->nullable();
 
@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('price_per_meter');
             $table->string('room_count');
             $table->integer('floor');
-            // photos
+            $table->string('price');
+
             $table->string('main_image');
             $table->json('images')->nullable();
             
@@ -35,7 +36,7 @@ return new class extends Migration
             $table->integer('rate');
             $table->string('property_type');
             $table->string('bedrooms_count')->nullable();
-            $table->string('source_url')->nullable();
+            $table->text('source_url')->nullable();
 
             $table->timestamps();
         });
