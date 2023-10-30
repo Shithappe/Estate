@@ -23,7 +23,7 @@ class Book extends Model
         'price',
 
         'main_image',
-        // 'images',
+        'images',
 
         'square',
         'price_per_meter',

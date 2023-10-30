@@ -87,13 +87,13 @@ class BookCrudController extends CrudController
             'disk' => 'public',
         ]);
 
-        // $this->crud->addField([  // Поле для загрузки нескольких изображений
-        //     'name' => 'images',
-        //     'label' => 'Other images',
-        //     'type' => 'upload',
-        //     'upload' => true,
-        //     'disk' => 'public',
-        // ]);
+        $this->crud->addField([  // Поле для загрузки нескольких изображений
+            'name' => 'images',
+            'label' => 'Other images',
+            'type' => 'upload_multiple',
+            'upload' => true,
+            'disk' => 'public',
+        ]);
 
         $this->crud->addField([
             'name' => 'city',
@@ -196,23 +196,46 @@ class BookCrudController extends CrudController
             'upload' => true,
             'disk' => 'public',
         ]);
-
+    
+        // Добавьте поле для загрузки нескольких изображений
+        $this->crud->addField([  // Поле для загрузки нескольких изображений
+            'name' => 'images',
+            'label' => 'Other images',
+            'type' => 'multiple_images', // Используйте тип multiple_images для загрузки нескольких изображений
+            'upload' => true,
+            'disk' => 'public',
+        ]);
+    
         // Исключите поля _token, _method и _ajax из запроса
         $bookData = $this->crud->getRequest()->except(['_token', '_method', '_ajax']);
-
+    
         // Проверьте, было ли загружено главное изображение
         if ($this->crud->getRequest()->hasFile('main_image')) {
             // Сохраните главное изображение в папке "main_images" на диске "public"
             $mainImage = $this->crud->getRequest()->file('main_image')->store('main_images', 'public');
-
+    
             // Добавьте путь к главному изображению в данные объекта
             $bookData['main_image'] = $mainImage;
         }
-
+    
+        // Проверьте, были ли загружены дополнительные изображения
+        if ($this->crud->getRequest()->hasFile('images')) {
+            $imagePaths = [];
+    
+            foreach ($this->crud->getRequest()->file('images') as $image) {
+                // Сохраните каждое дополнительное изображение в папке "images" на диске "public"
+                $path = $image->store('images', 'public');
+                $imagePaths[] = $path;
+            }
+    
+            // Преобразуйте массив путей к изображениям в JSON-строку
+            $bookData['images'] = json_encode($imagePaths);
+        }
+    
         // Создайте новый объект Book и сохраните его в базе данных
         $book = new Book($bookData);
         $book->save();
-
+    
         return redirect($this->crud->route);
     }
 }

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('path');
+            $table->unsignedBigInteger('imageable_id'); // Добавьте столбец для связи с другой сущностью
+            $table->string('imageable_type');
         });
     }
 

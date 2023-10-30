@@ -42,6 +42,16 @@ class BookController extends Controller
 
         foreach ($books as $book) {
             $book->main_image = asset('storage/' . $book->main_image);
+            
+            // Пройдитесь по каждой ссылке в массиве images
+            $images = json_decode($book->images, true);
+            $newImages = [];
+        
+            foreach ($images as $image) {
+                $newImages[] = asset('storage/' . $image);
+            }
+        
+            $book->images = $newImages;
         }
 
         return Inertia::render('Main', [
