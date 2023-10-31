@@ -10,15 +10,14 @@ const props = defineProps({
 });
 
 const images = ref(props.item.images.unshift(props.item.main_image));
-console.log(images.value);
 </script>
 
 <template>
-    <div class="w-full flex gap-8 bg-gray-100 rounded-md">
-        <div class="w-2/3 h-min-96 bg-cover bg-center rounded-lg shadow-lg">
+    <div class="w-full flex flex-col lg:flex-row gap-x-8 bg-gray-100 rounded-md">
+        <div class="w-2/3 lg:w-full rounded-lg shadow-lg">
             <carousel id="gallery" :items-to-show="1" :wrap-around="false">
                 <slide v-for="image in item.images" :key="image">
-                    <img class="rounded-lg shadow-lg" :src="image" alt="">
+                    <img class="object-cover w-full h-full rounded-lg" :src="image" alt="">
                 </slide>
 
                 <template #addons>
@@ -29,12 +28,12 @@ console.log(images.value);
         </div>
 
 
-        <div class="relative w-96 mx-6 py-6">
+        <div class="relative w-full lg:w-96 mx-6 py-6">
             <div class="text-2xl font-bold">{{ item.price }} $</div>
             <div class="text-xl font-semibold">{{ item.builder_name }}</div>
-            <div class="mb-4">{{ item.city }}, {{ item.street }}</div>
+            <div class="mb-3">{{ item.city }}, {{ item.street }}</div>
 
-            <div>{{ item.title }}</div>
+            <div class="my-1">{{ item.title }}</div>
             <div>{{ item.description }}</div>
 
             <div class="mt-4 mb-16 grid grid-cols-2 gap-y-2 font-medium justify-between">
@@ -52,9 +51,12 @@ console.log(images.value);
                 </div>
             </div>
 
-            <Link :href="'/estate/' + item.id">
-                <button class="absolute bottom-6 w-full p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
-            </Link>
+            <div >
+
+                <Link :href="'/estate/' + item.id">
+                    <button class="absolute bottom-6 max-w-full w-full p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
+                </Link>
+            </div>
         </div>
     </div>
 </template>

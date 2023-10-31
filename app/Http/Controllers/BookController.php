@@ -43,7 +43,6 @@ class BookController extends Controller
         foreach ($books as $book) {
             $book->main_image = asset('storage/' . $book->main_image);
             
-            // Пройдитесь по каждой ссылке в массиве images
             $images = json_decode($book->images, true);
             $newImages = [];
         
@@ -65,6 +64,15 @@ class BookController extends Controller
         $item = Book::where('id', $id)->first();
 
         $item->main_image = asset('storage/' . $item->main_image);
+
+        $images = json_decode($item->images, true);
+        $newImages = [];
+        
+        foreach ($images as $image) {
+            $newImages[] = asset('storage/' . $image);
+        }
+    
+        $item->images = $newImages;
 
         return Inertia::render('SingleBook', [
             'item' => $item

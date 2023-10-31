@@ -1,9 +1,16 @@
 <script setup>
+import { ref } from 'vue';
+import Lucide from '@/Components/Lucide.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
+import 'vue3-carousel/dist/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 
-defineProps({
+
+const props = defineProps({
     item: Object,
 });
+
+const images = ref(props.item.images.unshift(props.item.main_image));
 </script>
 
 <template>
@@ -14,22 +21,46 @@ defineProps({
             </h2>
         </template>
 
-        <div class="py-12">
+        <div class="mx-2 py-2 lg:py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-                <div class="flex gap-8">
-                    <img class="rounded-md" :src="item.main_image" alt="">
-                    <div class="h-min w-96 p-4 bg-slate-300 rounded-md">
-                        <div class="text-xl font-bold">{{ item.builder_name }}</div>
-                        <div class="mb-4">{{ item.city }}, {{ item.street }}</div>
+                <div class="">
+                    <carousel id="gallery" :items-to-show="1" :wrap-around="false">
+                        <slide v-for="image in item.images" :key="image">
+                            <img class="object-cover rounded-lg" :src="image" alt="">
+                        </slide>
 
-                        <div class="">{{ item.price_per_meter }} per m²</div>
+                        <template #addons>
+                            <navigation />
+                            <pagination />
+                        </template>
+                    </carousel>
+
+                    <div class="mt-6">
+                        <div class="text-2xl font-bold">{{ item.title }}</div>
+                        <div class="text-2xl font-bold">{{ item.price }} $</div>
+                        <div class="text-xl font-semibold">{{ item.builder_name }}</div>
+                        <div class="flex gap-2 mt-2 mb-4"><Lucide class="w-5 h-5" icon="MapPin" /> {{ item.city }}, {{ item.street }}</div>
+
                         <div>{{ item.title }}</div>
-                        <div>{{ item.street }}</div>
-                        <div>{{ item.area }}</div>
+                        <div>{{ item.description }}</div>
+
+                        <div class="mt-4 mb-16 grid grid-cols-2 gap-y-2 font-medium justify-between">
+                            <div class="flex items-center gap-2">
+                                <Lucide class="w-5 h-5" icon="BedDouble" /> {{ item.room_count }}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <Lucide class="w-5 h-5" icon="Layers2" /> {{ item.floor }}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <Lucide class="w-5 h-5" icon="Scan" /> {{ item.square }}m²
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <Lucide class="w-5 h-5" icon="BoxSelect" /> {{ item.price_per_meter }} per m²
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>{{ item }}</div>
             </div>
         </div>
     </SimpleAppLayout>
