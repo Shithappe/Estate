@@ -41,7 +41,7 @@ const applyQuery = () => {
     <SimpleAppLayout title="Головна">
 
         <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="flex flex-col lg:flex-row gap-y-3 items-stretch">
                     <select v-model="selectedCity" @change="filterCity"
                         class="w-full lg:w-72 mx-2 border-0 text-gray-500 rounded-lg shadow focus:shadow-lg focus:outline-none focus:ring focus:border-blue-300 appearance-none leading-5 transition duration-150 ease-in-out">
