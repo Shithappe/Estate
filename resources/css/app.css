@@ -6,6 +6,6 @@
     display: none;
 }
 
-html{
-    width: 100vw;
+html, body {
+    overflow-x: hidden;
 }
