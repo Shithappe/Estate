@@ -38,11 +38,16 @@ const images = ref(props.item.images.unshift(props.item.main_image));
 
                     <div class="mt-6">
                         <div class="text-2xl font-bold">{{ item.title }}</div>
-                        <div class="text-2xl font-bold">{{ item.price }} $</div>
                         <div class="text-xl font-semibold">{{ item.builder_name }}</div>
-                        <div class="flex gap-2 mt-2 mb-4"><Lucide class="w-5 h-5" icon="MapPin" /> {{ item.city }}, {{ item.street }}</div>
 
-                        <div>{{ item.title }}</div>
+                        <div class="text-2xl font-bold">{{ item.price }} $</div>
+                        <div class="flex gap-2 mt-2 mb-4">
+                            <Lucide class="w-5 h-5" icon="MapPin" /> {{ item.city }}, {{ item.street }}
+                        </div>
+                        <div class="mt-1 mb-4 flex gap-x-1">
+                            <Lucide v-for="star in item.rate" class="w-6 h-6 fill-black" icon="Star" />
+                        </div>
+
                         <div>{{ item.description }}</div>
 
                         <div class="mt-4 mb-16 grid grid-cols-2 gap-y-2 font-medium justify-between">

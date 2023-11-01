@@ -13,8 +13,8 @@ const images = ref(props.item.images.unshift(props.item.main_image));
 </script>
 
 <template>
-    <div class="w-full flex flex-col lg:flex-row mx-4 gap-x-8 bg-gray-100 rounded-md">
-        <div class="lg:w-full rounded-lg lg:shadow">
+    <div class="flex flex-col lg:flex-row mx-4 gap-x-8 bg-gray-100 shadow rounded-md">
+        <div class="lg:w-full rounded-lg">
             <carousel id="gallery" :items-to-show="1" :wrap-around="false">
                 <slide v-for="image in item.images" :key="image">
                     <img class="object-cover w-full h-full rounded-lg" :src="image" alt="">
@@ -39,7 +39,7 @@ const images = ref(props.item.images.unshift(props.item.main_image));
             </div>
 
             <div class="my-1 text-md">{{ item.title }}</div>
-            <div>{{ item.description }}</div>
+            <div class="whitespace-pre-line pr-4">{{ item.description }}</div>
 
             <div class="mt-4 mb-6 grid grid-cols-2 gap-y-2 font-medium justify-between">
                 <div class="flex items-center gap-2">
