@@ -17,15 +17,19 @@ defineProps({
 
         <nav class="text-slate-200 bg-slate-800 border-b border-gray-100">
             <div class="mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center justify-between">
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
                             <ApplicationMark class="block h-9 w-auto" />
-                            <p class="mx-2">Estate market</p>
+                            <p class="mx-2 text-lg">Estate market</p>
                         </div>
 
+                        
                     </div>
+                    <a href="http://65.21.157.152/" target="_blank" class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
+                        Offer Analysis        
+                    </a>
                 </div>
             </div>
         </nav>

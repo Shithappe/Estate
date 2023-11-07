@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
@@ -16,7 +17,10 @@ const images = ref(props.item.images.unshift(props.item.main_image));
 <template>
     <SimpleAppLayout title="Головна">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="flex gap-x-2 font-semibold text-xl text-gray-800 leading-tight">
+                <Link href="/">
+                    <Lucide icon="ArrowLeft" />
+                </Link>
                 <div>{{ item.title }}</div>
             </h2>
         </template>
