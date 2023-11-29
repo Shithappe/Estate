@@ -86,6 +86,7 @@ const submitForm = async () => {
         console.log(response.data);
         mainImagePreview.value = '';
         imagePreviews.value = [];
+        closeModal();
         if (!modalData.value.id) getData();
     } catch (error) {
         console.error(error);
