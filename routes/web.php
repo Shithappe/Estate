@@ -43,3 +43,7 @@ use App\Http\Controllers\BookController;
 
 Route::get('/', [BookController::class, 'index']);
 Route::get('/estate/{id}', [BookController::class, 'getEstate']);
+
+Route::get('admin', function () {
+        return Inertia::render('Admin');
+    })->name('admin');
