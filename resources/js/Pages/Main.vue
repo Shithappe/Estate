@@ -60,7 +60,7 @@ const applyQuery = () => {
                         
                         <button
                             class="ml-2 px-4 py-2 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
-                            @click="applyQuery">Applay
+                            @click="applyQuery">Apply
                         </button>
                     </div>
 
