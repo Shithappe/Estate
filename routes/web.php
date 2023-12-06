@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\booking_data;
 
 
 /*
@@ -47,3 +48,5 @@ Route::get('/estate/{id}', [BookController::class, 'getEstate']);
 Route::get('admin', function () {
         return Inertia::render('Admin');
     })->name('admin');
+
+Route::get('/booking_data', [booking_data::class, 'index']);
