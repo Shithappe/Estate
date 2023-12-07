@@ -12,11 +12,15 @@ class booking_data extends Controller
     {
 
         $filterCity = $request->query('city');
+        $filterTitle = $request->query('title');
 
         $query = DB::table('booking_data');
 
         if (!empty($filterCity)) {
-            $query->where('city', $filterCity); // Добавляем условие в запрос, если фильтр по городу задан
+            $query->where('city', $filterCity);
+        }
+        if (!empty($filterTitle)) {
+            $query->where('title', $filterTitle);
         }
     
         $data = $query->paginate(5); 
