@@ -57,12 +57,12 @@ props.item.rooms.forEach(room => {
 
 
 
-                <div class="w-3/4 mt-5 flex font-medium justify-between" v-if="item.rooms[0]">
+                <div class="w-3/4 mt-5 hidden md:flex font-medium justify-between" v-if="item.rooms[0]">
                     <div>Rooms types: {{ item.rooms.length }}</div>
                     <div>Count rooms: {{ totalRooms }}</div>
                     <div v-if="avg_room_price">Avg price {{ avg_room_price.toFixed(2) }}$</div>
                 </div>
-                <div v-else class="text-center mt-4 text-lg">No rooms data</div>
+                <div v-else class="hidden md:block text-center mt-4 text-lg">No rooms data</div>
 
                 <!-- <a :href="item.Link" target="_blank" class="cursor-pointer text-lg font-semibold hover:text-blue-600">Link</a> -->
                 
