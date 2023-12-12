@@ -26,8 +26,47 @@ class booking_data extends Controller
         $data = $query->paginate(5); 
 
 
-        // $data = DB::table('booking_data')->paginate(5);
 
+
+        foreach ($data as $item) {
+            $rooms = DB::table('rooms_30_day')
+                ->where('booking_id', $item->id)
+                // ->whereDate('date', 'YOUR_DATE_HERE') // Замените 'YOUR_DATE_HERE' на нужную дату
+                ->get();
+        
+            $maxAvailableRooms = [];
+        
+            // Находим максимальное доступное количество комнат для каждого типа комнаты
+            foreach ($rooms as $room) {
+                $roomType = $room->room_type;
+        
+                if (!isset($maxAvailableRooms[$roomType]) || $room->max_available_rooms > $maxAvailableRooms[$roomType]) {
+                    $maxAvailableRooms[$roomType] = $room->max_available_rooms;
+                }
+            }
+        
+            $occupancyPercentage = [];
+        
+            // Получаем процент заполненности для каждого типа комнаты на заданную дату
+            foreach ($rooms as $room) {
+                $roomType = $room->room_type;
+                $percentage = ($maxAvailableRooms[$roomType] > 0) ? (($maxAvailableRooms[$roomType] - $room->max_available_rooms) / $maxAvailableRooms[$roomType]) * 100 : 100;
+                $occupancyPercentage[$roomType][] = $percentage;
+            }
+        
+            $averageOccupancyPercentage = [];
+        
+            // Вычисляем средний процент заполненности для каждого типа комнаты
+            foreach ($occupancyPercentage as $roomType => $percentages) {
+                $averagePercentage = array_sum($percentages) / count($percentages);
+                $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "% от максимума";
+            }
+        
+            // Добавляем информацию о среднем проценте заполненности к каждому элементу $data
+            $item->averageOccupancyPercentage = $averageOccupancyPercentage;
+        }
+        
+        
         foreach ($data as $item) {
             $item->rooms = DB::table('rooms')->where('booking_id', $item->id)->get();
         }
@@ -46,4 +85,56 @@ class booking_data extends Controller
             'cities' => $cities
         ]);
     }
+
+
+    public function booking_page($booking_id)
+    {
+
+        $booking = DB::table('booking_data')
+            ->where('id', $booking_id)
+            ->get();
+
+
+        $rooms = DB::table('rooms_30_day')
+            ->where('booking_id', $booking_id)
+            // ->whereDate('date', 'YOUR_DATE_HERE') 
+            ->get();
+
+        $maxAvailableRooms = [];
+
+        // Находим максимальное доступное количество комнат для каждого типа комнаты
+        foreach ($rooms as $room) {
+            $roomType = $room->room_type;
+
+            if (!isset($maxAvailableRooms[$roomType]) || $room->max_available_rooms > $maxAvailableRooms[$roomType]) {
+                $maxAvailableRooms[$roomType] = $room->max_available_rooms;
+            }
+        }
+
+        $occupancyPercentage = [];
+
+        // Получаем процент заполненности для каждого типа комнаты на заданную дату
+        foreach ($rooms as $room) {
+            $roomType = $room->room_type;
+            $percentage = ($maxAvailableRooms[$roomType] > 0) ? (($maxAvailableRooms[$roomType] - $room->max_available_rooms) / $maxAvailableRooms[$roomType]) * 100 : 100;
+            $occupancyPercentage[$roomType][] = $percentage;
+        }
+
+        $averageOccupancyPercentage = [];
+
+        // Вычисляем средний процент заполненности для каждого типа комнаты
+        foreach ($occupancyPercentage as $roomType => $percentages) {
+            $averagePercentage = array_sum($percentages) / count($percentages);
+            $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "%";
+        }
+
+        // Добавляем информацию о среднем проценте заполненности к каждому элементу $data
+        // $booking->averageOccupancyPercentage = $averageOccupancyPercentage;
+
+
+        return Inertia::render('BookingDataPage', [
+            'booking' => $booking,
+            'rooms' => $averageOccupancyPercentage
+        ]);
+    }    
 }

@@ -23,11 +23,32 @@ props.item.rooms.forEach(room => {
     totalRooms += parseFloat(room.max_available_rooms);
 });
 
+
+
+
+let avgPercentage = 0;
+let avgPercentageCount = 0;
+
+for (let key in props.item.averageOccupancyPercentage) {
+    if (props.item.averageOccupancyPercentage.hasOwnProperty(key)) {
+        avgPercentage += parseInt(props.item.averageOccupancyPercentage[key]);
+        avgPercentageCount++;
+    }
+}
+
+if (avgPercentageCount !== 0) {
+    avgPercentage = Math.round(avgPercentage / avgPercentageCount);
+} else {
+    avgPercentage = 0;
+    console.log('Нет данных для вычисления среднего процента заполнения.');
+}
+
+
+
 </script>
 
 <template>
     <div class="grid grid-cols-4 grid-rows-1 mx-4 bg-gray-100 shadow rounded-md">
-
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">
@@ -42,14 +63,19 @@ props.item.rooms.forEach(room => {
 
         <div class="col-span-3 h-36 ml-6 mr-4 pt-2">
                 <div class="flex relative">
-                    <div class="text-xl font-semibold">{{ item.title }}</div>
+                    <div class="text-xl font-semibold hover:text-blue-800">
+                        <Link :href="'booking_data/'+item.id">{{ item.title }}</Link>
+                    </div>
                     <div class="mx-2 mt-1 mb-4 flex gap-x-1">
                         <Lucide v-for="star in item.star" class="w-5 h-5 fill-black" icon="Star" />
                         <div class="">{{ item.star }}</div>
                     </div>
-                    <a :href="item.link" target="_blank" class="absolute top-1 right-0" rel="noopener noreferrer">
-                        <Lucide v-for="star in item.star" class="w-5 h-5 cursor-pointer" icon="ExternalLink" />
-                    </a>
+                    <div>
+                        <!-- <span>{{ item.averageOccupancyPercentage }}</span> -->
+                        <a :href="item.link" target="_blank" class="absolute top-1 right-0" rel="noopener noreferrer">
+                            <Lucide v-for="star in item.star" class="w-5 h-5 cursor-pointer" icon="ExternalLink" />
+                        </a>
+                    </div>
 
                 </div>
                 <div class="text-md">{{ item.city }}</div>
@@ -57,10 +83,11 @@ props.item.rooms.forEach(room => {
 
 
 
-                <div class="w-3/4 mt-5 hidden md:flex font-medium justify-between" v-if="item.rooms[0]">
+                <div class="mr-8 mt-5 hidden md:flex font-medium justify-between" v-if="item.rooms[0]">
                     <div>Rooms types: {{ item.rooms.length }}</div>
                     <div>Count rooms: {{ totalRooms }}</div>
                     <div v-if="avg_room_price">Avg price {{ avg_room_price.toFixed(2) }}$</div>
+                    <div>Rate {{ avgPercentage }}%</div>
                 </div>
                 <div v-else class="hidden md:block text-center mt-4 text-lg">No rooms data</div>
 

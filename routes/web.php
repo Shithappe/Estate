@@ -50,3 +50,4 @@ Route::get('admin', function () {
     })->name('admin');
 
 Route::get('/booking_data', [booking_data::class, 'index']);
+Route::get('/booking_data/{booking_id}', [booking_data::class, 'booking_page']);

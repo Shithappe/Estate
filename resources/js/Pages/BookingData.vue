@@ -43,6 +43,7 @@ const applyQuery = () => {
     <SimpleAppLayout title="Головна">
 
         <div class="py-6">
+
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="flex flex-col lg:flex-row gap-y-3 items-stretch">
                     <select v-model="selectedCity" @change="filterCity"
@@ -54,11 +55,6 @@ const applyQuery = () => {
                     <div class="mx-2 mt-2 flex flex-col sm:flex-row gap-y-3 relative rounded-lg text-gray-600">
                         <div class="sm:w-full flex">
                             <input type="text" v-model="selectedTitle" placeholder="Title" class="border-0 shadow rounded-lg w-96 py-3 px-4 pl-8 pr-8 focus:outline-none focus:z-10 focus:ring focus:border-blue-300 block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
-                            <!-- <input type="number" v-model="selectedPrice[0]" placeholder="Min Price" min="0"
-                                class="border-0 shadow rounded-l-lg py-2 px-4 pl-8 pr-8 focus:outline-none focus:z-10 focus:ring focus:border-blue-300 block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
-
-                            <input type="number" v-model="selectedPrice[1]" placeholder="Max Price" min="0"
-                                class="border-0 shadow rounded-r-lg py-3 px-4 pl-8 pr-8 focus:outline-none focus:ring focus:border-blue-300 block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" /> -->
                         </div>
 
                         <button
