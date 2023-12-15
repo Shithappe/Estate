@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\booking_data;
 
 
 /*
@@ -25,3 +26,5 @@ Route::get('/getEstateAdmin', [BookController::class, 'getEstateAdmin']);
 Route::post('/book', [BookController::class, 'storeOrUpdate']);
 Route::post('/book/{id}', [BookController::class, 'storeOrUpdate']);
 Route::delete('/book/{id}', [BookController::class, 'destroy']);
+
+Route::post('/booking_data_rate', [booking_data::class, 'booking_data_rate']);

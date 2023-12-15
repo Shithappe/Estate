@@ -90,9 +90,7 @@ class booking_data extends Controller
     public function booking_page($booking_id)
     {
 
-        $booking = DB::table('booking_data')
-            ->where('id', $booking_id)
-            ->get();
+        $booking = DB::table('booking_data')->where('id', $booking_id)->get();
 
 
         $rooms = DB::table('rooms_30_day')
@@ -128,13 +126,61 @@ class booking_data extends Controller
             $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "%";
         }
 
-        // Добавляем информацию о среднем проценте заполненности к каждому элементу $data
-        // $booking->averageOccupancyPercentage = $averageOccupancyPercentage;
 
-
-        return Inertia::render('BookingDataPage', [
+        return Inertia::render('SingleBookingData', [
             'booking' => $booking,
             'rooms' => $averageOccupancyPercentage
         ]);
-    }    
+    } 
+    
+    public function booking_data_rate(Request $request)
+    {
+
+        $rooms = NULL;
+
+        if (isset($request->checkin) && isset($request->checkout)){
+            $rooms = DB::table('rooms_30_day')
+                ->where('booking_id', $request->booking_id)
+                ->where('checkin', '>=', $request->checkin)
+                ->where('checkout', '<=', $request->checkout)
+                ->get();
+        }
+        else {
+            $rooms = DB::table('rooms_30_day')
+                ->where('booking_id', $request->booking_id)
+                ->get();
+        }
+
+        
+
+        $maxAvailableRooms = [];
+
+        // Находим максимальное доступное количество комнат для каждого типа комнаты
+        foreach ($rooms as $room) {
+            $roomType = $room->room_type;
+
+            if (!isset($maxAvailableRooms[$roomType]) || $room->max_available_rooms > $maxAvailableRooms[$roomType]) {
+                $maxAvailableRooms[$roomType] = $room->max_available_rooms;
+            }
+        }
+
+        $occupancyPercentage = [];
+
+        // Получаем процент заполненности для каждого типа комнаты на заданную дату
+        foreach ($rooms as $room) {
+            $roomType = $room->room_type;
+            $percentage = ($maxAvailableRooms[$roomType] > 0) ? (($maxAvailableRooms[$roomType] - $room->max_available_rooms) / $maxAvailableRooms[$roomType]) * 100 : 100;
+            $occupancyPercentage[$roomType][] = $percentage;
+        }
+
+        $averageOccupancyPercentage = [];
+
+        // Вычисляем средний процент заполненности для каждого типа комнаты
+        foreach ($occupancyPercentage as $roomType => $percentages) {
+            $averagePercentage = array_sum($percentages) / count($percentages);
+            $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "%";
+        }
+
+        return $averageOccupancyPercentage;
+    }
 }
