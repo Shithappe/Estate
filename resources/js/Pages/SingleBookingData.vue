@@ -8,13 +8,48 @@ import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 
-import Datepicker from 'vue3-datepicker';
+import { GoogleMap, Marker } from "vue3-google-map";
 
 
 const props = defineProps({
     booking: Object,
     rooms: Object,
 });
+
+function structureCoordinates(inputString) {
+    const coordinates = inputString.split(',');
+    const result = [];
+
+    for (let i = 0; i < coordinates.length; i += 2) {
+        const latitude = parseFloat(coordinates[i].slice(0, 6));
+        const longitude = parseFloat(coordinates[i + 1].slice(0, 6));
+
+        if (!isNaN(latitude) && !isNaN(longitude)) {
+            result.push({ lat: longitude, lng: latitude });
+        }
+    }
+
+    return result;
+}
+
+function findCenter(coordinates) {
+    if (coordinates.length === 0) {
+        return null;
+    }
+
+    let sumLat = 0;
+    let sumLng = 0;
+
+    for (let i = 0; i < coordinates.length; i++) {
+        sumLat += coordinates[i].lat;
+        sumLng += coordinates[i].lng;
+    }
+
+    const avgLat = sumLat / coordinates.length;
+    const avgLng = sumLng / coordinates.length;
+
+    return { lat: avgLat, lng: avgLng };
+}
 
 const book = props.booking[0]
 const images = book.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
@@ -61,6 +96,12 @@ const selectedDated = async () => {
         console.error(error);
     }
 }
+
+// const center = { lat: 40.689247, lng: -74.044502 };
+// const center = { lat: -8.523275, lng: 115.245701 };
+const coordinates = structureCoordinates(book.coordinates);
+const center = findCenter(coordinates);
+
 
 </script>
 
@@ -126,9 +167,13 @@ const selectedDated = async () => {
                                 </div>
                             </div>
 
-                            <div class="w-full sm:w-full md:w-2/3 h-96 bg-gray-400"></div>
+                            <!-- <div class="w-full sm:w-full md:w-2/3 h-96 bg-gray-400"></div> -->
+                            <GoogleMap api-key="AIzaSyCMenSGPO8e2i7EFsO456VZkMh30a310YE" style="width: 100%; height: 500px"
+                                :center="center" :zoom="13">
+                                <!-- <Marker :options="{ position: coordinates[0] }" /> -->
+                                <Marker v-for="(coord, index) in coordinates" :key="index" :options="{ position: coord }" />
+                            </GoogleMap>
                         </div>
-
                     </div>
                 </div>
             </div>

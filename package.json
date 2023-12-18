@@ -20,6 +20,8 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@fawmi/vue-google-maps": "^0.9.79",
+        "@googlemaps/js-api-loader": "^1.16.2",
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/inertia-vue3": "^0.6.0",
         "leaflet": "^1.9.4",
@@ -27,6 +29,7 @@
         "moment": "^2.29.4",
         "vue3-carousel": "^0.3.1",
         "vue3-datepicker": "^0.4.0",
+        "vue3-google-map": "^0.18.0",
         "vue3-leaflet": "^1.0.48"
     }
 }
