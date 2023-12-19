@@ -51,3 +51,5 @@ Route::get('admin', function () {
 
 Route::get('/booking_data', [booking_data::class, 'index']);
 Route::get('/booking_data/{booking_id}', [booking_data::class, 'booking_page']);
+
+Route::get('/booking_data-map', [booking_data::class, 'booking_data_map']);

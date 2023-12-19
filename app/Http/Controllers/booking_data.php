@@ -183,4 +183,11 @@ class booking_data extends Controller
 
         return $averageOccupancyPercentage;
     }
+
+    public function booking_data_map(Request $request)
+    {
+        return Inertia::render('BookingDataMap', [
+            
+        ]);
+    }
 }
