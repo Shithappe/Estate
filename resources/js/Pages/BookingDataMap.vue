@@ -1,64 +1,50 @@
+<template>
+  <div id="mapContainer"></div>
+</template>
+  
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Loader } from '@googlemaps/js-api-loader';
-import MarkerClusterer from '@googlemaps/markerclustererplus';
+import { defineProps, onMounted } from 'vue';
+import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import L from "leaflet";
+import "leaflet.markercluster";
+
 
 const props = defineProps({
-    coordinates: Object,
-});
+  locations: Array
+})
 
-const loader = new Loader({ apiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY });
-const mapDiv = ref(null);
-let map = ref(null);
-let markers = [];
-const minZoomLevel = 10;
-const maxZoomLevel = 15;
-let markerClusterer;
+let map = null;
 
-onMounted(async () => {
-    await loader.load();
+onMounted(() => {
+    map = L.map("mapContainer").setView([-8.51479, 115.26382], 15);
+    L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
 
-    
-    map.value = new google.maps.Map(mapDiv.value, {
-        center: { lat: -8.532436, lng: 115.260834 },
-        zoom: 13
-    });
+    // Создание кластеризатора маркеров
+    const markerCluster = L.markerClusterGroup();
 
-    props.coordinates.forEach(coord => {
-        const marker = new google.maps.Marker({
-            position: { lat: Number(coord.lat), lng: Number(coord.lng) },
-            map: map.value
-        });
+    const markers = [];
 
-        markers.push(marker);
-    });
+    props.locations.forEach((location) => markers.push(L.marker(location)));
 
-    markerClusterer = new MarkerClusterer(map.value, markers, {
-        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-        gridSize: 60, // Размер сетки (примерное расстояние между кластерами)
-        maxZoom: maxZoomLevel,
-    });
-
-    // google.maps.event.addListener(map.value, 'idle', () => {
-
-    //     markerClusterer.clearMarkers();
-    //     markers.forEach(marker => {
-    //         marker.setMap(map.value);
-    //     });
-
-    //     markerClusterer.addMarkers(markers);
-
-    // });
-
-    google.maps.event.addListener(map.value, 'zoom_changed', () => {
-        if (map.value.getZoom() > minZoomLevel && map.value.getZoom() < maxZoomLevel) {
-            markerClusterer.clearMarkers();
-            markerClusterer.addMarkers(markers);
-        }
-    });
-});
+    markerCluster.addLayers(markers);
+    map.addLayer(markerCluster);
+  })
+  // beforeUnmount() {
+  //   if (map) {
+  //     map.remove();
+  //   }
+  // },
 </script>
+  
+<style scoped>
+#mapContainer {
+  width: 100vw;
+  height: 100vh;
+}
+</style>
 
-<template>
-    <div ref="mapDiv" style="width: 100vw; height: 100vh;"></div>
-</template>

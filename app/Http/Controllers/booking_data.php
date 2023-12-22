@@ -186,30 +186,28 @@ class booking_data extends Controller
 
     public function booking_data_map(Request $request)
     {
-        $coordinates = DB::table('booking_data')->take(100)->pluck('coordinates')->toArray();
+        $coordinates = DB::table('booking_data')->pluck('location')->toArray();
 
         $coordinatesArray = [];
 
         // Перебираем полученные координаты и обрабатываем каждую пару значений
         foreach ($coordinates as $coord) {
-            // Разбиваем строку координат на пары значений (предполагая, что значения разделены, например, пробелом или запятой)
-            $coords = explode(',', $coord); // или использовать explode(',', $coord);
+            $coords = explode(',', $coord); 
 
             // Проверяем, что у нас есть две координаты для каждой записи
             if (count($coords) > 1) {
                 // Округляем каждую координату до 5 знаков после запятой (меняем 01 для исправления)
-                $lat = round(floatval($coords[1]), 5);
-                $lng = round(floatval($coords[0]), 5);
+                $lat = round(floatval($coords[0]), 5);
+                $lng = round(floatval($coords[1]), 5);
 
                 // Добавляем округленные координаты в массив объектов
-                $coordinatesArray[] = ['lat' => $lat, 'lng' => $lng];
+                $coordinatesArray[] = [$lat, $lng];
             }
         }
 
-
-        // return $coordinatesArray;
+        // return $coordinatesArray;   
         return Inertia::render('BookingDataMap', [
-            'coordinates' => $coordinatesArray
+            'locations' => $coordinatesArray
         ]);
     }
 }

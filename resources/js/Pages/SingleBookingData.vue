@@ -154,7 +154,6 @@ const center = findCenter(coordinates);
 
                                     <button class="p-2 rounded-lg shadow hover:border-blue-300">
                                         <Lucide icon="CalendarDays" />
-                                        <!-- <datepicker v-model="selectedDateRange" :config="datepickerConfig"></datepicker> -->
                                     </button>
                                 </div>
 
@@ -167,10 +166,8 @@ const center = findCenter(coordinates);
                                 </div>
                             </div>
 
-                            <!-- <div class="w-full sm:w-full md:w-2/3 h-96 bg-gray-400"></div> -->
-                            <GoogleMap api-key="AIzaSyCMenSGPO8e2i7EFsO456VZkMh30a310YE" style="width: 100%; height: 500px"
+                            <GoogleMap api-key="AIzaSyAQfjKmasNuT1tZT74vb7XWiVgby5cb3EQ" style="width: 100%; height: 500px"
                                 :center="center" :zoom="13">
-                                <!-- <Marker :options="{ position: coordinates[0] }" /> -->
                                 <Marker v-for="(coord, index) in coordinates" :key="index" :options="{ position: coord }" />
                             </GoogleMap>
                         </div>
