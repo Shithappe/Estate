@@ -14,7 +14,15 @@ class booking_data extends Controller
         $filterCity = $request->query('city');
         $filterTitle = $request->query('title');
 
-        $query = DB::table('booking_data');
+        $query = DB::table('booking_data')->orderBy('score', 'desc');
+        // $query = DB::table('booking_data')
+        //     ->select('booking_data.*') // Выбор всех столбцов из booking_data
+        //     ->orderBy('score', 'desc')
+        //     ->whereExists(function ($query) {
+        //         $query->select(DB::raw(1))
+        //             ->from('rooms_30_day')
+        //             ->whereColumn('booking_id', 'booking_data.id'); // Условие: существует запись в rooms_30_day
+        //     });
 
         if (!empty($filterCity)) {
             $query->where('city', $filterCity);
@@ -23,7 +31,7 @@ class booking_data extends Controller
             $query->where('title', $filterTitle);
         }
     
-        $data = $query->paginate(5); 
+        $data = $query->paginate(10); 
 
 
 
@@ -31,7 +39,6 @@ class booking_data extends Controller
         foreach ($data as $item) {
             $rooms = DB::table('rooms_30_day')
                 ->where('booking_id', $item->id)
-                // ->whereDate('date', 'YOUR_DATE_HERE') // Замените 'YOUR_DATE_HERE' на нужную дату
                 ->get();
         
             $maxAvailableRooms = [];

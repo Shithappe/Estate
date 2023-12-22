@@ -5,6 +5,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import L from "leaflet";
 import "leaflet.markercluster";
+import customMarkerIcon from "@/assets/custom-marker-icon.png";
 
 
 const props = defineProps({
@@ -14,27 +15,31 @@ const props = defineProps({
 let map = null;
 
 onMounted(() => {
-    map = L.map("mapContainer").setView([-8.51479, 115.26382], 15);
-    L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+  map = L.map("mapContainer").setView([-8.51479, 115.26382], 15);
+  L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
+    attribution:
+      '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
 
-    // Создание кластеризатора маркеров
-    const markerCluster = L.markerClusterGroup();
+  const customIcon = L.icon({
+    iconUrl: customMarkerIcon, // Путь к вашему изображению маркера
+    iconSize: [40, 40], // Размер изображения маркера
+    iconAnchor: [22, 94], // Якорь иконки
+    popupAnchor: [-3, -76], // Позиция всплывающей подсказки
+  });
 
-    const markers = [];
+  // Создание кластеризатора маркеров
+  const markerCluster = L.markerClusterGroup();
 
-    props.locations.forEach((location) => markers.push(L.marker(location)));
+  const markers = [];
 
-    markerCluster.addLayers(markers);
-    map.addLayer(markerCluster);
-  })
-  // beforeUnmount() {
-  //   if (map) {
-  //     map.remove();
-  //   }
-  // },
+  props.locations.forEach((location) => {
+    const marker = L.marker(location, { icon: customIcon });
+    markerCluster.addLayer(marker);
+  });
+
+  map.addLayer(markerCluster);
+})
 </script>
 
 <template>

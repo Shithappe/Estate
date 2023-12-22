@@ -13,6 +13,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import L from "leaflet";
 import "leaflet.markercluster";
+import customMarkerIcon from "@/assets/custom-marker-icon.png";
 
 
 const props = defineProps({
@@ -77,10 +78,18 @@ onMounted(() => {
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
+    const customIcon = L.icon({
+    iconUrl: customMarkerIcon, // Путь к вашему изображению маркера
+    iconSize: [40, 40], // Размер изображения маркера
+    iconAnchor: [22, 94], // Якорь иконки
+    popupAnchor: [-3, -76], // Позиция всплывающей подсказки
+  });
+    
+
     // Создание кластеризатора маркеров
     const markerCluster = L.markerClusterGroup();
 
-    const markers = [L.marker(location)];
+    const markers = [L.marker(location, { icon: customIcon })];
 
     markerCluster.addLayers(markers);
     map.addLayer(markerCluster);
