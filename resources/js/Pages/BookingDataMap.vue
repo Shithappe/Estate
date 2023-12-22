@@ -1,7 +1,3 @@
-<template>
-  <div id="mapContainer"></div>
-</template>
-  
 <script setup>
 import { defineProps, onMounted } from 'vue';
 import "leaflet/dist/leaflet.css";
@@ -40,6 +36,11 @@ onMounted(() => {
   //   }
   // },
 </script>
+
+<template>
+  <div id="mapContainer"></div>
+</template>
+  
   
 <style scoped>
 #mapContainer {

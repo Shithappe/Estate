@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 
 import moment from 'moment';
@@ -8,7 +8,11 @@ import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 
-import { GoogleMap, Marker } from "vue3-google-map";
+import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import L from "leaflet";
+import "leaflet.markercluster";
 
 
 const props = defineProps({
@@ -16,43 +20,10 @@ const props = defineProps({
     rooms: Object,
 });
 
-function structureCoordinates(inputString) {
-    const coordinates = inputString.split(',');
-    const result = [];
-
-    for (let i = 0; i < coordinates.length; i += 2) {
-        const latitude = parseFloat(coordinates[i].slice(0, 6));
-        const longitude = parseFloat(coordinates[i + 1].slice(0, 6));
-
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-            result.push({ lat: longitude, lng: latitude });
-        }
-    }
-
-    return result;
-}
-
-function findCenter(coordinates) {
-    if (coordinates.length === 0) {
-        return null;
-    }
-
-    let sumLat = 0;
-    let sumLng = 0;
-
-    for (let i = 0; i < coordinates.length; i++) {
-        sumLat += coordinates[i].lat;
-        sumLng += coordinates[i].lng;
-    }
-
-    const avgLat = sumLat / coordinates.length;
-    const avgLng = sumLng / coordinates.length;
-
-    return { lat: avgLat, lng: avgLng };
-}
-
-const book = props.booking[0]
+const book = props.booking[0];
 const images = book.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
+
+let rooms = ref(props.rooms);
 
 const selectedDate = ref('all');
 
@@ -83,8 +54,6 @@ const selectedDated = async () => {
             break;
     }
 
-
-
     try {
         const response = await axios.post("/api/booking_data_rate", {
             'booking_id': book.id,
@@ -92,16 +61,30 @@ const selectedDated = async () => {
             'checkout': checkout
         });
         console.log(response.data);
+        rooms.value = response.data;
     } catch (error) {
         console.error(error);
     }
 }
 
-// const center = { lat: 40.689247, lng: -74.044502 };
-// const center = { lat: -8.523275, lng: 115.245701 };
-const coordinates = structureCoordinates(book.coordinates);
-const center = findCenter(coordinates);
+let map = null;
+const location = book.location.split(',')
 
+onMounted(() => {
+    map = L.map("mapContainer").setView(location, 15);
+    L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Создание кластеризатора маркеров
+    const markerCluster = L.markerClusterGroup();
+
+    const markers = [L.marker(location)];
+
+    markerCluster.addLayers(markers);
+    map.addLayer(markerCluster);
+  })
 
 </script>
 
@@ -166,10 +149,7 @@ const center = findCenter(coordinates);
                                 </div>
                             </div>
 
-                            <GoogleMap api-key="AIzaSyAQfjKmasNuT1tZT74vb7XWiVgby5cb3EQ" style="width: 100%; height: 500px"
-                                :center="center" :zoom="13">
-                                <Marker v-for="(coord, index) in coordinates" :key="index" :options="{ position: coord }" />
-                            </GoogleMap>
+                            <div id="mapContainer" style="width: 100%; height: 500px"></div>
                         </div>
                     </div>
                 </div>
