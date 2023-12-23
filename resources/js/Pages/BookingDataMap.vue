@@ -94,7 +94,7 @@ async function fetchData(markerId) {
     <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
       enter-to-class="translate-x-0 opacity-100">
       <div v-if="booking_data && dataLoaded"
-        class="absolute z-10 w-1/4 h-screen shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30">
+        class="absolute z-10 w-1/4 h-screen shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
           <slide v-for="image in booking_data.images" :key="image" class="w-full h-56 overflow-hidden">
             <img class="object-cover w-full rounded-lg" :src="image" alt="">
