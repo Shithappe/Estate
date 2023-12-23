@@ -15,14 +15,6 @@ class booking_data extends Controller
         $filterTitle = $request->query('title');
 
         $query = DB::table('booking_data')->orderBy('score', 'desc');
-        // $query = DB::table('booking_data')
-        //     ->select('booking_data.*') // Выбор всех столбцов из booking_data
-        //     ->orderBy('score', 'desc')
-        //     ->whereExists(function ($query) {
-        //         $query->select(DB::raw(1))
-        //             ->from('rooms_30_day')
-        //             ->whereColumn('booking_id', 'booking_data.id'); // Условие: существует запись в rooms_30_day
-        //     });
 
         if (!empty($filterCity)) {
             $query->where('city', $filterCity);
@@ -193,28 +185,75 @@ class booking_data extends Controller
 
     public function booking_data_map(Request $request)
     {
-        $coordinates = DB::table('booking_data')->pluck('location')->toArray();
+        $coordinates = DB::table('booking_data')
+            ->select('id', 'location')
+            ->get();
 
+        // return $coordinates;
         $coordinatesArray = [];
 
         // Перебираем полученные координаты и обрабатываем каждую пару значений
         foreach ($coordinates as $coord) {
-            $coords = explode(',', $coord); 
-
-            // Проверяем, что у нас есть две координаты для каждой записи
-            if (count($coords) > 1) {
-                // Округляем каждую координату до 5 знаков после запятой (меняем 01 для исправления)
-                $lat = round(floatval($coords[0]), 5);
-                $lng = round(floatval($coords[1]), 5);
-
-                // Добавляем округленные координаты в массив объектов
-                $coordinatesArray[] = [$lat, $lng];
+            $coords = explode(',', $coord->location); // Используем переменную $coords, а не $coord->location
+        
+            // Проверяем, что у нас есть две координаты, прежде чем добавить их в массив
+            if (count($coords) >= 2) {
+                $coordinatesArray[] = [
+                    'id' => $coord->id,
+                    'location' => [$coords[0], $coords[1]]
+                ];
             }
         }
 
-        // return $coordinatesArray;   
         return Inertia::render('BookingDataMap', [
             'locations' => $coordinatesArray
         ]);
+    }
+
+    public function booking_data_map_card ($booking_id)
+    {
+        $booking_data = DB::table('booking_data')
+        ->select('id', 'title', 'description', 'star', 'images')
+        ->where('id', $booking_id)
+        ->get();
+
+
+        $rooms = DB::table('rooms_30_day')
+                ->where('booking_id', $booking_id)
+                ->get();
+        
+        $maxAvailableRooms = [];
+        
+        // Находим максимальное доступное количество комнат для каждого типа комнаты
+        foreach ($rooms as $room) {
+            $roomType = $room->room_type;
+    
+            if (!isset($maxAvailableRooms[$roomType]) || $room->max_available_rooms > $maxAvailableRooms[$roomType]) {
+                $maxAvailableRooms[$roomType] = $room->max_available_rooms;
+            }
+        }
+        
+        $occupancyPercentage = [];
+        
+        // Получаем процент заполненности для каждого типа комнаты на заданную дату
+        foreach ($rooms as $room) {
+            $roomType = $room->room_type;
+            $percentage = ($maxAvailableRooms[$roomType] > 0) ? (($maxAvailableRooms[$roomType] - $room->max_available_rooms) / $maxAvailableRooms[$roomType]) * 100 : 100;
+            $occupancyPercentage[$roomType][] = $percentage;
+        }
+        
+            $averageOccupancyPercentage = [];
+        
+            // Вычисляем средний процент заполненности для каждого типа комнаты
+            foreach ($occupancyPercentage as $roomType => $percentages) {
+                $averagePercentage = array_sum($percentages) / count($percentages);
+                $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "%";
+            }
+        
+        //     // Добавляем информацию о среднем проценте заполненности к каждому элементу $data
+            $booking_data[0]->averageOccupancyPercentage = $averageOccupancyPercentage;
+            $booking_data[0]->maxAvailableRooms = $maxAvailableRooms;
+
+        return $booking_data[0];
     }
 }

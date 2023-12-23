@@ -1,5 +1,4 @@
 <script setup>
-// import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import 'vue3-carousel/dist/carousel.css'
@@ -39,8 +38,6 @@ if (avgPercentageCount !== 0) {
 } else {
     avgPercentage = 0;
 }
-
-
 
 </script>
 

@@ -13,7 +13,8 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import L from "leaflet";
 import "leaflet.markercluster";
-import customMarkerIcon from "@/assets/custom-marker-icon.png";
+import markerIcon from "@/assets/marker.png";
+// import customMarkerIcon from "@/assets/custom-marker-icon.png";
 
 
 const props = defineProps({
@@ -79,8 +80,8 @@ onMounted(() => {
     }).addTo(map);
 
     const customIcon = L.icon({
-    iconUrl: customMarkerIcon, // Путь к вашему изображению маркера
-    iconSize: [40, 40], // Размер изображения маркера
+    iconUrl: markerIcon, // Путь к вашему изображению маркера
+    iconSize: [25, 40], // Размер изображения маркера
     iconAnchor: [22, 94], // Якорь иконки
     popupAnchor: [-3, -76], // Позиция всплывающей подсказки
   });
