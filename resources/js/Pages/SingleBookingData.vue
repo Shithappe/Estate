@@ -13,7 +13,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import L from "leaflet";
 import "leaflet.markercluster";
-import markerIcon from "@/assets/marker.png";
+import markerIcon from "@/assets/pin.png";
 // import customMarkerIcon from "@/assets/custom-marker-icon.png";
 
 
