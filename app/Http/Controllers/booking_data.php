@@ -213,9 +213,11 @@ class booking_data extends Controller
     public function booking_data_map_card ($booking_id)
     {
         $booking_data = DB::table('booking_data')
-        ->select('id', 'title', 'description', 'star', 'images')
+        ->select('id', 'title', 'description', 'star', 'images', 'location', 'type')
         ->where('id', $booking_id)
         ->get();
+
+        $nearby_location = $this->get_nearby_location($booking_data[0]->location);
 
 
         $rooms = DB::table('rooms_30_day')
@@ -250,10 +252,26 @@ class booking_data extends Controller
                 $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "%";
             }
         
-        //     // Добавляем информацию о среднем проценте заполненности к каждому элементу $data
+            // Добавляем информацию к каждому элементу $data
             $booking_data[0]->averageOccupancyPercentage = $averageOccupancyPercentage;
             $booking_data[0]->maxAvailableRooms = $maxAvailableRooms;
+            $booking_data[0]->nearby_location = $nearby_location;
 
         return $booking_data[0];
+    }
+
+    public function get_nearby_location($location, $radius = 2)
+    {
+        $location = explode(',', $location);
+
+        $centerLat = $location[0]; 
+        $centerLng = $location[1]; 
+
+        $objects = DB::table('booking_data')
+            ->select('id', 'title', 'description', 'star', 'images', 'type', 'location')
+            ->whereRaw('(6371 * acos(cos(radians(?)) * cos(radians(SUBSTRING_INDEX(location, ",", 1))) * cos(radians(SUBSTRING_INDEX(location, ",", -1)) - radians(?)) + sin(radians(?)) * sin(radians(SUBSTRING_INDEX(location, ",", 1))))) <= ?', [$centerLat, $centerLng, $centerLat, $radius])
+            ->get();
+
+        return $objects;
     }
 }

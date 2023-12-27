@@ -29,3 +29,5 @@ Route::delete('/book/{id}', [BookController::class, 'destroy']);
 
 Route::post('/booking_data_rate', [booking_data::class, 'booking_data_rate']);
 Route::get('/booking_data_map_card/{id}', [booking_data::class, 'booking_data_map_card']);
+
+Route::get('/get_nearby_location', [booking_data::class, 'get_nearby_location']);
