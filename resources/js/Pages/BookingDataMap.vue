@@ -53,8 +53,7 @@ onMounted(() => {
   const customIcon = L.icon({
     iconUrl: markerIcon, // Путь к вашему изображению маркера
     iconSize: [50, 50], // Размер изображения маркера
-    iconAnchor: [25, 25], // Якорь иконки
-    popupAnchor: [-3, -76], // Позиция всплывающей подсказки
+    iconAnchor: [25, 48], // Якорь иконки
   });
 
   // Создание кластеризатора маркеров
@@ -134,7 +133,7 @@ async function fetchData(markerId) {
     response.data.description = response.data.description.split('. ').slice(0, 2).join('. ');
 
 
-    console.log(response.data.nearby_location);
+    console.log(response.data);
 
 
     booking_data.value = response.data;

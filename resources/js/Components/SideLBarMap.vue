@@ -34,9 +34,9 @@ const props = defineProps({
           <div>
             {{ booking_data.description }}
           </div>
-          <div v-for="(percentage, roomType) in booking_data.averageOccupancyPercentage" :key="roomType">
+          <div v-for="room in booking_data.rooms" :key="room.id">
             <div>
-              {{ roomType }} - {{ percentage }}
+              {{ room.room_type }} - {{ room.occupancy_rate }}%
             </div>
           </div>
         </div>

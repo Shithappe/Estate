@@ -14,7 +14,6 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import L from "leaflet";
 import "leaflet.markercluster";
 import markerIcon from "@/assets/pin.png";
-// import customMarkerIcon from "@/assets/custom-marker-icon.png";
 
 
 const props = defineProps({
@@ -73,6 +72,9 @@ let map = null;
 const location = book.location.split(',')
 
 onMounted(() => {
+    selectedDated();
+
+    
     map = L.map("mapContainer").setView(location, 15);
     L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
       attribution:
@@ -80,10 +82,9 @@ onMounted(() => {
     }).addTo(map);
 
     const customIcon = L.icon({
-    iconUrl: markerIcon, // Путь к вашему изображению маркера
-    iconSize: [25, 40], // Размер изображения маркера
-    iconAnchor: [22, 94], // Якорь иконки
-    popupAnchor: [-3, -76], // Позиция всплывающей подсказки
+        iconUrl: markerIcon, // Путь к вашему изображению маркера
+        iconSize: [50, 50], // Размер изображения маркера
+        iconAnchor: [25, 48], // Якорь иконки
   });
     
 

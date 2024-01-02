@@ -10,34 +10,12 @@ const props = defineProps({
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
-let totalPrices = 0;
+let count_rooms = 0, occupancy_rate = 0;
 props.item.rooms.forEach(room => {
-    totalPrices += parseFloat(room.prices);
+    count_rooms += Number(room.max_available);
+    occupancy_rate += room.occupancy_rate;
 });
-
-let avg_room_price = totalPrices / props.item.rooms.length
-
-let totalRooms = 0;
-props.item.rooms.forEach(room => {
-    totalRooms += parseFloat(room.max_available_rooms);
-});
-
-
-let avgPercentage = 0;
-let avgPercentageCount = 0;
-
-for (let key in props.item.averageOccupancyPercentage) {
-    if (props.item.averageOccupancyPercentage.hasOwnProperty(key)) {
-        avgPercentage += parseInt(props.item.averageOccupancyPercentage[key]);
-        avgPercentageCount++;
-    }
-}
-
-if (avgPercentageCount !== 0) {
-    avgPercentage = Math.round(avgPercentage / avgPercentageCount);
-} else {
-    avgPercentage = 0;
-}
+occupancy_rate /= props.item.rooms.length;
 
 </script>
 
@@ -62,7 +40,6 @@ if (avgPercentageCount !== 0) {
                     </div>
                     <div class="lg:mx-2 mt-1 mb-4 flex">
                         <Lucide v-for="star in item.star" class="w-5 h-5 fill-black" icon="Star" />
-                        <!-- <div class="">{{ item.star }}</div> -->
                     </div>
                     <div>
                         <a :href="item.link" target="_blank" class="absolute top-1 right-0" rel="noopener noreferrer">
@@ -75,12 +52,10 @@ if (avgPercentageCount !== 0) {
 
                 <div class="mr-8 mt-5 hidden md:flex font-medium justify-between" v-if="item.rooms[0]">
                     <div>Rooms types: {{ item.rooms.length }}</div>
-                    <div>Count rooms: {{ totalRooms }}</div>
-                    <div v-if="avg_room_price">Avg price {{ avg_room_price.toFixed(2) }}$</div>
-                    <div>Rate {{ avgPercentage }}%</div>
+                    <div>Count rooms: {{ count_rooms }}</div>
+                    <div>Rate {{ occupancy_rate }}%</div>
                 </div>
                 <div v-else class="hidden md:block text-center mt-4 text-lg">No rooms data</div>
-
         </div>
     </div>
 </template>
