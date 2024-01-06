@@ -19,7 +19,7 @@ class booking_data extends Controller
             $query->where('city', $filterCity);
         }
         if (!empty($filterTitle)) {
-            $query->where('title', $filterTitle);
+            $query->where('title', 'like', '%' . $filterTitle . '%');
         }
     
         $data = $query->paginate(10); 
@@ -31,6 +31,19 @@ class booking_data extends Controller
                 ->get();
         
             $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
+
+            // Получение id из booking_facilities для заданного booking_id
+            $facilityIds = DB::table('booking_facilities')
+                ->where('booking_id', $item->id)
+                ->pluck('facilities_id');
+        
+            // Получение названий удобств из facilities на основе полученных id
+            $facilities = DB::table('facilities')
+                ->whereIn('id', $facilityIds)
+                ->pluck('title');
+        
+            // Добавление полученных названий удобств к элементу $item
+            $item->facilities = $facilities;
         }
 
 
@@ -52,14 +65,21 @@ class booking_data extends Controller
     {
         $booking = DB::table('booking_data')->where('id', $booking_id)->get();
 
-        $rooms = DB::table('room_cache')
-            ->where('booking_id', $booking_id)
-            // ->whereDate('date', 'YOUR_DATE_HERE') 
-            ->get();
+        $rooms = DB::table('room_cache')->where('booking_id', $booking_id)->get();
+        // ->whereDate('date', 'YOUR_DATE_HERE') 
+            
+
+        // Получение id из booking_facilities для заданного booking_id
+        $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
+ 
+        // Получение названий удобств из facilities на основе полученных id
+        $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
+ 
 
         return Inertia::render('SingleBookingData', [
             'booking' => $booking,
-            'rooms' => $rooms
+            'rooms' => $rooms,
+            'facilities' => $facilities
         ]);
     } 
     
@@ -153,10 +173,19 @@ class booking_data extends Controller
         $rooms = DB::table('room_cache')
                 ->where('booking_id', $booking_id)
                 ->get();
+
+
+        // Получение id из booking_facilities для заданного booking_id
+        $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
+ 
+        // Получение названий удобств из facilities на основе полученных id
+        $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
         
-                
+
         $booking_data[0]->rooms = $rooms;
         $booking_data[0]->nearby_location = $nearby_location;
+        $booking_data[0]->facilities = $facilities;
+
 
         return $booking_data[0];
     }

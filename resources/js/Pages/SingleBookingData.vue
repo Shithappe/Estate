@@ -19,6 +19,7 @@ import markerIcon from "@/assets/pin.png";
 const props = defineProps({
     booking: Object,
     rooms: Object,
+    // facilities: Object
 });
 
 const book = props.booking[0];
