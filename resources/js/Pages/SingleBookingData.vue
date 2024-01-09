@@ -19,7 +19,7 @@ import markerIcon from "@/assets/pin.png";
 const props = defineProps({
     booking: Object,
     rooms: Object,
-    // facilities: Object
+    facilities: Object
 });
 
 const book = props.booking[0];
@@ -75,19 +75,19 @@ const location = book.location.split(',')
 onMounted(() => {
     selectedDated();
 
-    
+
     map = L.map("mapContainer").setView(location, 15);
     L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        attribution:
+            '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
     const customIcon = L.icon({
         iconUrl: markerIcon, // Путь к вашему изображению маркера
         iconSize: [50, 50], // Размер изображения маркера
         iconAnchor: [25, 48], // Якорь иконки
-  });
-    
+    });
+
 
     // Создание кластеризатора маркеров
     const markerCluster = L.markerClusterGroup();
@@ -96,7 +96,7 @@ onMounted(() => {
 
     markerCluster.addLayers(markers);
     map.addLayer(markerCluster);
-  })
+})
 
 </script>
 
@@ -126,10 +126,24 @@ onMounted(() => {
                     </carousel>
 
                     <div class="mt-6">
-                        <div class="text-2xl font-bold">{{ book.title }}</div>
+                        <div class="flex gap-x-2 items-center text-2xl font-semibold">
+                            <div>{{ book.title }}</div>
+
+                            <a :href="book.link" target="_blank" rel="noopener noreferrer">
+                                <Lucide class="w-5 h-5 cursor-pointer" icon="ExternalLink" />
+                            </a>
+                        </div>
+
+
 
                         <div class="flex gap-2 mt-2 mb-4">
                             <Lucide class="w-5 h-5" icon="MapPin" /> {{ book.city }}
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 rounded-lg shadow" v-for="facility in facilities" :key="facility">
+                                {{ facility }}
+                            </span>
                         </div>
 
 
