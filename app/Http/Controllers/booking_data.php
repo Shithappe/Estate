@@ -12,14 +12,21 @@ class booking_data extends Controller
     {
         $filterCity = $request->query('city');
         $filterTitle = $request->query('title');
+        $filterType = $request->query('type');
 
-        $query = DB::table('booking_data')->orderBy('score', 'desc');
+        $query = DB::table('booking_data')
+                    ->orderBy('star', 'desc')
+                    ->orderBy('review_count', 'desc')
+                    ->orderBy('score', 'desc');
 
         if (!empty($filterCity)) {
             $query->where('city', $filterCity);
         }
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
+        }
+        if (!empty($filterType)) {
+            $query->where('type', $filterType);
         }
     
         $data = $query->paginate(10); 
@@ -53,10 +60,17 @@ class booking_data extends Controller
         ->pluck('city')
         ->toArray();
 
+        $types = DB::table('booking_data')
+        ->select('type')
+        ->distinct()
+        ->pluck('type')
+        ->toArray();
+
 
         return Inertia::render('BookingData', [
             'data' => $data,
-            'cities' => $cities
+            'cities' => $cities,
+            'types' => $types
         ]);
     }
 

@@ -11,7 +11,7 @@ const props = defineProps({
 
 
 const modeBtn = ref('Show');
-const facilities = ref(props.item.facilities.slice(0, 5));
+const facilities = ref(props.item.facilities.slice(0, 4));
 const showAllFacilities = ref(false);
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
@@ -21,7 +21,7 @@ props.item.rooms.forEach(room => {
     count_rooms += Number(room.max_available);
     occupancy_rate += room.occupancy_rate;
 });
-occupancy_rate /= props.item.rooms.length;
+occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length); 
 
 const showFacilities = () => {
     showAllFacilities.value = !showAllFacilities.value;
@@ -55,7 +55,7 @@ const showFacilities = () => {
                 <div class="text-xl font-semibold hover:text-blue-800">
                     <Link :href="'booking_data/' + item.id">{{ item.title }}</Link>
                 </div>
-                <div class="lg:mx-2 mt-1 mb-4 flex">
+                <div class="lg:mx-2 mt-1 flex">
                     <Lucide v-for="star in item.star" class="w-5 h-5 fill-black" icon="Star" />
                 </div>
                 <div>
@@ -65,7 +65,7 @@ const showFacilities = () => {
                 </div>
             </div>
 
-            <div class="text-md">{{ item.city }}</div>
+            <div class="text-md mb-1">{{ item.city }}</div>
 
             <div class="flex flex-wrap gap-2">
                 <span class="px-2 py-1 rounded-lg shadow" v-for="facility in facilities"
@@ -77,12 +77,12 @@ const showFacilities = () => {
                 </button>
             </div>
 
-            <div class="mr-8 mt-5 hidden md:flex font-medium justify-between" v-if="item.rooms[0]">
+            <div class="mr-8 mt-5 flex flex-wrap font-medium justify-between">
+                <div>Type: {{ item.type }}</div>
                 <div>Rooms types: {{ item.rooms.length }}</div>
                 <div>Count rooms: {{ count_rooms }}</div>
-                <div>Rate {{ occupancy_rate }}%</div>
+                <div v-if="item.rooms[0]">Rate {{ occupancy_rate }}%</div>
             </div>
-            <div v-else class="hidden md:block text-center mt-4 text-lg">No rooms data</div>
         </div>
     </div>
 </template>

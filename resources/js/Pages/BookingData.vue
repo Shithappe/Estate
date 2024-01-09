@@ -5,14 +5,18 @@ import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import CardBookingData from '@/Components/CardBookingData.vue';
 
+import Multiselect from 'vue-multiselect'
+
 const props = defineProps({
     data: Object,
     cities: Object,
+    types: Object,
 });
 
 const urlParams = new URLSearchParams(window.location.search);
 const selectedCity = ref(urlParams.get("city"));
 const selectedTitle = ref(urlParams.get("title"));
+const selectedType = ref(urlParams.get("type"));
 const query = ref('');
 
 
@@ -31,10 +35,17 @@ const applyQuery = () => {
 
     addQuery('city', selectedCity.value);
     addQuery('title', selectedTitle.value);
+    addQuery('type', selectedType.value);
     // addQuery('minPrice', selectedPrice.value[0]);
     // addQuery('maxPrice', selectedPrice.value[1]);
 
     window.location.href = (`/booking_data${query.value}`)
+}
+
+const selected = ref([])
+
+const updateValuePrimitive = (value) => {
+    selected.value.push(value)
 }
 
 </script>
@@ -45,10 +56,28 @@ const applyQuery = () => {
         <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row justify-between px-4 lg:px-0">
                 <div class="flex flex-col lg:flex-row gap-y-3 items-stretch">
+                    <!-- <Multiselect
+                        :options="cities"
+                        :selected="selected.value"
+                        :multiple="false"
+                        :searchable="false"
+                        :close-on-select="false"
+                        :show-labels="false"
+                        @update="updateValuePrimitive"
+                        placeholder="Select one"
+                        label="name"
+                    /> -->
+
                     <select v-model="selectedCity" @change="filterCity"
                         class="w-full lg:w-72 mr-0 lg:mr-2 border-0 text-gray-500 rounded-lg shadow focus:shadow-lg focus:outline-none focus:ring focus:border-blue-300 appearance-none leading-5 transition duration-150 ease-in-out">
                         <option :value="null" selected disabled hidden>City</option>
                         <option v-for="city in cities" :value="city">{{ city }}</option>
+                    </select>
+
+                    <select v-model="selectedType"
+                        class="w-full lg:w-72 mr-0 lg:mr-2 border-0 text-gray-500 rounded-lg shadow focus:shadow-lg focus:outline-none focus:ring focus:border-blue-300 appearance-none leading-5 transition duration-150 ease-in-out">
+                        <option :value="null" selected disabled hidden>Type</option>
+                        <option v-for="type in types" :value="type">{{ type }}</option>
                     </select>
 
                     <div class="flex flex-col sm:flex-row gap-y-3 relative rounded-lg text-gray-600">
