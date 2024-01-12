@@ -16,6 +16,7 @@ import "leaflet.markercluster";
 import markerIcon from "@/assets/pin.png";
 
 
+
 const props = defineProps({
     booking: Object,
     rooms: Object,
@@ -164,6 +165,9 @@ onMounted(() => {
                                     <button class="p-2 rounded-lg shadow hover:border-blue-300">
                                         <Lucide icon="CalendarDays" />
                                     </button>
+
+                                    <!-- <Calendar v-model="selectedDate" :inline="true"></Calendar>
+                                    <p>Выбранная дата: {{ selectedDate }}</p> -->
                                 </div>
 
                                 <div class="w-full">

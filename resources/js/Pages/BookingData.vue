@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
+import Lucide from '@/Components/Lucide.vue';
 import Pagination from '@/Components/Pagination.vue';
 import CardBookingData from '@/Components/CardBookingData.vue';
-
-import Multiselect from 'vue-multiselect'
+import SideBarFilters from '@/Components/SideBarFilters.vue';
 
 const props = defineProps({
     data: Object,
@@ -13,101 +13,74 @@ const props = defineProps({
     types: Object,
 });
 
-const urlParams = new URLSearchParams(window.location.search);
-const selectedCity = ref(urlParams.get("city"));
-const selectedTitle = ref(urlParams.get("title"));
-const selectedType = ref(urlParams.get("type"));
-const query = ref('');
+const data = ref(props.data);
 
+const showFilters = ref(false);
 
-const addQuery = (name, value) => {
-    if (value) {
-        if (!query.value) {
-            query.value = `?${name}=${value}`
-        }
-        else {
-            query.value = query.value + `&${name}=${value}`
-        }
+const selectedTitle = ref(null);
+const selectedCity = ref([]);
+const selectedType = ref([]);
+
+const updateSelectedCity = (value) => {
+  selectedCity.value = value;
+};
+const updateSelectedTypes = (value) => {
+  selectedType.value = value;
+};
+
+const applyFilters = async () => {
+    try {
+        const response = await axios.post("/api/booking_data_filters", {
+            'title': selectedTitle.value,
+            'city': selectedCity.value,
+            'type': selectedType.value
+        });
+        data.value = response.data;
+    } catch (error) {
+        console.error(error);
     }
-}
-
-const applyQuery = () => {
-
-    addQuery('city', selectedCity.value);
-    addQuery('title', selectedTitle.value);
-    addQuery('type', selectedType.value);
-    // addQuery('minPrice', selectedPrice.value[0]);
-    // addQuery('maxPrice', selectedPrice.value[1]);
-
-    window.location.href = (`/booking_data${query.value}`)
-}
-
-const selected = ref([])
-
-const updateValuePrimitive = (value) => {
-    selected.value.push(value)
-}
+};
 
 </script>
 
 <template>
     <SimpleAppLayout title="Головна">
 
-        <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row justify-between px-4 lg:px-0">
-                <div class="flex flex-col lg:flex-row gap-y-3 items-stretch">
-                    <!-- <Multiselect
-                        :options="cities"
-                        :selected="selected.value"
-                        :multiple="false"
-                        :searchable="false"
-                        :close-on-select="false"
-                        :show-labels="false"
-                        @update="updateValuePrimitive"
-                        placeholder="Select one"
-                        label="name"
-                    /> -->
+        <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
+            enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
+            leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
+            <SideBarFilters v-if="showFilters" :cities="props.cities" :types="props.types" @updateSelectedCity="updateSelectedCity" @updateSelectedTypes="updateSelectedTypes" />
+        </transition>
 
-                    <select v-model="selectedCity" @change="filterCity"
-                        class="w-full lg:w-72 mr-0 lg:mr-2 border-0 text-gray-500 rounded-lg shadow focus:shadow-lg focus:outline-none focus:ring focus:border-blue-300 appearance-none leading-5 transition duration-150 ease-in-out">
-                        <option :value="null" selected disabled hidden>City</option>
-                        <option v-for="city in cities" :value="city">{{ city }}</option>
-                    </select>
+        <div class="py-6 mx-auto" :class="{ 'w-4/5 float-right pl-24': showFilters, 'px-24 max-w-8xl': !showFilters }">
 
-                    <select v-model="selectedType"
-                        class="w-full lg:w-72 mr-0 lg:mr-2 border-0 text-gray-500 rounded-lg shadow focus:shadow-lg focus:outline-none focus:ring focus:border-blue-300 appearance-none leading-5 transition duration-150 ease-in-out">
-                        <option :value="null" selected disabled hidden>Type</option>
-                        <option v-for="type in types" :value="type">{{ type }}</option>
-                    </select>
+            <div class="flex">
+                <button
+                    class="px-2 py-0 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
+                    :class="{ 'shadow-lg text-slate-100 bg-black': showFilters }"
+                    @click="() => { showFilters = !showFilters }">
+                    <Lucide icon="Filter" />
+                </button>
 
-                    <div class="flex flex-col sm:flex-row gap-y-3 relative rounded-lg text-gray-600">
-                        <div class="sm:w-full flex">
-                            <input type="text" v-model="selectedTitle" placeholder="Title"
-                                class="mr-0 lg:mr-2 border-0 shadow rounded-lg w-full lg:w-72 focus:outline-none focus:z-10 focus:ring focus:border-blue-300 block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
-                        </div>
-
-                        <button
-                            class="px-4 py-2 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
-                            @click="applyQuery">Apply
-                        </button>
+                <div class="relative w-full max-w-4xl flex mx-4 transition duration-150 ease-in-out">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none">
+                        <Lucide icon="Search" />
                     </div>
+                    <input type="search" id="default-search" v-model="selectedTitle"
+                        class="block w-full p-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
+                        placeholder="Komaneka at Bisma..." required>
+                    <button  @click="applyFilters"
+                        class="text-white absolute end-px inset-y-px bg-blue-700 focus:outline-none font-medium rounded-lg text-md px-4 py-2">Search</button>
                 </div>
 
-                <Link href="/booking_data-map">
-                <button
-                    class="mt-4 lg:mt-0 px-4 py-2 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md">View
-                    on Map
-                </button>
-                </Link>
             </div>
 
-            <ul class="flex-col">
-                <li v-for="item in data.data" :key="item.id" class="my-8">
-                    <CardBookingData :item="item" />
-                </li>
-            </ul>
+            <div class="my-8 grid gap-1" :class="{ 'grid-cols-3': showFilters, 'grid-cols-4': !showFilters }">
+                <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
+            </div>
 
             <Pagination class="mt-6" :links="data.links" />
         </div>
     </SimpleAppLayout>
 </template>
+

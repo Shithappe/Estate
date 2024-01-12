@@ -29,7 +29,7 @@ class booking_data extends Controller
             $query->where('type', $filterType);
         }
     
-        $data = $query->paginate(10); 
+        $data = $query->paginate(12); 
 
 
         foreach ($data as $item) {
@@ -217,5 +217,41 @@ class booking_data extends Controller
             ->get();
 
         return $objects;
+    }
+
+    public function booking_data_filters (Request $request)
+    {
+        $data = $request->json()->all();
+
+        $filterTitle = $data['title'];
+        $filterCity = $data['city'];
+        $filterType = $data['type'];
+
+        $query = DB::table('booking_data')
+                    ->orderBy('star', 'desc')
+                    ->orderBy('review_count', 'desc')
+                    ->orderBy('score', 'desc');
+
+        if (!empty($filterCity)) {
+            $query->whereIn('city', $filterCity);
+        }
+        if (!empty($filterTitle)) {
+            $query->where('title', 'like', '%' . $filterTitle . '%');
+        }
+        if (!empty($filterType)) {
+            $query->whereIn('type', $filterType);
+        }
+    
+        $data = $query->paginate(12); 
+
+        foreach ($data as $item) {
+            $rooms = DB::table('room_cache')
+                ->where('booking_id', $item->id)
+                ->get();
+        
+            $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
+        }
+
+        return $data;
     }
 }

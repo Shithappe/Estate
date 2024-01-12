@@ -25,11 +25,23 @@ defineProps({
                             <p class="mx-2 text-lg">Estate market</p>
                         </div>
 
-                        
+
                     </div>
-                    <a href="http://65.21.157.152/" target="_blank" class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
-                        Offer Analysis        
-                    </a>
+
+                    <div class="flex gap-x-4">
+                        <a href="/booking_data-map"
+                            class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
+                            Map
+                        </a>
+                        <a href="/estate"
+                            class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
+                            Estate
+                        </a>
+                        <a href="http://65.21.157.152/" target="_blank"
+                            class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
+                            Offer Analysis
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -46,5 +58,4 @@ defineProps({
             <slot />
         </main>
 
-    </div>
-</template>
+    </div></template>
