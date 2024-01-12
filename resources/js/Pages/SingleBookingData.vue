@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 
 import moment from 'moment';
@@ -7,6 +7,8 @@ import Lucide from '@/Components/Lucide.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
+
+import VueTailwindDatePicker from "vue-tailwind-datepicker";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -16,7 +18,6 @@ import "leaflet.markercluster";
 import markerIcon from "@/assets/pin.png";
 
 
-
 const props = defineProps({
     booking: Object,
     rooms: Object,
@@ -24,46 +25,46 @@ const props = defineProps({
 });
 
 const book = props.booking[0];
+const rooms = ref(props.rooms);
 const images = book.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
-let rooms = ref(props.rooms);
+const dateValue = ref("");
+const formatter = ref({
+    date: 'DD MMM YYYY',
+    month: 'MMM',
+});
+function dDate(date) {
+    return date > new Date()
+}
 
-const selectedDate = ref('all');
+watch(dateValue, (newValue) => {
+    let { startDate, endDate } = convertDateRange(newValue);
 
-const today = moment().format('YYYY-MM-DD');
-const weekAgo = moment().subtract(7, 'days').format('YYYY-MM-DD');
-const mounthAgo = moment().subtract(1, 'months').format('YYYY-MM-DD');
-const yearAgo = moment().subtract(1, 'years').format('YYYY-MM-DD');
-
-const selectedDated = async () => {
-
-    let checkin = null;
-    let checkout = today;
-
-    switch (selectedDate.value) {
-        case 'week':
-            checkin = weekAgo;
-            break;
-        case 'month':
-            checkin = mounthAgo;
-            break;
-        case 'year':
-            checkin = yearAgo;
-            break;
-
-        default:
-            checkin = null;
-            checkout = null;
-            break;
+    if (startDate == 'Invalid date' || endDate == 'Invalid date') {
+        startDate = null;
+        endDate = null;
     }
+    selectedDated(startDate, endDate)
+});
 
+function convertDateRange(dateString) {
+    const [startDateStr, endDateStr] = dateString.split(' ~ ');
+
+    const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-DD');
+    const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-DD');
+
+    return { startDate, endDate };
+}
+
+
+
+const selectedDated = async (checkin, checkout) => {
     try {
         const response = await axios.post("/api/booking_data_rate", {
             'booking_id': book.id,
             'checkin': checkin,
             'checkout': checkout
         });
-        console.log(response.data);
         rooms.value = response.data;
     } catch (error) {
         console.error(error);
@@ -97,7 +98,7 @@ onMounted(() => {
 
     markerCluster.addLayers(markers);
     map.addLayer(markerCluster);
-})
+});
 
 </script>
 
@@ -148,39 +149,24 @@ onMounted(() => {
                         </div>
 
 
-                        <div>{{ book.description }}</div>
+                        <div class="mb-4">{{ book.description }}</div>
 
-                        <div class="flex flex-col md:flex-row mt-8 gap-x-4">
-                            <div class="w-full sm:w-full md:w-1/3 flex flex-col gap-y-4 items-center">
+                        <VueTailwindDatePicker v-model="dateValue" :formatter="formatter" :disable-date="dDate"
+                            @change="() => { console.log(dateValue); }" />
 
-                                <div class="w-full flex gap-x-2">
-                                    <select v-model="selectedDate" @change="selectedDated"
-                                        class="w-full py-2 border-0 text-gray-500 rounded-lg shadow focus:shadow-lg focus:outline-none focus:ring focus:border-blue-300 appearance-none leading-5 transition duration-150 ease-in-out">
-                                        <option value="all" selected>All Dates</option>
-                                        <option value="year">Last Year</option>
-                                        <option value="month">Last Month</option>
-                                        <option value="week">Last Week</option>
-                                    </select>
 
-                                    <button class="p-2 rounded-lg shadow hover:border-blue-300">
-                                        <Lucide icon="CalendarDays" />
-                                    </button>
-
-                                    <!-- <Calendar v-model="selectedDate" :inline="true"></Calendar>
-                                    <p>Выбранная дата: {{ selectedDate }}</p> -->
-                                </div>
-
-                                <div class="w-full">
-                                    <div v-for="(percentage, roomType) in rooms" :key="roomType">
-                                        <div class="mt-2 p-4 rounded-lg shadow text-center">
-                                            {{ roomType }} - {{ percentage }}
-                                        </div>
-                                    </div>
+                        <div class="grid grid-cols-2 gap-x-8">
+                            <div v-for="(percentage, roomType) in rooms" :key="roomType">
+                                <div
+                                    class="shadow rounded-lg my-4 p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
+                                    <div class="text-2xl">{{ percentage }}</div>
+                                    <div>{{ roomType }}</div>
                                 </div>
                             </div>
-
-                            <div id="mapContainer" style="width: 100%; height: 500px"></div>
                         </div>
+
+                        <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div>
+
                     </div>
                 </div>
             </div>
