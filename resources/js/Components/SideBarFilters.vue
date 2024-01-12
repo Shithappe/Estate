@@ -6,20 +6,24 @@ import 'vue-select/dist/vue-select.css';
 const props = defineProps({
     cities: Array,
     types: Array,
+    selectedCity: Array,
+    selectedType: Array,
 });
 
-const emits = defineEmits(['updateSelectedCity', 'updateSelectedTypes']);
 
+const emits = defineEmits(['updateSelectedCity', 'updateSelectedTypes', 'applyFilters']);
 
-
-const selectedCity = ref([]);
-const selectedTypes = ref([]);
+const selectedCity = ref(props.selectedCity);
+const selectedTypes = ref(props.selectedType);
 
 const selectCity = () => {
   emits('updateSelectedCity', selectedCity.value); 
 }
 const selectTypes = () => {
   emits('updateSelectedTypes', selectedTypes.value); 
+}
+const applyFilters = () => {
+  emits('applyFilters'); 
 }
 
 const clearData = (data) => {
@@ -36,7 +40,7 @@ const clearData = (data) => {
 </script>
 
 <template>
-  <div class="absolute w-1/4 h-screen flex flex-col gap-y-2 p-2 border-r">
+  <div class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white">
     <div>
       <label for="city">Select city</label>
       <v-select v-model="selectedCity" :options="clearData(props.cities)" label="city" multiple :searchable="true" @update:modelValue="selectCity" />
@@ -46,7 +50,7 @@ const clearData = (data) => {
       <label for="type">Select type</label>
       <v-select v-model="selectedTypes" :options="clearData(props.types)" label="type" multiple :searchable="true" @update:modelValue="selectTypes" />
     </div>
-    <button class="mt-6 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Apply Filters</button>
+    <button @click="applyFilters" class="mt-6 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Apply Filters</button>
   </div>
 
 </template>

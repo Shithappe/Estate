@@ -41,6 +41,7 @@ const applyFilters = async () => {
     }
 };
 
+console.log(window.innerWidth);
 </script>
 
 <template>
@@ -49,11 +50,11 @@ const applyFilters = async () => {
         <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
             enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
             leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
-            <SideBarFilters v-if="showFilters" :cities="props.cities" :types="props.types" @updateSelectedCity="updateSelectedCity" @updateSelectedTypes="updateSelectedTypes" />
+            <SideBarFilters v-if="showFilters" :cities="props.cities" :types="props.types" :selectedCity="selectedCity" :selectedType="selectedType" @updateSelectedCity="updateSelectedCity" @updateSelectedTypes="updateSelectedTypes" @applyFilters="applyFilters" />
         </transition>
 
-        <div class="py-6 mx-auto" :class="{ 'w-4/5 float-right pl-24': showFilters, 'px-24 max-w-8xl': !showFilters }">
-
+        <div class="w-full px-4 py-6 mx-auto" :class="{ 'lg:w-4/5 lg:float-right lg:pl-24': showFilters, 'lg:px-24 lg:max-w-8xl': !showFilters }">
+            
             <div class="flex">
                 <button
                     class="px-2 py-0 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
@@ -62,7 +63,7 @@ const applyFilters = async () => {
                     <Lucide icon="Filter" />
                 </button>
 
-                <div class="relative w-full max-w-4xl flex mx-4 transition duration-150 ease-in-out">
+                <div class="relative w-full lg:max-w-4xl flex mx-4 transition duration-150 ease-in-out">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none">
                         <Lucide icon="Search" />
                     </div>
@@ -75,7 +76,7 @@ const applyFilters = async () => {
 
             </div>
 
-            <div class="my-8 grid gap-1" :class="{ 'grid-cols-3': showFilters, 'grid-cols-4': !showFilters }">
+            <div class="my-8 flex flex-col lg:grid lg:gap-1" :class="{ 'lg:grid-cols-3': showFilters, 'lg:grid-cols-4': !showFilters }">
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div>
 
