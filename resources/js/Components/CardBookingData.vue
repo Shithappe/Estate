@@ -20,7 +20,7 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
 </script>
 
 <template>
-    <div class="max-w-80 m-4 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out">
+    <div class="m-4 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">

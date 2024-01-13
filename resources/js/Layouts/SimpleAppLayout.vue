@@ -21,14 +21,14 @@ defineProps({
                     <div class="flex items-center justify-between">
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
-                            <ApplicationMark class="block h-9 w-auto" />
+                            <!-- <ApplicationMark class="block h-9 w-auto" /> -->
                             <p class="mx-2 text-lg">Estate market</p>
                         </div>
 
 
                     </div>
 
-                    <div class="flex gap-x-4">
+                    <div class="flex gap-x-4 text-sm lg:text-md">
                         <a href="/booking_data-map"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Map
