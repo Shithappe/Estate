@@ -11,6 +11,7 @@ const props = defineProps({
     data: Object,
     cities: Object,
     types: Object,
+    facilities: Array
 });
 
 const data = ref(props.data);
@@ -20,6 +21,7 @@ const showFilters = ref(false);
 const selectedTitle = ref(null);
 const selectedCity = ref([]);
 const selectedType = ref([]);
+const selectedFacilities = ref([]);
 
 const updateSelectedCity = (value) => {
   selectedCity.value = value;
@@ -27,13 +29,17 @@ const updateSelectedCity = (value) => {
 const updateSelectedTypes = (value) => {
   selectedType.value = value;
 };
+const updateSelectedFacilities = (value) => {
+  selectedFacilities.value = value;
+};
 
 const applyFilters = async () => {
     try {
         const response = await axios.post("/api/booking_data_filters", {
             'title': selectedTitle.value,
             'city': selectedCity.value,
-            'type': selectedType.value
+            'type': selectedType.value,
+            'facilities': selectedFacilities.value
         });
         data.value = response.data;
     } catch (error) {
@@ -41,7 +47,6 @@ const applyFilters = async () => {
     }
 };
 
-console.log(window.innerWidth);
 </script>
 
 <template>
@@ -50,11 +55,23 @@ console.log(window.innerWidth);
         <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
             enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
             leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
-            <SideBarFilters v-if="showFilters" :cities="props.cities" :types="props.types" :selectedCity="selectedCity" :selectedType="selectedType" @updateSelectedCity="updateSelectedCity" @updateSelectedTypes="updateSelectedTypes" @applyFilters="applyFilters" />
+            <SideBarFilters 
+                v-if="showFilters" 
+                :cities="props.cities" 
+                :types="props.types" 
+                :facilities="props.facilities" 
+                :selectedCity="selectedCity" 
+                :selectedType="selectedType" 
+                :selectedFacilities="selectedFacilities" 
+                @updateSelectedCity="updateSelectedCity" 
+                @updateSelectedTypes="updateSelectedTypes"
+                @updateSelectedFacilities="updateSelectedFacilities"
+                @applyFilters="applyFilters" 
+            />
         </transition>
 
         <div class="w-full px-4 py-6 mx-auto" :class="{ 'lg:w-4/5 lg:float-right lg:pl-24': showFilters, 'lg:px-24 lg:max-w-8xl': !showFilters }">
-            
+
             <div class="flex">
                 <button
                     class="px-2 py-0 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"

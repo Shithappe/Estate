@@ -20,12 +20,12 @@ import markerIcon from "@/assets/pin.png";
 
 const props = defineProps({
     booking: Object,
-    rooms: Object,
     facilities: Object
 });
 
+
 const book = props.booking[0];
-const rooms = ref(props.rooms);
+const rooms = ref(null);
 const images = book.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
 const dateValue = ref("");
@@ -57,7 +57,6 @@ function convertDateRange(dateString) {
 }
 
 
-
 const selectedDated = async (checkin, checkout) => {
     try {
         const response = await axios.post("/api/booking_data_rate", {
@@ -76,7 +75,6 @@ const location = book.location.split(',')
 
 onMounted(() => {
     selectedDated();
-
 
     map = L.map("mapContainer").setView(location, 15);
     L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
@@ -155,10 +153,10 @@ onMounted(() => {
                             @change="() => { console.log(dateValue); }" />
 
 
-                        <div class="grid grid-cols-2 gap-x-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 my-4">
                             <div v-for="(percentage, roomType) in rooms" :key="roomType">
                                 <div
-                                    class="shadow rounded-lg my-4 p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
+                                    class="shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
                                     <div class="text-2xl">{{ percentage }}</div>
                                     <div>{{ roomType }}</div>
                                 </div>

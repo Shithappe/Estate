@@ -10,47 +10,19 @@ class booking_data extends Controller
 {
     public function index(Request $request)
     {
-        $filterCity = $request->query('city');
-        $filterTitle = $request->query('title');
-        $filterType = $request->query('type');
-
-        $query = DB::table('booking_data')
+        $data = DB::table('booking_data')
                     ->orderBy('star', 'desc')
                     ->orderBy('review_count', 'desc')
-                    ->orderBy('score', 'desc');
+                    ->orderBy('score', 'desc')
+                    ->paginate(12);
 
-        if (!empty($filterCity)) {
-            $query->where('city', $filterCity);
-        }
-        if (!empty($filterTitle)) {
-            $query->where('title', 'like', '%' . $filterTitle . '%');
-        }
-        if (!empty($filterType)) {
-            $query->where('type', $filterType);
-        }
-    
-        $data = $query->paginate(12); 
-
-
+                    
         foreach ($data as $item) {
             $rooms = DB::table('room_cache')
                 ->where('booking_id', $item->id)
                 ->get();
         
             $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
-
-            // Получение id из booking_facilities для заданного booking_id
-            $facilityIds = DB::table('booking_facilities')
-                ->where('booking_id', $item->id)
-                ->pluck('facilities_id');
-        
-            // Получение названий удобств из facilities на основе полученных id
-            $facilities = DB::table('facilities')
-                ->whereIn('id', $facilityIds)
-                ->pluck('title');
-        
-            // Добавление полученных названий удобств к элементу $item
-            $item->facilities = $facilities;
         }
 
 
@@ -66,11 +38,14 @@ class booking_data extends Controller
         ->pluck('type')
         ->toArray();
 
+        $facilities = DB::table('facilities')->get();
+
 
         return Inertia::render('BookingData', [
             'data' => $data,
             'cities' => $cities,
-            'types' => $types
+            'types' => $types,
+            'facilities' => $facilities
         ]);
     }
 
@@ -79,9 +54,6 @@ class booking_data extends Controller
     {
         $booking = DB::table('booking_data')->where('id', $booking_id)->get();
 
-        $rooms = DB::table('room_cache')->where('booking_id', $booking_id)->get();
-        // ->whereDate('date', 'YOUR_DATE_HERE') 
-            
 
         // Получение id из booking_facilities для заданного booking_id
         $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
@@ -92,7 +64,6 @@ class booking_data extends Controller
 
         return Inertia::render('SingleBookingData', [
             'booking' => $booking,
-            'rooms' => $rooms,
             'facilities' => $facilities
         ]);
     } 
@@ -102,14 +73,14 @@ class booking_data extends Controller
         $rooms = NULL;
 
         if (isset($request->checkin) && isset($request->checkout)){
-            $rooms = DB::table('rooms_30_day')
+            $rooms = DB::table('rooms_2_day')
                 ->where('booking_id', $request->booking_id)
                 ->where('checkin', '>=', $request->checkin)
                 ->where('checkout', '<=', $request->checkout)
                 ->get();
         }
         else {
-            $rooms = DB::table('rooms_30_day')
+            $rooms = DB::table('rooms_2_day')
                 ->where('booking_id', $request->booking_id)
                 ->get();
         }
@@ -226,6 +197,7 @@ class booking_data extends Controller
         $filterTitle = $data['title'];
         $filterCity = $data['city'];
         $filterType = $data['type'];
+        $filterFacilities = $data['facilities'];
 
         $query = DB::table('booking_data')
                     ->orderBy('star', 'desc')
@@ -241,6 +213,15 @@ class booking_data extends Controller
         if (!empty($filterType)) {
             $query->whereIn('type', $filterType);
         }
+        foreach ($filterFacilities as $facility) {
+            $query->whereExists(function ($subquery) use ($facility) {
+                $subquery->select(DB::raw(1))
+                    ->from('booking_facilities')
+                    ->whereRaw('booking_facilities.booking_id = booking_data.id')
+                    ->where('facilities_id', $facility);
+            });
+        }
+    
     
         $data = $query->paginate(12); 
 
