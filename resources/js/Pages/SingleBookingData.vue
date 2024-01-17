@@ -50,8 +50,11 @@ watch(dateValue, (newValue) => {
 function convertDateRange(dateString) {
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
 
-    const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
-    const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
+    // const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
+    // const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
+    const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-' + (moment(startDateStr, 'DD MMM YYYY').date() >= 9 ? 'DD' : 'D'));
+    const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-' + (moment(endDateStr, 'DD MMM YYYY').date() >= 9 ? 'DD' : 'D'));
+
 
     return { startDate, endDate };
 }
