@@ -49,13 +49,21 @@ watch(dateValue, (newValue) => {
 
 function convertDateRange(dateString) {
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
+    let dayFormat = 'D';
 
     // const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
     // const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
-    const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-' + (moment(startDateStr, 'DD MMM YYYY').date() >= 9 ? 'DD' : 'D'));
-    const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-' + (moment(endDateStr, 'DD MMM YYYY').date() >= 9 ? 'DD' : 'D'));
+    const startMoment = moment(startDateStr, 'DD MMM YYYY');
+    const endMoment = moment(endDateStr, 'DD MMM YYYY');
 
+    if (startMoment.date() > 1 || endMoment.date() > 1) {
+        dayFormat = 'DD';
+    }
 
+    const startDate = startMoment.format(`YYYY-MM-${dayFormat}`);
+    const endDate = endMoment.format(`YYYY-MM-${dayFormat}`);
+
+    console.log(startDate, endDate);
     return { startDate, endDate };
 }
 
