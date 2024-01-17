@@ -70,6 +70,7 @@ class booking_data extends Controller
     
     public function booking_data_rate(Request $request)
     {
+
         $rooms = NULL;
 
         if (isset($request->checkin) && isset($request->checkout)){
@@ -77,45 +78,62 @@ class booking_data extends Controller
                 ->where('booking_id', $request->booking_id)
                 ->where('checkin', '>=', $request->checkin)
                 ->where('checkout', '<=', $request->checkout)
+                ->whereDate('checkin', '=', DB::raw('DATE(created_at)'))
                 ->get();
         }
         else {
             $rooms = DB::table('rooms_2_day')
                 ->where('booking_id', $request->booking_id)
+                ->whereDate('checkin', '=', DB::raw('DATE(created_at)'))
                 ->get();
         }
 
-        
+        $maxAvailableRooms = DB::table('rooms_30_day')
+            ->select('room_type', DB::raw('MAX(max_available_rooms) AS max_available'))
+            ->where('booking_id', $request->booking_id)
+            ->groupBy('room_type')
+        ->get();
 
-        $maxAvailableRooms = [];
 
-        // Находим максимальное доступное количество комнат для каждого типа комнаты
-        foreach ($rooms as $room) {
-            $roomType = $room->room_type;
+        // return $rooms;
+        $groupedRooms = $rooms->groupBy('room_type');
 
-            if (!isset($maxAvailableRooms[$roomType]) || $room->max_available_rooms > $maxAvailableRooms[$roomType]) {
-                $maxAvailableRooms[$roomType] = $room->max_available_rooms;
+        $resultArray = [];
+
+        foreach ($groupedRooms as $roomType => $group) {
+            // Находим соответствующую запись в $maxAvailableRooms по room_type
+            $maxAvailableRoom = $maxAvailableRooms->firstWhere('room_type', $roomType);
+
+            // Если запись найдена, продолжаем вычисления
+            if ($maxAvailableRoom) {
+                // Сумма свободных комнат по типу
+                $sum = $group->sum('available_rooms');
+
+                // Количество записей по типу
+                $count = $group->count();
+
+                // if ($roomType == 'Premium Room Garden View') {
+                //     return[$maxAvailableRoom->max_available, $sum, $count];
+                // }
+
+                // Расчет занятости
+                $occupancy = $sum / $count;
+                $occupancy = $maxAvailableRoom->max_available - $occupancy;
+                $occupancy = round(($occupancy / $maxAvailableRoom->max_available) * 100, 2);
+                if ($occupancy < 0) $occupancy = null;
+            } else {
+                // Обработка ситуации, если не найдено соответствие
+                $occupancy = null;
             }
+
+            // Добавляем результаты в массив
+            $resultArray[] = [
+                'room_type' => $roomType,
+                'occupancy' => $occupancy,
+            ];
         }
 
-        $occupancyPercentage = [];
-
-        // Получаем процент заполненности для каждого типа комнаты на заданную дату
-        foreach ($rooms as $room) {
-            $roomType = $room->room_type;
-            $percentage = ($maxAvailableRooms[$roomType] > 0) ? (($maxAvailableRooms[$roomType] - $room->max_available_rooms) / $maxAvailableRooms[$roomType]) * 100 : 100;
-            $occupancyPercentage[$roomType][] = $percentage;
-        }
-
-        $averageOccupancyPercentage = [];
-
-        // Вычисляем средний процент заполненности для каждого типа комнаты
-        foreach ($occupancyPercentage as $roomType => $percentages) {
-            $averagePercentage = array_sum($percentages) / count($percentages);
-            $averageOccupancyPercentage[$roomType] = round($averagePercentage, 2) . "%";
-        }
-
-        return $averageOccupancyPercentage;
+        return $resultArray;
     }
 
     public function booking_data_map(Request $request)

@@ -50,8 +50,8 @@ watch(dateValue, (newValue) => {
 function convertDateRange(dateString) {
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
 
-    const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-DD');
-    const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-DD');
+    const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
+    const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
 
     return { startDate, endDate };
 }
@@ -154,11 +154,11 @@ onMounted(() => {
 
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 my-4">
-                            <div v-for="(percentage, roomType) in rooms" :key="roomType">
+                            <div v-for="room in rooms" :key="room">
                                 <div
                                     class="shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
-                                    <div class="text-2xl">{{ percentage }}</div>
-                                    <div>{{ roomType }}</div>
+                                    <div class="text-2xl">{{ room.occupancy ? room.occupancy + '%' : 'No Data' }}</div>
+                                    <div>{{ room.room_type }}</div>
                                 </div>
                             </div>
                         </div>
