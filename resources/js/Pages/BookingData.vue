@@ -14,6 +14,8 @@ const props = defineProps({
     facilities: Array
 });
 
+const searchInput = ref(null)
+const load = ref(false);
 const data = ref(props.data);
 
 const showFilters = ref(false);
@@ -34,6 +36,8 @@ const updateSelectedFacilities = (value) => {
 };
 
 const applyFilters = async () => {
+    load.value = true;
+    searchInput.value.blur();
     try {
         const response = await axios.post("/api/booking_data_filters", {
             'title': selectedTitle.value,
@@ -42,6 +46,7 @@ const applyFilters = async () => {
             'facilities': selectedFacilities.value
         });
         data.value = response.data;
+        load.value = false;
     } catch (error) {
         console.error(error);
     }
@@ -84,7 +89,11 @@ const applyFilters = async () => {
                     <div class="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none">
                         <Lucide icon="Search" />
                     </div>
-                    <input type="search" id="default-search" v-model="selectedTitle"
+                    <input 
+                        ref="searchInput"
+                        type="search" 
+                        v-model="selectedTitle" 
+                        @keyup.enter="applyFilters"
                         class="block w-full p-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
                         placeholder="Komaneka at Bisma..." required>
                     <button  @click="applyFilters"
@@ -93,7 +102,9 @@ const applyFilters = async () => {
 
             </div>
 
-            <div class="my-8 flex flex-col lg:grid lg:gap-1" :class="{ 'lg:grid-cols-3': showFilters, 'lg:grid-cols-4': !showFilters }">
+            <div 
+                class="my-8 flex flex-col lg:grid lg:gap-1" 
+                :class="{ 'lg:grid-cols-3': showFilters, 'lg:grid-cols-4': !showFilters, 'opacity-50': load }">
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div>
 
