@@ -10,11 +10,30 @@ class booking_data extends Controller
 {
     public function index(Request $request)
     {
+        // $priorityData = DB::table('booking_data')
+        //             ->where('priority', '>', 0)
+        //             ->orderBy('star', 'desc')
+        //             ->orderBy('review_count', 'desc')
+        //             ->orderBy('score', 'desc');
+
+        // $data = DB::table('booking_data')
+        //             // ->where('priority', null)
+        //             ->orderBy('star', 'desc')
+        //             ->orderBy('review_count', 'desc')
+        //             ->orderBy('score', 'desc')
+        //             ->paginate(12);
+
         $data = DB::table('booking_data')
-                    ->orderBy('star', 'desc')
-                    ->orderBy('review_count', 'desc')
-                    ->orderBy('score', 'desc')
-                    ->paginate(12);
+            ->orderByRaw('
+                CASE 
+                    WHEN priority > 0 THEN priority
+                    ELSE 0
+                END DESC
+            ')
+            ->orderBy('star', 'desc')
+            ->orderBy('review_count', 'desc')
+            ->orderBy('score', 'desc')
+            ->paginate(12);
 
                     
         foreach ($data as $item) {
@@ -53,7 +72,6 @@ class booking_data extends Controller
     public function booking_page($booking_id)
     {
         $booking = DB::table('booking_data')->where('id', $booking_id)->get();
-
 
         // Получение id из booking_facilities для заданного booking_id
         $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
@@ -252,5 +270,36 @@ class booking_data extends Controller
         }
 
         return $data;
+    }
+
+    public function setting_priority () 
+    {
+        $priority = DB::table('booking_data')
+                    ->where('priority', '>', 0)
+                    ->orderBy('priority', 'desc')
+                    ->get();
+                    // ->orderBy('review_count', 'desc')
+                    // ->orderBy('score', 'desc');
+
+        return Inertia::render('SettingPriorityPage', [
+            'priority' => $priority
+        ]);
+    }
+
+    public function priority_edit (Request $request)
+    {
+        // return $request;
+        switch ($request->msg) {
+            case 'edit':
+                DB::table('booking_data')->where('id', $request->id)->update(['priority' => $request->priority]);
+              break;
+            case 'delete':
+                DB::table('booking_data')->where('id', $request->id)->update(['priority' => null]);
+              break;
+          }
+          return DB::table('booking_data')
+          ->where('priority', '>', 0)
+          ->orderBy('priority', 'desc')
+          ->get();
     }
 }

@@ -53,3 +53,5 @@ Route::get('/', [booking_data::class, 'index']);
 Route::get('/booking_data/{booking_id}', [booking_data::class, 'booking_page']);
 
 Route::get('/booking_data-map', [booking_data::class, 'booking_data_map']);
+
+Route::get('/setting_priority', [booking_data::class, 'setting_priority']);
