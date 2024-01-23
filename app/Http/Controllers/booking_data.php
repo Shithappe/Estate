@@ -157,7 +157,7 @@ class booking_data extends Controller
     public function booking_data_map(Request $request)
     {
         $coordinates = DB::table('booking_data')
-            ->select('id', 'location')
+            ->select('id', 'title', 'location')
             ->get();
 
         // return $coordinates;
@@ -171,6 +171,7 @@ class booking_data extends Controller
             if (count($coords) >= 2) {
                 $coordinatesArray[] = [
                     'id' => $coord->id,
+                    'title' => $coord->title,
                     'location' => [$coords[0], $coords[1]]
                 ];
             }
@@ -188,7 +189,7 @@ class booking_data extends Controller
         ->where('id', $booking_id)
         ->get();
 
-        $nearby_location = $this->get_nearby_location($booking_data[0]->location);
+        // $nearby_location = $this->get_nearby_location($booking_data[0]->location);
 
 
         $rooms = DB::table('room_cache')
@@ -204,27 +205,27 @@ class booking_data extends Controller
         
 
         $booking_data[0]->rooms = $rooms;
-        $booking_data[0]->nearby_location = $nearby_location;
+        // $booking_data[0]->nearby_location = $nearby_location;
         $booking_data[0]->facilities = $facilities;
 
 
         return $booking_data[0];
     }
 
-    public function get_nearby_location($location, $radius = 2)
-    {
-        $location = explode(',', $location);
+    // public function get_nearby_location($location, $radius = 2)
+    // {
+    //     $location = explode(',', $location);
 
-        $centerLat = $location[0]; 
-        $centerLng = $location[1]; 
+    //     $centerLat = $location[0]; 
+    //     $centerLng = $location[1]; 
 
-        $objects = DB::table('booking_data')
-            ->select('id', 'title', 'description', 'star', 'images', 'type', 'location')
-            ->whereRaw('(6371 * acos(cos(radians(?)) * cos(radians(SUBSTRING_INDEX(location, ",", 1))) * cos(radians(SUBSTRING_INDEX(location, ",", -1)) - radians(?)) + sin(radians(?)) * sin(radians(SUBSTRING_INDEX(location, ",", 1))))) <= ?', [$centerLat, $centerLng, $centerLat, $radius])
-            ->get();
+    //     $objects = DB::table('booking_data')
+    //         ->select('id', 'title', 'description', 'star', 'images', 'type', 'location')
+    //         ->whereRaw('(6371 * acos(cos(radians(?)) * cos(radians(SUBSTRING_INDEX(location, ",", 1))) * cos(radians(SUBSTRING_INDEX(location, ",", -1)) - radians(?)) + sin(radians(?)) * sin(radians(SUBSTRING_INDEX(location, ",", 1))))) <= ?', [$centerLat, $centerLng, $centerLat, $radius])
+    //         ->get();
 
-        return $objects;
-    }
+    //     return $objects;
+    // }
 
     public function booking_data_filters (Request $request)
     {
@@ -288,7 +289,6 @@ class booking_data extends Controller
 
     public function priority_edit (Request $request)
     {
-        // return $request;
         switch ($request->msg) {
             case 'edit':
                 DB::table('booking_data')->where('id', $request->id)->update(['priority' => $request->priority]);
