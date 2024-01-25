@@ -145,7 +145,7 @@ const addMarkers = (data) => {
       }).addTo(map);
 
 
-      console.log(markerCoords);
+      showFilters.value = false;
       // Плавное перемещение к маркеру с использованием метода flyTo
       map.flyTo(markerCoords, 16, {
         duration: 2,
