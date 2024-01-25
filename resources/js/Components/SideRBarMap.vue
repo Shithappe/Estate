@@ -5,8 +5,6 @@ const props = defineProps({
   booking_data: Array
 })
 
-console.log(props.booking_data[0]);
-
 const emits = defineEmits(['bookingClick']); // Определение события для передачи данных в родительский компонент
 
 const handleBookingClick = (booking) => {

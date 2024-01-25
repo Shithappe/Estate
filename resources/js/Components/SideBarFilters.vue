@@ -4,6 +4,10 @@ import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 
 const props = defineProps({
+  map: {
+    type: Boolean,
+    default: false,
+  },
   cities: Array,
   types: Array,
   facilities: Array,
@@ -18,9 +22,6 @@ const selectedCity = ref(props.selectedCity);
 const selectedTypes = ref(props.selectedType);
 const selectedFacilities = ref(props.selectedFacilities);
 
-const ar = ['1', 'asd', '2']
-
-// Вызывать sortAZ после определения selectedFacilities
 
 const selectCity = () => {
   emits('updateSelectedCity', selectedCity.value);
@@ -46,7 +47,10 @@ const clearData = (data) => {
 </script>
 
 <template>
-  <div class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white">
+  <div 
+    class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white"
+    :class="{'backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map}"
+  >
     <div>
       <label for="city">Select city</label>
       <v-select v-model="selectedCity" :options="clearData(props.cities)" multiple :searchable="true" @update:modelValue="selectCity" />

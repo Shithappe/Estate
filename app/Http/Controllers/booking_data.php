@@ -154,33 +154,145 @@ class booking_data extends Controller
         return $resultArray;
     }
 
-    public function booking_data_map(Request $request)
-    {
-        $coordinates = DB::table('booking_data')
-            ->select('id', 'title', 'location')
-            ->get();
+    // public function booking_data_map(Request $request)
+    // {
+    //     $data = $request->json()->all();
 
-        // return $coordinates;
-        $coordinatesArray = [];
+    //     if ($data) {
+    //         $filterCity = $data['city'];
+    //         $filterType = $data['type'];
+    //         $filterFacilities = $data['facilities'];
 
-        // Перебираем полученные координаты и обрабатываем каждую пару значений
-        foreach ($coordinates as $coord) {
-            $coords = explode(',', $coord->location); // Используем переменную $coords, а не $coord->location
+    //         $query = DB::table('booking_data');
+
+    //         if (!empty($filterCity)) {
+    //             $query->whereIn('city', $filterCity);
+    //         }
+    //         if (!empty($filterTitle)) {
+    //             $query->where('title', 'like', '%' . $filterTitle . '%');
+    //         }
+    //         if (!empty($filterType)) {
+    //             $query->whereIn('type', $filterType);
+    //         }
+    //         foreach ($filterFacilities as $facility) {
+    //             $query->whereExists(function ($subquery) use ($facility) {
+    //                 $subquery->select(DB::raw(1))
+    //                     ->from('booking_facilities')
+    //                     ->whereRaw('booking_facilities.booking_id = booking_data.id')
+    //                     ->where('facilities_id', $facility);
+    //             });
+    //         }
+    //     }
+
+    //     $coordinates = DB::table('booking_data')
+    //         ->select('id', 'title', 'location')
+    //         ->get();
+
+    //     $coordinatesArray = [];
+
+    //     // Перебираем полученные координаты и обрабатываем каждую пару значений
+    //     foreach ($coordinates as $coord) {
+    //         $coords = explode(',', $coord->location); // Используем переменную $coords, а не $coord->location
         
-            // Проверяем, что у нас есть две координаты, прежде чем добавить их в массив
-            if (count($coords) >= 2) {
-                $coordinatesArray[] = [
-                    'id' => $coord->id,
-                    'title' => $coord->title,
-                    'location' => [$coords[0], $coords[1]]
-                ];
-            }
-        }
+    //         // Проверяем, что у нас есть две координаты, прежде чем добавить их в массив
+    //         if (count($coords) >= 2) {
+    //             $coordinatesArray[] = [
+    //                 'id' => $coord->id,
+    //                 'title' => $coord->title,
+    //                 'location' => [$coords[0], $coords[1]]
+    //             ];
+    //         }
+    //     }
 
-        return Inertia::render('BookingDataMap', [
-            'locations' => $coordinatesArray
-        ]);
+    //     $cities = DB::table('booking_data')
+    //     ->select('city')
+    //     ->distinct()
+    //     ->pluck('city')
+    //     ->toArray();
+
+    //     $types = DB::table('booking_data')
+    //     ->select('type')
+    //     ->distinct()
+    //     ->pluck('type')
+    //     ->toArray();
+
+    //     $facilities = DB::table('facilities')->get();
+
+    //     return Inertia::render('BookingDataMap', [
+    //         'locations' => $coordinatesArray,
+    //         'cities' => $cities,
+    //         'types' => $types,
+    //         'facilities' => $facilities
+    //     ]);
+    // }
+
+    public function booking_data_map(Request $request)
+{
+    $data = $request->json()->all();
+
+    $filterCity = !empty($data['city']) ? $data['city'] : [];
+    $filterType = !empty($data['type']) ? $data['type'] : [];
+    $filterFacilities = !empty($data['facilities']) ? $data['facilities'] : [];
+
+    $query = DB::table('booking_data');
+
+    if (!empty($filterCity)) {
+        $query->whereIn('city', $filterCity);
     }
+    if (!empty($filterType)) {
+        $query->whereIn('type', $filterType);
+    }
+    foreach ($filterFacilities as $facility) {
+        $query->whereExists(function ($subquery) use ($facility) {
+            $subquery->select(DB::raw(1))
+                ->from('booking_facilities')
+                ->whereRaw('booking_facilities.booking_id = booking_data.id')
+                ->where('facilities_id', $facility);
+        });
+    }
+
+    $filteredData = $query->select('id', 'title', 'location')->get();
+
+    $coordinatesArray = [];
+
+    foreach ($filteredData as $coord) {
+        $coords = explode(',', $coord->location);
+
+        if (count($coords) >= 2) {
+            $coordinatesArray[] = [
+                'id' => $coord->id,
+                'title' => $coord->title,
+                'location' => [$coords[0], $coords[1]]
+            ];
+        }
+    }
+
+    if ($data) {
+        return $coordinatesArray;
+    }
+
+    $cities = DB::table('booking_data')
+        ->select('city')
+        ->distinct()
+        ->pluck('city')
+        ->toArray();
+
+    $types = DB::table('booking_data')
+        ->select('type')
+        ->distinct()
+        ->pluck('type')
+        ->toArray();
+
+    $facilities = DB::table('facilities')->get();
+
+    return Inertia::render('BookingDataMap', [
+        'locations' => $coordinatesArray,
+        'cities' => $cities,
+        'types' => $types,
+        'facilities' => $facilities
+    ]);
+}
+
 
     public function booking_data_map_card ($booking_id)
     {
@@ -188,9 +300,6 @@ class booking_data extends Controller
         ->select('id', 'title', 'description', 'star', 'images', 'location', 'type')
         ->where('id', $booking_id)
         ->get();
-
-        // $nearby_location = $this->get_nearby_location($booking_data[0]->location);
-
 
         $rooms = DB::table('room_cache')
                 ->where('booking_id', $booking_id)
@@ -205,27 +314,11 @@ class booking_data extends Controller
         
 
         $booking_data[0]->rooms = $rooms;
-        // $booking_data[0]->nearby_location = $nearby_location;
         $booking_data[0]->facilities = $facilities;
 
 
         return $booking_data[0];
     }
-
-    // public function get_nearby_location($location, $radius = 2)
-    // {
-    //     $location = explode(',', $location);
-
-    //     $centerLat = $location[0]; 
-    //     $centerLng = $location[1]; 
-
-    //     $objects = DB::table('booking_data')
-    //         ->select('id', 'title', 'description', 'star', 'images', 'type', 'location')
-    //         ->whereRaw('(6371 * acos(cos(radians(?)) * cos(radians(SUBSTRING_INDEX(location, ",", 1))) * cos(radians(SUBSTRING_INDEX(location, ",", -1)) - radians(?)) + sin(radians(?)) * sin(radians(SUBSTRING_INDEX(location, ",", 1))))) <= ?', [$centerLat, $centerLng, $centerLat, $radius])
-    //         ->get();
-
-    //     return $objects;
-    // }
 
     public function booking_data_filters (Request $request)
     {

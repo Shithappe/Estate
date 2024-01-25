@@ -33,5 +33,6 @@ Route::get('/booking_data_map_card/{id}', [booking_data::class, 'booking_data_ma
 Route::get('/get_nearby_location', [booking_data::class, 'get_nearby_location']);
 
 Route::post('/booking_data_filters', [booking_data::class, 'booking_data_filters']);
+Route::post('/booking_data-map', [booking_data::class, 'booking_data_map']);
 
 Route::post('/setting_priority', [booking_data::class, 'priority_edit']);
