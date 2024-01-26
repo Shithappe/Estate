@@ -18,7 +18,7 @@ defineProps({
         <nav class="text-slate-200 bg-slate-800 border-b border-gray-100">
             <div class="mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center justify-between">
+                    <div class="hidden lg:block flex items-center justify-between">
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
                             <!-- <ApplicationMark class="block h-9 w-auto" /> -->

@@ -51,8 +51,6 @@ function convertDateRange(dateString) {
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
     let dayFormat = 'D';
 
-    // const startDate = moment(startDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
-    // const endDate = moment(endDateStr, 'DD MMM YYYY').format('YYYY-MM-D');
     const startMoment = moment(startDateStr, 'DD MMM YYYY');
     const endMoment = moment(endDateStr, 'DD MMM YYYY');
 
@@ -168,7 +166,7 @@ onMounted(() => {
                             <div v-for="room in rooms" :key="room">
                                 <div
                                     class="shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
-                                    <div class="text-2xl">{{ room.occupancy ? room.occupancy + '%' : 'No Data' }}</div>
+                                    <div class="text-2xl">{{ room.occupancy >= 0 ? room.occupancy + '%' : 'No Data' }}</div>
                                     <div>{{ room.room_type }}</div>
                                 </div>
                             </div>
