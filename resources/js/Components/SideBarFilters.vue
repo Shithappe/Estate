@@ -10,29 +10,26 @@ const props = defineProps({
   },
   cities: Array,
   types: Array,
-  facilities: Array,
-  selectedCity: Array,
-  selectedType: Array,
-  selectedFacilities: Array,
+  facilities: Array
 });
 
-const emits = defineEmits(['updateSelectedCity', 'updateSelectedTypes', 'updateSelectedFacilities', 'applyFilters']);
+const emits = defineEmits(['applyFilters']);
 
-const selectedCity = ref(props.selectedCity);
-const selectedTypes = ref(props.selectedType);
-const selectedFacilities = ref(props.selectedFacilities);
+const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
+const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
+const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
 
 
 const selectCity = () => {
-  emits('updateSelectedCity', selectedCity.value);
+  localStorage.setItem('selectedCity', JSON.stringify(selectedCity.value));
 };
 
 const selectTypes = () => {
-  emits('updateSelectedTypes', selectedTypes.value);
+  localStorage.setItem('selectedTypes', JSON.stringify(selectedTypes.value));
 };
 
 const selectFacilities = () => {
-  emits('updateSelectedFacilities', selectedFacilities.value);
+  localStorage.setItem('selectedFacilities', JSON.stringify(selectedFacilities.value));
 };
 
 const applyFilters = () => {

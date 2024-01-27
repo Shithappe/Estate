@@ -4,6 +4,7 @@ import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import Lucide from '@/Components/Lucide.vue';
 import Pagination from '@/Components/Pagination.vue';
+import PaginationPost from '@/Components/PaginationPost.vue';
 import CardBookingData from '@/Components/CardBookingData.vue';
 import SideBarFilters from '@/Components/SideBarFilters.vue';
 
@@ -19,31 +20,25 @@ const load = ref(false);
 const data = ref(props.data);
 
 const showFilters = ref(false);
+const useFilters = ref(false);
 
 const selectedTitle = ref(null);
-const selectedCity = ref([]);
-const selectedType = ref([]);
-const selectedFacilities = ref([]);
 
-const updateSelectedCity = (value) => {
-  selectedCity.value = value;
-};
-const updateSelectedTypes = (value) => {
-  selectedType.value = value;
-};
-const updateSelectedFacilities = (value) => {
-  selectedFacilities.value = value;
-};
+const updateData = (newData) => {
+    console.log(newData);
+    data.value = newData;
+}
 
 const applyFilters = async () => {
+    useFilters.value = true;
     load.value = true;
     searchInput.value.blur();
     try {
         const response = await axios.post("/api/booking_data_filters", {
             'title': selectedTitle.value,
-            'city': selectedCity.value,
-            'type': selectedType.value,
-            'facilities': selectedFacilities.value
+            'city': JSON.parse(localStorage.getItem('selectedCity')),
+            'type': JSON.parse(localStorage.getItem('selectedTypes')),
+            'facilities': JSON.parse(localStorage.getItem('selectedFacilities'))
         });
         data.value = response.data;
         load.value = false;
@@ -65,12 +60,6 @@ const applyFilters = async () => {
                 :cities="props.cities" 
                 :types="props.types" 
                 :facilities="props.facilities" 
-                :selectedCity="selectedCity" 
-                :selectedType="selectedType" 
-                :selectedFacilities="selectedFacilities" 
-                @updateSelectedCity="updateSelectedCity" 
-                @updateSelectedTypes="updateSelectedTypes"
-                @updateSelectedFacilities="updateSelectedFacilities"
                 @applyFilters="applyFilters" 
             />
         </transition>
@@ -108,7 +97,8 @@ const applyFilters = async () => {
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div>
 
-            <Pagination class="mt-6" :links="data.links" />
+            <PaginationPost v-if="useFilters" class="mt-6" :links="data.links" :updateData="updateData" />
+            <Pagination v-else class="mt-6" :links="data.links" />
         </div>
     </SimpleAppLayout>
 </template>

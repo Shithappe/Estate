@@ -10,19 +10,6 @@ class booking_data extends Controller
 {
     public function index(Request $request)
     {
-        // $priorityData = DB::table('booking_data')
-        //             ->where('priority', '>', 0)
-        //             ->orderBy('star', 'desc')
-        //             ->orderBy('review_count', 'desc')
-        //             ->orderBy('score', 'desc');
-
-        // $data = DB::table('booking_data')
-        //             // ->where('priority', null)
-        //             ->orderBy('star', 'desc')
-        //             ->orderBy('review_count', 'desc')
-        //             ->orderBy('score', 'desc')
-        //             ->paginate(12);
-
         $data = DB::table('booking_data')
             ->orderByRaw('
                 CASE 
@@ -266,11 +253,11 @@ class booking_data extends Controller
                     ->orderBy('review_count', 'desc')
                     ->orderBy('score', 'desc');
 
-        if (!empty($filterCity)) {
-            $query->whereIn('city', $filterCity);
-        }
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
+        }
+        if (!empty($filterCity)) {
+            $query->whereIn('city', $filterCity);
         }
         if (!empty($filterType)) {
             $query->whereIn('type', $filterType);
