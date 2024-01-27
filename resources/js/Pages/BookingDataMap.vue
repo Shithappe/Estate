@@ -32,26 +32,12 @@ const markers = [];
 let map = null;
 let circle = null;
 
-const selectedCity = ref([]);
-const selectedType = ref([]);
-const selectedFacilities = ref([]);
-
-const updateSelectedCity = (value) => {
-  selectedCity.value = value;
-};
-const updateSelectedTypes = (value) => {
-  selectedType.value = value;
-};
-const updateSelectedFacilities = (value) => {
-  selectedFacilities.value = value;
-};
-
 const applyFilters = async () => {
   try {
     const response = await axios.post("/api/booking_data-map", {
-      'city': selectedCity.value,
-      'type': selectedType.value,
-      'facilities': selectedFacilities.value
+      'city': JSON.parse(localStorage.getItem('selectedCity')),
+      'type': JSON.parse(localStorage.getItem('selectedTypes')),
+      'facilities': JSON.parse(localStorage.getItem('selectedFacilities'))
     });
     data.value = response.data;
     map.flyTo({lat: data.value[0].location[0], lng: data.value[0].location[1]}, 12, {
@@ -274,10 +260,7 @@ async function fetchData(markerId) {
       enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
       leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
       <SideBarFilters class="transform -translate-y-16" v-if="showFilters" :map="true" :cities="props.cities" :types="props.types"
-        :facilities="props.facilities" :selectedCity="selectedCity" :selectedType="selectedType"
-        :selectedFacilities="selectedFacilities" @updateSelectedCity="updateSelectedCity"
-        @updateSelectedTypes="updateSelectedTypes" @updateSelectedFacilities="updateSelectedFacilities"
-        @applyFilters="applyFilters" />
+        :facilities="props.facilities" @applyFilters="applyFilters" />
     </transition>
 
     <button
