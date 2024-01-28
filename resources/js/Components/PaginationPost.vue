@@ -10,7 +10,8 @@ const loadPage = async (link) => {
             'title': null,
             'city': JSON.parse(localStorage.getItem('selectedCity')),
             'type': JSON.parse(localStorage.getItem('selectedTypes')),
-            'facilities': JSON.parse(localStorage.getItem('selectedFacilities'))
+            'facilities': JSON.parse(localStorage.getItem('selectedFacilities')),
+            'price': JSON.parse(localStorage.getItem('selectedPrice'))
     }
 
     try {
