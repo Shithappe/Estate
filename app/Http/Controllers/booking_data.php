@@ -263,16 +263,20 @@ class booking_data extends Controller
         if (!empty($filterType)) {
             $query->whereIn('type', $filterType);
         }
-        foreach ($filterFacilities as $facility) {
-            $query->whereExists(function ($subquery) use ($facility) {
-                $subquery->select(DB::raw(1))
-                    ->from('booking_facilities')
-                    ->whereRaw('booking_facilities.booking_id = booking_data.id')
-                    ->where('facilities_id', $facility);
-            });
+        if (!empty($filterFacilities)) {
+            foreach ($filterFacilities as $facility) {
+                $query->whereExists(function ($subquery) use ($facility) {
+                    $subquery->select(DB::raw(1))
+                        ->from('booking_facilities')
+                        ->whereRaw('booking_facilities.booking_id = booking_data.id')
+                        ->where('facilities_id', $facility);
+                });
+            }
         }
         if (!empty($filterPrice)) {
-            $query->whereBetween('price', [$filterPrice['min'], $filterPrice['max']]);
+            // $query->whereBetween('price', [$filterPrice['min'], $filterPrice['max']]);
+            if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
+            if (isset($filterPrice['max'])) $query->where('price', '<=', $filterPrice['max']);
         }
     
     

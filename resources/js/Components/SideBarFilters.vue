@@ -18,7 +18,7 @@ const emits = defineEmits(['applyFilters']);
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
 const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
-const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JSON.parse(localStorage.getItem('selectedPrice')) : { min: 10, max: 20 });
+const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JSON.parse(localStorage.getItem('selectedPrice')) : { min: null, max: null });
 
 
 const selectCity = () => {
@@ -78,8 +78,8 @@ const clearData = (data) => {
           v-model="selectedPrice.min" @change="selectPrice"
           class="border border-gray-300 rounded-l py-2 px-8 focus:outline-none focus:z-10 focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
 
-        <input type="number" placeholder="Max Price" :min="selectedPrice.min" v-model="selectedPrice.max"
-          @update:modelValue="selectPrice"
+        <input type="number" placeholder="Max Price" :min="selectedPrice.min" 
+          v-model="selectedPrice.max" @change="selectPrice"
           class="border border-gray-300 rounded-r py-3 px-8 focus:outline-none focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
       </div>
     </div>
