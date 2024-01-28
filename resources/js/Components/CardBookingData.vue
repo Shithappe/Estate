@@ -53,15 +53,20 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
                     </div>
-                    <div class="flex items-center gap-2">
+                    <!-- <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Bed" /> {{ count_rooms }}
+                    </div> -->
+                    <div class="flex items-center gap-2">
+                        <Lucide class="w-5 h-5" icon="Tags" /> {{ item.rooms.length }}
                     </div>
+                    
                 </div>
 
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Tags" /> {{ item.rooms.length }}
+                        <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
                     </div>
+                    
                     <div v-if="item.rooms[0]" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Zap" /> {{ occupancy_rate }}%
                     </div>

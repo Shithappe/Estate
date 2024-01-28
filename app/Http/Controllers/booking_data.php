@@ -247,6 +247,7 @@ class booking_data extends Controller
         $filterCity = $data['city'];
         $filterType = $data['type'];
         $filterFacilities = $data['facilities'];
+        $filterPrice = $data['price'];
 
         $query = DB::table('booking_data')
                     ->orderBy('star', 'desc')
@@ -269,6 +270,9 @@ class booking_data extends Controller
                     ->whereRaw('booking_facilities.booking_id = booking_data.id')
                     ->where('facilities_id', $facility);
             });
+        }
+        if (!empty($filterPrice)) {
+            $query->whereBetween('price', [$filterPrice['min'], $filterPrice['max']]);
         }
     
     
