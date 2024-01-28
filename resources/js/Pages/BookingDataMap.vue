@@ -37,7 +37,8 @@ const applyFilters = async () => {
     const response = await axios.post("/api/booking_data-map", {
       'city': JSON.parse(localStorage.getItem('selectedCity')),
       'type': JSON.parse(localStorage.getItem('selectedTypes')),
-      'facilities': JSON.parse(localStorage.getItem('selectedFacilities'))
+      'facilities': JSON.parse(localStorage.getItem('selectedFacilities')),
+      'price': JSON.parse(localStorage.getItem('selectedPrice'))
     });
     data.value = response.data;
     map.flyTo({lat: data.value[0].location[0], lng: data.value[0].location[1]}, 12, {
