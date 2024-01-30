@@ -18,6 +18,9 @@ export default {
 
     theme: {
         extend: {
+            spacing: {
+                '128': '32rem',
+              },
             colors: {
                 'vtd-primary': colors.sky, // Light mode Datepicker color
                 'vtd-secondary': colors.gray, // Dark mode Datepicker color

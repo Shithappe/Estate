@@ -26,7 +26,8 @@ const props = defineProps({
 
 const book = props.booking[0];
 const rooms = ref(null);
-const images = book.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
+
+const images = book.images.replaceAll('max500', 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
 const dateValue = ref("");
 const formatter = ref({
@@ -120,12 +121,12 @@ onMounted(() => {
             </h2>
         </template>
 
-        <div class="mx-2 py-2 lg:py-12">
+        <div class="mx-2 py-2 lg:py-6">
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-                <div class="">
+                <div>
                     <carousel id="gallery" :items-to-show="1" :wrap-around="false">
-                        <slide v-for="image in images" :key="image">
-                            <img class="object-cover rounded-lg" :src="image" alt="">
+                        <slide v-for="image in images" :key="image" class="">
+                            <img class="w-full max-h-128 object-cover rounded-lg" :src="image" alt="">
                         </slide>
 
                         <template #addons>
@@ -134,20 +135,21 @@ onMounted(() => {
                         </template>
                     </carousel>
 
-                    <div class="mt-6">
-                        <div class="flex gap-x-2 items-center text-2xl font-semibold">
-                            <div>{{ book.title }}</div>
+                    <div class="mt-6 relative">
+                        <div class="absolute z-10 -top-36 left-1.5 rounded-lg px-4 pt-2 backdrop-filter backdrop-blur-md bg-gray-200 bg-opacity-30">
+                            <div class="flex gap-x-2 items-center text-3xl font-semibold">
+                                <div>{{ book.title }}</div>
 
-                            <a :href="book.link" target="_blank" rel="noopener noreferrer">
-                                <Lucide class="w-5 h-5 cursor-pointer" icon="ExternalLink" />
-                            </a>
+                                <a :href="book.link" target="_blank" rel="noopener noreferrer">
+                                    <Lucide class="w-5 h-5 cursor-pointer" icon="ExternalLink" />
+                                </a>
+                            </div>
+
+                            <div class="flex gap-2 mt-2 mb-4">
+                                <Lucide class="w-5 h-5" icon="MapPin" /> {{ book.city }}
+                            </div>
                         </div>
 
-
-
-                        <div class="flex gap-2 mt-2 mb-4">
-                            <Lucide class="w-5 h-5" icon="MapPin" /> {{ book.city }}
-                        </div>
 
                         <div class="flex flex-wrap gap-2 mb-4">
                             <span class="px-2 py-1 rounded-lg shadow" v-for="facility in facilities" :key="facility">
