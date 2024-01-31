@@ -13,14 +13,14 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
 let count_rooms = 0, occupancy_rate = 0;
 props.item.rooms.forEach(room => {
     count_rooms += Number(room.max_available);
-    occupancy_rate += room.occupancy_rate;
+    occupancy_rate += Number(room.occupancy_rate);
 });
 occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
 
 </script>
 
 <template>
-    <div class="m-4 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out">
+    <div class="m-4 w-82 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">
@@ -33,7 +33,7 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
         </carousel>
 
 
-        <div class="relative col-span-3 h-64 mx-3 pt-2 pb-2">
+        <div class="relative col-span-3 h-72 mx-3 pt-2 pb-2">
             <div class="flex flex-col relative">
                 <div class="text-xl font-semibold hover:text-blue-800">
                     <Link :href="'booking_data/' + item.id">{{ item.title }}</Link>
@@ -53,9 +53,9 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
                     </div>
-                    <!-- <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Bed" /> {{ count_rooms }}
-                    </div> -->
+                    </div>
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Tags" /> {{ item.rooms.length }}
                     </div>
@@ -63,10 +63,14 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
                 </div>
 
                 <div class="flex flex-col">
-                    <div class="flex items-center gap-2">
+                    <div v-if="item.price" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
                     </div>
                     
+                    <div v-if="item.score" class="flex items-center gap-2">
+                        <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
+                    </div>
+
                     <div v-if="item.rooms[0]" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Zap" /> {{ occupancy_rate }}%
                     </div>

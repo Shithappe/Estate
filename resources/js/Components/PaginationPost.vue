@@ -6,6 +6,21 @@ const props = defineProps({
 });
 
 const loadPage = async (link) => {
+    const scrollToTop = () => {
+        const scrollDuration = 800; // Длительность анимации в миллисекундах
+        const scrollStep = -window.scrollY / (scrollDuration / 15);
+        
+        const scrollInterval = setInterval(() => {
+            if (window.scrollY !== 0) {
+                window.scrollBy(0, scrollStep);
+            } else {
+                clearInterval(scrollInterval);
+            }
+        }, 15);
+    };
+    scrollToTop();
+
+    
     const filters = {
             'title': null,
             'city': JSON.parse(localStorage.getItem('selectedCity')),

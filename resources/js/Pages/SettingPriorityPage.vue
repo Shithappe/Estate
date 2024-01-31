@@ -27,9 +27,13 @@ const formData = ref({
     msg: ''
 });
 
-const submitForm = async (msg) => {
-    formData.value.id = showAction.value.id;
-    formData.value.priority = showAction.value.priority;
+const submitForm = async (msg, def = false) => {
+    console.log(msg);
+    console.log(formData.value);
+    if (def) {
+        formData.value.id = showAction.value.id;
+        formData.value.priority = showAction.value.priority;
+    }
     formData.value.msg = msg;
     try {
         const response = await axios.post('/api/setting_priority', formData.value);
@@ -80,8 +84,8 @@ const submitForm = async (msg) => {
                         <td class="w-48 relative border border-gray-300">
                             <div v-if="showAction.show && item.id == showAction.id">
                                 <div class="absolute bottom-14 left-6 flex gap-x-2">
-                                    <button @click="() => submitForm('edit')" class="px-2.5 py-1.5 shadow-lg bg-white border rounded-lg">Edit</button>
-                                    <button @click="() => submitForm('delete')" class="px-2.5 py-1.5 shadow-lg bg-white border rounded-lg">Delete</button>
+                                    <button @click="() => submitForm('edit', true)" class="px-2.5 py-1.5 shadow-lg bg-white border rounded-lg">Edit</button>
+                                    <button @click="() => submitForm('delete', true)" class="px-2.5 py-1.5 shadow-lg bg-white border rounded-lg">Delete</button>
                                 </div>
                                 <input class="h-10" type="number" v-model="showAction.priority" placeholder="Priority">
                             </div>
