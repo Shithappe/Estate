@@ -40,7 +40,7 @@ def main():
 
 
         # get available rooms
-        cursor.execute('''SELECT room_type, max_available_rooms
+        cursor.execute('''SELECT room_type, available_rooms
                             FROM rooms_2_day
                             WHERE booking_id = %s AND DATE(checkin) = DATE(created_at)''', (id[0],))
         available_rooms = cursor.fetchall()
@@ -125,7 +125,7 @@ def main():
                         (id[0], room_type, max_available, occupancy_rate))
             connection.commit()
 
-        print(id[0])
+    #     print(id[0])
 
     print('\n\nDone')
 
