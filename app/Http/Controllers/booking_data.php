@@ -252,11 +252,13 @@ class booking_data extends Controller
         $filterType = $data['type'];
         $filterFacilities = $data['facilities'];
         $filterPrice = $data['price'];
+        $filterSort = $data['sort'];
 
-        $query = DB::table('booking_data')
-                    ->orderBy('star', 'desc')
-                    ->orderBy('review_count', 'desc')
-                    ->orderBy('score', 'desc');
+        $query = DB::table('booking_data');
+
+        if (empty($filterSort) || $filterSort == null) {
+            $query ->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
+        }
 
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
@@ -281,9 +283,30 @@ class booking_data extends Controller
             if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
             if (isset($filterPrice['max'])) $query->where('price', '<=', $filterPrice['max']);
         }
+        if (!empty($filterSort)) {
+            if ($filterSort == 'price') {
+                $query->orderBy('price', 'desc');
+            }
+            elseif ($filterSort == 'rate') {
+                $query->orderBy('score', 'desc');
+            }
+            elseif ($filterSort == 'occupancy') {
+                $sortedBookingIds = DB::table('room_cache')
+                    ->select('booking_id', DB::raw('AVG(occupancy_rate) as avg_occupancy'))
+                    ->groupBy('booking_id')
+                    ->orderByDesc('avg_occupancy')
+                    ->pluck('booking_id');
+                
+                $sortedBookingIdsArray = $sortedBookingIds->toArray();
+
+                $query
+                ->whereIn('id', $sortedBookingIdsArray)
+                ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'));
+            }
+        }
     
     
-        $data = $query->paginate(12); 
+        $data = $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->paginate(12); 
 
         foreach ($data as $item) {
             $rooms = DB::table('room_cache')

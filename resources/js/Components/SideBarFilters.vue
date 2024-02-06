@@ -19,6 +19,7 @@ const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
 const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
 const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JSON.parse(localStorage.getItem('selectedPrice')) : { min: null, max: null });
+const selectedSort = ref(JSON.parse(localStorage.getItem('selectedSort')));
 
 
 const selectCity = () => {
@@ -36,6 +37,12 @@ const selectFacilities = () => {
 const selectPrice = () => {
   console.log(selectedPrice.value);
   localStorage.setItem('selectedPrice', JSON.stringify(selectedPrice.value));
+};
+
+const selectSort = (value) => {
+  if (selectedSort.value == value) value = null;
+  selectedSort.value = value;
+  localStorage.setItem('selectedSort', JSON.stringify(value));
 };
 
 const applyFilters = () => {
@@ -81,6 +88,17 @@ const clearData = (data) => {
         <input type="number" placeholder="Max Price" :min="selectedPrice.min" 
           v-model="selectedPrice.max" @change="selectPrice"
           class="border border-gray-300 rounded-r py-3 px-8 focus:outline-none focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
+      </div>
+    </div>
+
+    <div>
+      <label>Sort by</label>
+      <div class="w-full flex flex-wrap gap-1 text-gray-600">
+        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('occupancy')" :class="{ 'text-white bg-black': selectedSort === 'occupancy' }">Occupancy</span>
+        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('price')" :class="{ 'text-white bg-black': selectedSort === 'price' }">Price</span>
+        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('room_type')" :class="{ 'text-white bg-black': selectedSort === 'room_type' }">Room type</span>
+        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('room_count')" :class="{ 'text-white bg-black': selectedSort === 'room_count' }">Room count</span>
+        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('rate')" :class="{ 'text-white bg-black': selectedSort === 'rate' }">Rate</span>
       </div>
     </div>
 
