@@ -303,6 +303,34 @@ class booking_data extends Controller
                 ->whereIn('id', $sortedBookingIdsArray)
                 ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'));
             }
+            elseif ($filterSort == 'room_type') {
+                $countPerBookingId = DB::table('room_cache')
+                    ->select('booking_id', DB::raw('COUNT(DISTINCT room_type) as room_type_count'))
+                    ->groupBy('booking_id')
+                    ->orderByDesc('room_type_count')
+                    ->pluck('room_type_count', 'booking_id');
+
+                $sortedBookingIdsArray = $countPerBookingId->keys()->toArray();
+
+                $query
+                    ->whereIn('id', $sortedBookingIdsArray)
+                    ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'))
+                    ->paginate(12);
+            }
+            elseif ($filterSort == 'room_count') {
+                $sumPerRoomType = DB::table('room_cache')
+                    ->select('booking_id', DB::raw('SUM(max_available) as total_max_available'))
+                    ->groupBy('booking_id')
+                    ->orderByDesc('total_max_available')
+                    ->pluck('total_max_available', 'booking_id');
+
+                $sortedBookingIdsArray = $sumPerRoomType->keys()->toArray();
+
+                $query
+                    ->whereIn('id', $sortedBookingIdsArray)
+                    ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'))
+                    ->paginate(12);
+            }
         }
     
     
