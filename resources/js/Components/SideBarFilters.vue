@@ -58,7 +58,7 @@ const clearData = (data) => {
 
 <template>
   <div
-    class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white"
+    class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 min-w-96 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white"
     :class="{ 'backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map }">
     <div>
       <label for="city">Select city</label>

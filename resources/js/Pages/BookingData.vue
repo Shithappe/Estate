@@ -68,7 +68,8 @@ const applyFilters = async () => {
 
         <div class="w-full px-4 py-6 mx-auto" :class="{ 'lg:w-4/5 lg:float-right lg:pl-24': showFilters, 'lg:px-24 lg:max-w-8xl': !showFilters }">
 
-            <div class="flex">
+            <div class="flex ml-4"
+                :class="{ 'xl:pl-4 2xl:pl-10': showFilters }">
                 <button
                     class="px-2 py-0 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
                     :class="{ 'shadow-lg text-slate-100 bg-black': showFilters }"
@@ -93,9 +94,14 @@ const applyFilters = async () => {
 
             </div>
 
-            <div 
+            <!-- <div 
                 class="my-8 flex flex-col lg:grid lg:gap-1" 
                 :class="{ 'lg:grid-cols-3': showFilters, 'lg:grid-cols-4': !showFilters, 'opacity-50': load }">
+                <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
+            </div> -->
+            <div 
+                class="my-8 flex flex flex-wrap" 
+                :class="{ 'xl:pl-4 2xl:pl-10': showFilters, '': !showFilters, 'opacity-50': load }">
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div>
 
