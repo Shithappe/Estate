@@ -376,4 +376,21 @@ class booking_data extends Controller
           ->orderBy('priority', 'desc')
           ->get();
     }
+
+    public function get_report(Request $request)
+    {
+        $data = DB::table('booking_data')->whereIn('id', $request->input('id'))->get();
+
+        foreach ($data as $item) {
+            $rooms = DB::table('room_cache')
+                ->where('booking_id', $item->id)
+                ->get();
+        
+            $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
+        }
+
+        return Inertia::render('GetReport', [
+            'data' => $data,
+        ]);
+    }
 }

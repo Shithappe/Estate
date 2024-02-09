@@ -1,6 +1,7 @@
 <script setup>
+import { Link } from '@inertiajs/vue3'
 import { defineProps, defineEmits } from 'vue';
-import html2pdf from 'html2pdf.js';
+// import html2pdf from 'html2pdf.js';
 
 const props = defineProps({
   booking_data: Array
@@ -9,20 +10,20 @@ const props = defineProps({
 const generatePDF = () => {
   const element = document.getElementById('styledContent');
 
-      // Опции для html2pdf
-      const options = {
-        margin: 10,
-        filename: 'styled_example.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+  // Опции для html2pdf
+  const options = {
+    margin: 10,
+    filename: 'styled_example.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
 
-      // Генерируем PDF из HTML элемента
-      html2pdf(element, options).then(pdf => {
-        // Скачиваем PDF
-        pdf.save();
-      });
+  // Генерируем PDF из HTML элемента
+  html2pdf(element, options).then(pdf => {
+    // Скачиваем PDF
+    pdf.save();
+  });
 }
 
 const emits = defineEmits(['bookingClick']); // Определение события для передачи данных в родительский компонент
@@ -46,10 +47,12 @@ const handleBookingClick = (booking) => {
       </div>
     </div>
 
-    <button @click="generatePDF" v-if="props.booking_data.length > 0"
+    <Link href="/get-report" method="post" as="button" :data="{ id: props.booking_data.map(obj => obj.id) }" v-if="props.booking_data.length > 0"
       class="fixed bottom-2 right-2 z-20 w-72 p-4 rounded-lg text-center text-white bg-black">
-      <span>Get a report on {{ props.booking_data.length }} objects</span>
-    </button>
+      Get a report on {{ props.booking_data.length }} objects
+    </Link>
+
+
   </div>
 </template>
 
