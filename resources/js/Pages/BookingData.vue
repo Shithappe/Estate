@@ -100,8 +100,8 @@ const applyFilters = async () => {
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div> -->
             <div 
-                class="my-8 flex flex flex-wrap" 
-                :class="{ 'xl:pl-4 2xl:pl-10': showFilters, '': !showFilters, 'opacity-50': load }">
+                class="my-8 flex flex-wrap" 
+                :class="{ 'xl:pl-4 2xl:pl-10': showFilters, 'justify-center': !showFilters, 'opacity-50': load }">
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div>
 
