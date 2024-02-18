@@ -10,18 +10,21 @@ const props = defineProps({
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
+// console.log(props.item.rooms);
+
 let count_rooms = 0, occupancy_rate = 0;
-props.item.rooms.forEach(room => {
-    count_rooms += Number(room.max_available);
-    occupancy_rate += Number(room.occupancy_rate);
-});
-occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
+// props.item.rooms.forEach(room => {
+//     console.log(room.occupancy_rate);
+//     // count_rooms += Number(room.max_available);
+//     // occupancy_rate += Number(room.occupancy_rate);
+// });
+// occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
 
 </script>
 
 <template>
-    <!-- <div class="m-4  min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"> -->
-    <div class="m-4 w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out">
+    <div class="m-4 w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
+        :class="{'bg-green-200 hover:bg-green-300': props.item.selected}">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">

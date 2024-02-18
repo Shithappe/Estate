@@ -25,7 +25,6 @@ const useFilters = ref(false);
 const selectedTitle = ref(null);
 
 const updateData = (newData) => {
-    console.log(newData);
     data.value = newData;
 }
 
@@ -94,11 +93,6 @@ const applyFilters = async () => {
 
             </div>
 
-            <!-- <div 
-                class="my-8 flex flex-col lg:grid lg:gap-1" 
-                :class="{ 'lg:grid-cols-3': showFilters, 'lg:grid-cols-4': !showFilters, 'opacity-50': load }">
-                <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
-            </div> -->
             <div 
                 class="my-8 flex flex-wrap" 
                 :class="{ 'xl:pl-4 2xl:pl-10': showFilters, 'justify-center': !showFilters, 'opacity-50': load }">

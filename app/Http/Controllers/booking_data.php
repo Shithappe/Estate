@@ -379,15 +379,40 @@ class booking_data extends Controller
 
     public function get_report(Request $request)
     {
-        $data = DB::table('booking_data')->whereIn('id', $request->input('id'))->get();
+        // $data = DB::table('booking_data')->whereIn('id', $request->input('id'))->get();
 
-        foreach ($data as $item) {
-            $rooms = DB::table('room_cache')
-                ->where('booking_id', $item->id)
-                ->get();
+        // foreach ($data as $item) {
+        //     $rooms = DB::table('room_cache')
+        //         ->where('booking_id', $item->id)
+        //         ->get();
         
-            $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
-        }
+        //     $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
+        // }
+
+        // $data = DB::table('booking_data')
+        // ->whereIn('booking_data.id', $request->input('id'))
+        // ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id')
+        // ->select('booking_data.*', 'room_cache.* as room_details')
+        // ->get();
+
+        $data = DB::table('booking_data')
+            ->whereIn('booking_data.id', $request->input('id'))
+            ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id')
+            // ->leftJoin('room_cache', function ($join) {
+            //     $join->on('room_cache.booking_id', '=', 'booking_data.id');
+            // })
+            ->select([
+                'booking_data.*',
+                DB::raw('JSON_ARRAYAGG(JSON_OBJECT(
+                    "room_type", room_cache.room_type,
+                    "max_available", room_cache.max_available,
+                    "occupancy_rate", room_cache.occupancy_rate
+                )) AS rooms'),
+            ])
+            ->groupBy('booking_data.id')
+            ->get();
+
+
 
         return Inertia::render('GetReport', [
             'data' => $data,

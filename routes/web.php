@@ -57,3 +57,6 @@ Route::get('/booking_data-map', [booking_data::class, 'booking_data_map']);
 Route::get('/setting_priority', [booking_data::class, 'setting_priority']);
 
 Route::post('/get-report', [booking_data::class, 'get_report']);
+Route::get('/get-report', function () {
+    return redirect('/booking_data-map');
+});
