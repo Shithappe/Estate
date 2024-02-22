@@ -9,22 +9,20 @@ const props = defineProps({
 });
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
-
-// console.log(props.item.rooms);
+const rooms = Array.isArray(props.item.rooms) ? props.item.rooms : JSON.parse(props.item.rooms);
 
 let count_rooms = 0, occupancy_rate = 0;
-props.item.rooms.forEach(room => {
-    console.log(room.occupancy_rate);
+rooms.forEach(room => {
     count_rooms += Number(room.max_available);
     occupancy_rate += Number(room.occupancy_rate);
 });
-occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
+occupancy_rate = Math.round(occupancy_rate / rooms.length);
 
 </script>
 
 <template>
     <div class="m-4 w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
-        :class="{'bg-green-200 hover:bg-green-300': props.item.selected}">
+        :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">
@@ -48,7 +46,6 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
             </div>
 
             <div class="flex items-center text-md mb-1">
-                <!-- <Lucide class="w-4 h-4" icon="MapPin" /> -->
                 {{ item.city }}
             </div>
 
@@ -63,14 +60,14 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Tags" /> {{ item.rooms.length }}
                     </div>
-                    
+
                 </div>
 
                 <div class="flex flex-col">
                     <div v-if="item.price" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
                     </div>
-                    
+
                     <div v-if="item.score" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
                     </div>
@@ -82,8 +79,8 @@ occupancy_rate = Math.round(occupancy_rate / props.item.rooms.length);
             </div>
 
             <Link :href="'booking_data/' + item.id" class="absolute bottom-3 w-full">
-                <button class="w-full p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
+            <button class="w-full p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
             </Link>
         </div>
     </div>
-</template>
+</template> 
