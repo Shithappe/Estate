@@ -5,6 +5,7 @@ import CardBookingData from '@/Components/CardBookingData.vue';
 import PieChart from '@/Components/PieChart.vue';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
+import html2pdf from 'html2pdf.js';
 
 const props = defineProps({
     data: Object,
@@ -81,6 +82,26 @@ function countStars(data) {
 console.log(countStars(props.data));
 const startsChart = countStars(props.data);
 
+
+const report = ref(null);
+function generatePdf() {
+    const content = report.value;
+
+    const pdfOptions = {
+        margin: 10,
+        filename: 'report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            willReadFrequently: true, // Add this line
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+
+    html2pdf().set(pdfOptions).from(content).save();
+
+}
+
 </script>
 
 <template>
@@ -111,25 +132,17 @@ const startsChart = countStars(props.data);
 
                 <button
                     class="px-2 py-2 rounded-lg shadow shadow-lg text-slate-100 bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
-                    @click="viewOnly">
+                    @click="generatePdf">
                     Download Report
                 </button>
             </div>
         </div>
 
-        <div v-if="isChart" class="flex">
-            <PieChart 
-                class="w-1/2 h-1/2 mx-4" 
-                :title=typesChart.title
-                :legend=typesChart.legend
-                :data="typesChart.data" 
-            />
-            <PieChart 
-                class="w-1/2 h-1/2 mx-4" 
-                :title=startsChart.title
-                :legend=startsChart.legend
-                :data="startsChart.data" 
-            />
+        <div v-if="isChart" class="flex" ref="report">
+            <PieChart id="chart1" class="w-1/2 h-1/2 mx-4" :title=typesChart.title :legend=typesChart.legend
+                :data="typesChart.data" />
+            <PieChart id="chart2" class="w-1/2 h-1/2 mx-4" :title=startsChart.title :legend=startsChart.legend
+                :data="startsChart.data" />
 
         </div>
 

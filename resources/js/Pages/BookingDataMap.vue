@@ -41,10 +41,10 @@ const applyFilters = async () => {
       'price': JSON.parse(localStorage.getItem('selectedPrice'))
     });
     data.value = response.data;
-    map.flyTo({lat: data.value[0].location[0], lng: data.value[0].location[1]}, 12, {
-        duration: 2,
-        easeLinearity: 0.5
-      });
+    map.flyTo({ lat: data.value[0].location[0], lng: data.value[0].location[1] }, 12, {
+      duration: 2,
+      easeLinearity: 0.5
+    });
   } catch (error) {
     console.error(error);
   }
@@ -181,7 +181,7 @@ const markerCluster = L.markerClusterGroup({
 let selectedMarker = ref(null);
 
 onMounted(() => {
-  map = L.map("mapContainer").setView([-8.51479, 115.26382], 15);
+  map = L.map("mapContainer", { zoomControl: false }).setView([-8.51479, 115.26382], 15);
   L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(map);
 
   map.on('click', (e) => {
@@ -260,16 +260,22 @@ async function fetchData(markerId) {
     <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
       enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
       leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
-      <SideBarFilters class="transform -translate-y-16" v-if="showFilters" :map="true" :cities="props.cities" :types="props.types"
-        :facilities="props.facilities" @applyFilters="applyFilters" />
+      <SideBarFilters class="transform -translate-y-16" v-if="showFilters" :map="true" :cities="props.cities"
+        :types="props.types" :facilities="props.facilities" @applyFilters="applyFilters" />
     </transition>
 
     <button
-      class="absolute z-10 top-3 left-12 px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
+      class="absolute z-10 top-3 px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
       :class="{ 'text-slate-100 bg-black left-96': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters, 'left-96': booking_data && dataLoaded }"
       @click="() => { showFilters = !showFilters }">
       <Lucide icon="Filter" />
     </button>
+
+    <a href="/"
+      class="absolute z-10 top-14 px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
+      :class="{ 'left-96': showFilters || (booking_data && dataLoaded) }">
+      <Lucide icon="ArrowLeftCircle" />
+    </a>
 
 
     <div v-if="locations"
