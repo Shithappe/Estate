@@ -29,6 +29,7 @@ const updateData = (newData) => {
 }
 
 const applyFilters = async () => {
+    localStorage.setItem('selectedTitle', selectedTitle.value)
     useFilters.value = true;
     load.value = true;
     searchInput.value.blur();

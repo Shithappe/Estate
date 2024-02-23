@@ -16,6 +16,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import L from "leaflet";
 import "leaflet.markercluster";
 import markerIcon from "@/assets/pin.png";
+// import LineChart from '@/Components/LineChart.vue';
 
 
 const props = defineProps({
@@ -163,6 +164,7 @@ onMounted(() => {
                         <VueTailwindDatePicker v-model="dateValue" :formatter="formatter" :disable-date="dDate"
                             @change="() => { console.log(dateValue); }" />
 
+                        <!-- <LineChart /> -->
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 my-4">
                             <div v-for="room in rooms" :key="room">
