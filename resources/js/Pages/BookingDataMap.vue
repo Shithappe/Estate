@@ -12,6 +12,8 @@ import "leaflet.markercluster";
 import markerIcon from "@/assets/pin.png";
 import anotherCustomIcon from "@/assets/placeholder.png";
 
+import BottomSheet from '@/Components/BottomSheet.vue';
+
 
 const props = defineProps({
   locations: Array,
@@ -19,6 +21,8 @@ const props = defineProps({
   types: Array,
   facilities: Array
 })
+
+const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
 
 const data = ref(props.locations);
 const locations = ref(null);
@@ -241,21 +245,29 @@ async function fetchData(markerId) {
     throw error;
   }
 }
+
 </script>
 
 <template>
   <div class="relative w-full h-full">
-    <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
-      enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
-      leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
+    <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
+      enter-from-class="-translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
+      leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
+      leave-to-class="-translate-x-full opacity-0">
       <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
     </transition>
 
-    <transition enter-active-class="transition ease-out duration-300" enter-from-class="translate-x-full opacity-0"
-      enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
-      leave-from-class="translate-x-0 opacity-100" leave-to-class="translate-x-full opacity-0">
+    <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
+      enter-from-class="translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
+      leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
+      leave-to-class="translate-x-full opacity-0">
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </transition>
+
+    <BottomSheet v-if="((booking_data && dataLoaded) || locations) && !isDesktop" :mode="booking_data">
+      <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
+      <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
+    </BottomSheet>
 
     <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
       enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
@@ -264,18 +276,22 @@ async function fetchData(markerId) {
         :types="props.types" :facilities="props.facilities" @applyFilters="applyFilters" />
     </transition>
 
-    <button
-      class="absolute z-10 top-3 px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
-      :class="{ 'text-slate-100 bg-black left-96': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters, 'left-96': booking_data && dataLoaded }"
-      @click="() => { showFilters = !showFilters }">
-      <Lucide icon="Filter" />
-    </button>
+    <div 
+      class="absolute z-10 top-3 flex flex-col gap-y-2"
+      :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }">
+      <button
+        class="px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
+        :class="{ 'text-slate-100 bg-black': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters }"
+        @click="() => { showFilters = !showFilters }">
+        <Lucide icon="Filter" />
+      </button>
 
-    <a href="/"
-      class="absolute z-10 top-14 px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
-      :class="{ 'left-96': showFilters || (booking_data && dataLoaded) }">
-      <Lucide icon="ArrowLeftCircle" />
-    </a>
+      <a href="/"
+        class="px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
+        >
+        <Lucide icon="ArrowLeftCircle" />
+      </a>
+    </div>
 
 
     <div v-if="locations"

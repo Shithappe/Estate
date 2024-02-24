@@ -27,6 +27,8 @@
         "@inertiajs/inertia-vue3": "^0.6.0",
         "@vueform/multiselect": "^2.6.6",
         "@vueuse/core": "^10.7.0",
+        "echarts": "^5.4.2",
+        "hammerjs": "^2.0.8",
         "html2pdf.js": "^0.10.1",
         "i": "^0.3.7",
         "jspdf": "^2.5.1",
@@ -34,13 +36,12 @@
         "lucide-vue-next": "^0.288.0",
         "moment": "^2.29.4",
         "npm": "^10.2.5",
+        "vue-echarts": "latest",
         "vue-leaflet": "^0.1.0",
         "vue-multiselect": "^1.1.5",
         "vue-select": "^4.0.0-beta.6",
         "vue-tailwind-datepicker": "^1.6.1",
         "vue3-carousel": "^0.3.1",
-        "vue3-leaflet": "^1.0.48",
-        "echarts": "^5.4.2",
-        "vue-echarts": "latest"
+        "vue3-leaflet": "^1.0.48"
     }
 }
