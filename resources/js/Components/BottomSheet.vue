@@ -6,7 +6,7 @@ const props = defineProps({
     mode: Object
 })
 
-const isBottomSheetOpen = ref(props.mode);
+const isBottomSheetOpen = ref(1);
 
 const calculateTranslateY = () => {
     if (isBottomSheetOpen.value == 0) return 95;
@@ -38,7 +38,7 @@ onMounted(() => {
 
 <template>
     <div id="bottom-sheet"
-        class="h-full fixed bottom-0 left-0 right-0 z-50 flex rounded-t-3xl border shadow-lg overflow-x-hidden overflow-y-auto"
+        class="h-full fixed bottom-0 left-0 right-0 z-50 flex rounded-t-3xl shadow-lg overflow-x-hidden overflow-y-auto"
         :style="{ transform: `translateY(${calculateTranslateY()}%)` }">
         <div class="relative flex-1">
             <div class="py-2 backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30">

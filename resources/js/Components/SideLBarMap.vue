@@ -10,12 +10,11 @@ const props = defineProps({
   booking_data: Object
 })
 
-// class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 min-w-96 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white snap-y">
 </script>
 
 <template>
   <div
-  class="sm:block lg:absolute z-10 sm:w-full lg:w-1/4 h-screen shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
+  class="sm:block lg:absolute z-10 sm:w-full lg:w-1/4 sm:h-max lg:h-screen shadow-x-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
     <carousel id="gallery" :items-to-show="1" :wrap-around="false">
       <slide v-for="image in booking_data.images" :key="image" class="w-full h-56 overflow-hidden">
         <img class="object-cover w-full rounded-lg" :src="image" alt="">

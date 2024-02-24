@@ -264,7 +264,7 @@ async function fetchData(markerId) {
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </transition>
 
-    <BottomSheet v-if="((booking_data && dataLoaded) || locations) && !isDesktop" :mode="booking_data">
+    <BottomSheet v-if="(booking_data || locations) && !isDesktop" :mode="booking_data">
       <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </BottomSheet>
