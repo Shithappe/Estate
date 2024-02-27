@@ -81,6 +81,16 @@ const selectedDated = async (checkin, checkout) => {
     }
 }
 
+const allData = ref(null);
+const getAll = async () => {
+    try {
+        const response = await axios.get("/get_all/" + book.id);
+        allData.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 let map = null;
 const location = book.location.split(',')
 
@@ -137,7 +147,8 @@ onMounted(() => {
                     </carousel>
 
                     <div class="mt-6 relative">
-                        <div class="absolute z-10 -top-36 left-1.5 rounded-lg px-4 pt-2 backdrop-filter backdrop-blur-md bg-gray-200 bg-opacity-30">
+                        <div
+                            class="absolute z-10 -top-36 left-1.5 rounded-lg px-4 pt-2 backdrop-filter backdrop-blur-md bg-gray-200 bg-opacity-30">
                             <div class="flex gap-x-2 items-center text-3xl font-semibold">
                                 <div>{{ book.title }}</div>
 
@@ -178,6 +189,75 @@ onMounted(() => {
 
                         <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div>
 
+                        <button @click="getAll">Get all data</button>
+                        <div v-if="allData" class="flex flex-col gap-y-2">
+                            <table v-if="allData?.booking_data">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Link</th>
+                                        <th>Address</th>
+                                        <th>City</th>
+                                        <th>Price</th>
+                                        <th>Created At</th>
+                                        <th>Location</th>
+                                        <th>Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Итерация по данным -->
+                                    <tr v-for="book in allData.booking_data" :key="book.id">
+                                        <td>{{ book.id }}</td>
+                                        <td>{{ book.title }}</td>
+                                        <td>{{ book.description }}</td>
+                                        <td><a :href="book.link" target="_blank">Link</a></td>
+                                        <td>{{ book.address }}</td>
+                                        <td>{{ book.city }}</td>
+                                        <td>{{ book.price }}</td>
+                                        <td>{{ book.created_at }}</td>
+                                        <td>{{ book.location }}</td>
+                                        <td>{{ book.type }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table v-if="allData?.room_cache">
+                                <thead>
+                                    <tr>
+                                        <th>Room type</th>
+                                        <th>Max available</th>
+                                        <th>Occupancy rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="book in allData.room_cache" :key="book.id">
+                                        <td>{{ book.room_type }}</td>
+                                        <td>{{ book.max_available }}</td>
+                                        <td>{{ book.occupancy_rate }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table v-if="allData?.rooms_2_day">
+                                <thead>
+                                    <tr>
+                                        <th>Room type</th>
+                                        <th>Available rooms</th>
+                                        <th>Checkin</th>
+                                        <th>Checkout</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="book in allData.rooms_2_day" :key="book.id">
+                                        <td>{{ book.room_type }}</td>
+                                        <td>{{ book.available_rooms }}</td>
+                                        <td>{{ book.checkin }}</td>
+                                        <td>{{ book.checkout }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,3 +265,19 @@ onMounted(() => {
     </SimpleAppLayout>
 </template>
 
+<style scoped>
+     table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>

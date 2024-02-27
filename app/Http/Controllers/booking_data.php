@@ -398,4 +398,23 @@ class booking_data extends Controller
             'data' => $data,
         ]);
     }
+
+    public function get_all(Request $request)
+    {
+        $booking_id = $request->id;
+        $booking_data = DB::table('booking_data')->where('id', $booking_id)->get();
+
+        $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
+        $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
+
+        $rooms_2_day = DB::table('rooms_2_day')->where('booking_id', $booking_id)->get();
+        $room_cache = DB::table('room_cache')->where('booking_id', $booking_id)->get();
+
+        return [
+            "booking_data" => $booking_data,
+            "facilities" => $facilities,
+            "rooms_2_day" => $rooms_2_day,
+            "room_cache" => $room_cache
+          ];
+    }
 }

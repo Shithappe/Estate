@@ -60,3 +60,5 @@ Route::post('/get-report', [booking_data::class, 'get_report']);
 Route::get('/get-report', function () {
     return redirect('/booking_data-map');
 });
+
+Route::get('/get_all/{id}', [booking_data::class, 'get_all']);
