@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import Lucide from '@/Components/Lucide.vue';
@@ -14,6 +14,7 @@ const props = defineProps({
     types: Object,
     facilities: Array
 });
+
 
 const searchInput = ref(null)
 const load = ref(false);
@@ -49,22 +50,22 @@ const applyFilters = async () => {
     }
 };
 
+const closeFilters = () => {
+    showFilters.value = false;
+}
 </script>
 
 <template>
     <SimpleAppLayout title="Головна">
 
-        <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
-            enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
-            leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
             <SideBarFilters 
-                v-if="showFilters" 
+                :show="showFilters"
                 :cities="props.cities" 
                 :types="props.types" 
                 :facilities="props.facilities" 
                 @applyFilters="applyFilters" 
+                @closeFilters="closeFilters"
             />
-        </transition>
 
         <div class="w-full px-4 py-6 mx-auto" :class="{ 'lg:w-4/5 lg:float-right lg:pl-24': showFilters, 'lg:px-24 lg:max-w-8xl': !showFilters }">
 

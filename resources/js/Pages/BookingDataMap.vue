@@ -246,6 +246,10 @@ async function fetchData(markerId) {
   }
 }
 
+const closeFilters = () => {
+    showFilters.value = false;
+}
+
 </script>
 
 <template>
@@ -269,12 +273,8 @@ async function fetchData(markerId) {
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </BottomSheet>
 
-    <transition enter-active-class="transition ease-out duration-300" enter-from-class="-translate-x-full opacity-0"
-      enter-to-class="translate-x-0 opacity-100" leave-active-class="transition ease-in duration-300"
-      leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-full opacity-0">
-      <SideBarFilters class="transform -translate-y-16" v-if="showFilters" :map="true" :cities="props.cities"
-        :types="props.types" :facilities="props.facilities" @applyFilters="applyFilters" />
-    </transition>
+      <SideBarFilters :show="showFilters" :map="true" :cities="props.cities"
+        :types="props.types" :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />
 
     <div 
       class="absolute z-10 top-3 flex flex-col gap-y-2"

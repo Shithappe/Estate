@@ -1,9 +1,11 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref, computed, defineProps, defineEmits } from 'vue';
+import Lucide from '@/Components/Lucide.vue';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 
 const props = defineProps({
+  show: Boolean,
   map: {
     type: Boolean,
     default: false,
@@ -13,7 +15,8 @@ const props = defineProps({
   facilities: Array
 });
 
-const emits = defineEmits(['applyFilters']);
+
+const emits = defineEmits(['applyFilters', 'closeFilters']);
 
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
@@ -54,12 +57,45 @@ const clearData = (data) => {
   return cleanData;
 };
 
+const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
+const enterActiveClass = computed(() =>
+      isDesktop ? 'transition ease-out duration-300' : 'transition ease-out duration-500'
+    );
+const enterFromClass = computed(() =>
+    isDesktop ? 'transform -translate-x-full opacity-0' : 'transform translate-y-full opacity-0'
+);
+const enterToClass = computed(() =>
+    isDesktop ? 'transform -translate-x-0 opacity-100' : 'transform translate-y-0 opacity-100'
+);
+const leaveActiveClass = computed(() =>
+    isDesktop ? 'transition ease-in duration-300' : 'transition ease-in duration-500'
+);
+const leaveFromClass = computed(() =>
+    isDesktop ? 'transform -translate-x-0 opacity-100' : 'transform translate-y-0 opacity-100'
+);
+const leaveToClass = computed(() =>
+    isDesktop ? 'transform -translate-x-full opacity-0' : 'transform translate-y-full opacity-0'
+);
+
 </script>
 
 <template>
-  <div
+  <transition
+            :enter-active-class="enterActiveClass"
+            :enter-from-class="enterFromClass"
+            :enter-to-class="enterToClass"
+            :leave-active-class="leaveActiveClass"
+            :leave-from-class="leaveFromClass"
+            :leave-to-class="leaveToClass"
+        >
+  <div v-if="props.show"
     class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 min-w-96 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white"
     :class="{ 'backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map }">
+    <div v-if="!isDesktop" class="absolute -top-4 right-2 bg-gray-200 rounded-lg shadow-lg" @click="() => {emits('closeFilters')}">
+      <Lucide class="text-gray-700 w-8 h-8" icon="X" />
+      <!-- circle-x -->
+    </div>
     <div>
       <label for="city">Select city</label>
       <v-select v-model="selectedCity" :options="clearData(props.cities)" multiple :searchable="true"
@@ -106,4 +142,5 @@ const clearData = (data) => {
       Filters</button>
 
   </div>
+  </transition>
 </template>
