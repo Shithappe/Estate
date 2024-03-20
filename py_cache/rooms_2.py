@@ -1,3 +1,4 @@
+import numbers
 import mysql.connector
 
 def connect_to_db():
@@ -26,6 +27,7 @@ def main():
     
     cursor = connection.cursor()
 
+    # cursor.execute('SELECT id FROM booking_data WHERE id = 39')
     cursor.execute('SELECT id FROM booking_data')
     arr_id = cursor.fetchall()
 
@@ -115,17 +117,27 @@ def main():
                     'occupancy_rate': None  
                 }
 
-        # print(combined_data)
+        sum_occupancy_rate = [0, 0]
 
         for room_type, data in combined_data.items():
             max_available = data['max_available']
             occupancy_rate = data['occupancy_rate']
 
-            cursor.execute("INSERT INTO room_cache (booking_id, room_type, max_available, occupancy_rate) VALUES (%s, %s, %s, %s)",
-                        (id[0], room_type, max_available, occupancy_rate))
+            if isinstance(data['occupancy_rate'], numbers.Number):
+                sum_occupancy_rate[0] += data['occupancy_rate']
+                sum_occupancy_rate[1] += 1
+
+            # cursor.execute("INSERT INTO room_cache (booking_id, room_type, max_available, occupancy_rate) VALUES (%s, %s, %s, %s)",
+            #             (id[0], room_type, max_available, occupancy_rate))
+            # connection.commit()
+
+        if sum_occupancy_rate[1] > 0:
+            sum_occupancy_rate[0] = round(sum_occupancy_rate[0] / sum_occupancy_rate[1], 2)
+            # print(sum_occupancy_rate[0])
+            cursor.execute("UPDATE booking_data SET occupancy = %s WHERE id = %s", (sum_occupancy_rate[0], id[0]))
             connection.commit()
 
-    #     print(id[0])
+        print(id[0], sum_occupancy_rate[0])
 
     print('\n\nDone')
 

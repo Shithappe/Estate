@@ -174,7 +174,7 @@ class booking_data extends Controller
         }
 
 
-        $filteredData = $query->select('id', 'title', 'location')->get();
+        $filteredData = $query->select('id', 'title', 'occupancy', 'price', 'location')->get();
 
         $coordinatesArray = [];
 
@@ -185,6 +185,8 @@ class booking_data extends Controller
                 $coordinatesArray[] = [
                     'id' => $coord->id,
                     'title' => $coord->title,
+                    'occupancy' => $coord->occupancy,
+                    'price' => $coord->price,
                     'location' => [$coords[0], $coords[1]]
                 ];
             }

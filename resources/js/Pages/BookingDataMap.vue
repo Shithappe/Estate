@@ -106,9 +106,14 @@ function filterCoordinatesByRadius(coordinatesArray, centerPoint, radius) {
 
 const addMarkers = (data) => {
   data.forEach((item) => {
-    const marker = L.marker(item.location, { icon: customIcon });
+    const marker = L.marker(item.location, {
+      icon: customIcon,
+      title: `${item.title}\n${item.price}$\n${item.occupancy}%`,
+    });
     markers.push(marker);
     marker.addTo(markerCluster);
+
+
 
     marker.myId = item.id;
 
@@ -247,7 +252,7 @@ async function fetchData(markerId) {
 }
 
 const closeFilters = () => {
-    showFilters.value = false;
+  showFilters.value = false;
 }
 
 </script>
@@ -273,11 +278,10 @@ const closeFilters = () => {
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </BottomSheet>
 
-      <SideBarFilters :show="showFilters" :map="true" :cities="props.cities"
-        :types="props.types" :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />
+    <SideBarFilters :show="showFilters" :map="true" :cities="props.cities" :types="props.types"
+      :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />
 
-    <div 
-      class="absolute z-10 top-3 flex flex-col gap-y-2"
+    <div class="absolute z-10 top-3 flex flex-col gap-y-2"
       :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }">
       <button
         class="px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
@@ -287,8 +291,7 @@ const closeFilters = () => {
       </button>
 
       <a href="/"
-        class="px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
-        >
+        class="px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4">
         <Lucide icon="ArrowLeftCircle" />
       </a>
     </div>
@@ -303,3 +306,15 @@ const closeFilters = () => {
     <div id="mapContainer" class="w-full h-screen z-0"></div>
   </div>
 </template>
+
+
+<style scoped>
+.custom-div-icon {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 15px;
+  padding: 5px;
+}
+</style>

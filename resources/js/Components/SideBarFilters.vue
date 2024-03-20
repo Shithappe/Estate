@@ -18,6 +18,7 @@ const props = defineProps({
 
 const emits = defineEmits(['applyFilters', 'closeFilters']);
 
+const selectedCountry = ref('Bali');
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
 const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
@@ -90,12 +91,17 @@ const leaveToClass = computed(() =>
             :leave-to-class="leaveToClass"
         >
   <div v-if="props.show"
-    class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 min-w-96 lg:h-screen flex flex-col gap-y-2 p-2 lg:border-r bg-white"
-    :class="{ 'backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map }">
+    class="fixed lg:absolute z-10 bottom-0 lg:top-16 w-full lg:w-1/4 min-w-96 lg:h-screen flex flex-col gap-y-2 p-2 pr-4 lg:border-r bg-white"
+    :class="{ 'lg:top-0 backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map }">
     <div v-if="!isDesktop" class="absolute -top-4 right-2 bg-gray-200 rounded-lg shadow-lg" @click="() => {emits('closeFilters')}">
       <Lucide class="text-gray-700 w-8 h-8" icon="X" />
       <!-- circle-x -->
     </div>
+    <div>
+      <label for="country">Select country</label>
+      <v-select v-model="selectedCountry" :options="['Bali', 'Indonesia']" />
+    </div>
+
     <div>
       <label for="city">Select city</label>
       <v-select v-model="selectedCity" :options="clearData(props.cities)" multiple :searchable="true"
