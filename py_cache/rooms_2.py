@@ -48,8 +48,8 @@ def main():
         available_rooms = cursor.fetchall()
 
         # delete old data
-        cursor.execute("DELETE FROM room_cache WHERE booking_id = %s", (id[0],))
-        connection.commit()
+        # cursor.execute("DELETE FROM room_cache WHERE booking_id = %s", (id[0],))
+        # connection.commit()
 
 
         # available rooms sum
@@ -127,9 +127,9 @@ def main():
                 sum_occupancy_rate[0] += data['occupancy_rate']
                 sum_occupancy_rate[1] += 1
 
-            # cursor.execute("INSERT INTO room_cache (booking_id, room_type, max_available, occupancy_rate) VALUES (%s, %s, %s, %s)",
-            #             (id[0], room_type, max_available, occupancy_rate))
-            # connection.commit()
+            cursor.execute("INSERT INTO room_cache (booking_id, room_type, max_available, occupancy_rate) VALUES (%s, %s, %s, %s)",
+                        (id[0], room_type, max_available, occupancy_rate))
+            connection.commit()
 
         if sum_occupancy_rate[1] > 0:
             sum_occupancy_rate[0] = round(sum_occupancy_rate[0] / sum_occupancy_rate[1], 2)
