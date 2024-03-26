@@ -18,7 +18,7 @@ const props = defineProps({
 
 const emits = defineEmits(['applyFilters', 'closeFilters']);
 
-const selectedCountry = ref('Bali');
+const selectedCountry = ref('Indonesia');
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
 const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
@@ -99,7 +99,7 @@ const leaveToClass = computed(() =>
     </div>
     <div>
       <label for="country">Select country</label>
-      <v-select v-model="selectedCountry" :options="['Bali', 'Indonesia']" />
+      <v-select v-model="selectedCountry" :options="['Indonesia', 'Thailand']" />
     </div>
 
     <div>
