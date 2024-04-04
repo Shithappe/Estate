@@ -32,6 +32,12 @@ class booking_data extends Controller
         }
 
 
+        $countries = DB::table('booking_data')
+        ->select('country')
+        ->distinct()
+        ->pluck('country')
+        ->toArray();
+
         $cities = DB::table('booking_data')
         ->select('city')
         ->distinct()
@@ -49,6 +55,7 @@ class booking_data extends Controller
 
         return Inertia::render('BookingData', [
             'data' => $data,
+            'countries' => $countries,
             'cities' => $cities,
             'types' => $types,
             'facilities' => $facilities
@@ -250,6 +257,8 @@ class booking_data extends Controller
         $data = $request->json()->all();
 
         $filterTitle = $data['title'];
+        $filterCountry = $data['country'];
+        // return $filterCountry;
         $filterCity = $data['city'];
         $filterType = $data['type'];
         $filterFacilities = $data['facilities'];
@@ -264,6 +273,9 @@ class booking_data extends Controller
 
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
+        }
+        if (!empty($filterCountry)) {
+            $query->whereIn('country', $filterCountry);
         }
         if (!empty($filterCity)) {
             $query->whereIn('city', $filterCity);

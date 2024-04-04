@@ -10,6 +10,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  countries: Array,
   cities: Array,
   types: Array,
   facilities: Array
@@ -18,13 +19,17 @@ const props = defineProps({
 
 const emits = defineEmits(['applyFilters', 'closeFilters']);
 
-const selectedCountry = ref('Indonesia');
+const selectedCountry = ref(JSON.parse(localStorage.getItem('selectedCountry')));
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
 const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
 const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JSON.parse(localStorage.getItem('selectedPrice')) : { min: null, max: null });
 const selectedSort = ref(JSON.parse(localStorage.getItem('selectedSort')));
 
+
+const selectCountry = () => {
+  localStorage.setItem('selectedCountry', JSON.stringify(selectedCountry.value));
+};
 
 const selectCity = () => {
   localStorage.setItem('selectedCity', JSON.stringify(selectedCity.value));
@@ -95,11 +100,11 @@ const leaveToClass = computed(() =>
     :class="{ 'lg:top-0 backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map }">
     <div v-if="!isDesktop" class="absolute -top-4 right-2 bg-gray-200 rounded-lg shadow-lg" @click="() => {emits('closeFilters')}">
       <Lucide class="text-gray-700 w-8 h-8" icon="X" />
-      <!-- circle-x -->
     </div>
     <div>
       <label for="country">Select country</label>
-      <v-select v-model="selectedCountry" :options="['Indonesia', 'Thailand']" />
+      <v-select v-model="selectedCountry" :options="clearData(props.countries)" multiple
+      @update:modelValue="selectCountry" />
     </div>
 
     <div>

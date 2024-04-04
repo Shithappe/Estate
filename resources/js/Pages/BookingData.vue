@@ -10,6 +10,7 @@ import SideBarFilters from '@/Components/SideBarFilters.vue';
 
 const props = defineProps({
     data: Object,
+    countries: Object,
     cities: Object,
     types: Object,
     facilities: Array
@@ -37,6 +38,7 @@ const applyFilters = async () => {
     try {
         const response = await axios.post("/api/booking_data_filters", {
             'title': selectedTitle.value,
+            'country': JSON.parse(localStorage.getItem('selectedCountry')),
             'city': JSON.parse(localStorage.getItem('selectedCity')),
             'type': JSON.parse(localStorage.getItem('selectedTypes')),
             'facilities': JSON.parse(localStorage.getItem('selectedFacilities')),
@@ -60,6 +62,7 @@ const closeFilters = () => {
 
             <SideBarFilters 
                 :show="showFilters"
+                :countries="props.countries"
                 :cities="props.cities" 
                 :types="props.types" 
                 :facilities="props.facilities" 
