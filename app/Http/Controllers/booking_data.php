@@ -39,12 +39,23 @@ class booking_data extends Controller
 
 
             $minutes = 1440;
+            // $countries = Cache::remember('countries', $minutes, function () {
+            //     return DB::table('booking_data')
+            //         ->select('country')
+            //         ->distinct()
+            //         ->pluck('country')
+            //         ->toArray();
+            // });
+
             $countries = Cache::remember('countries', $minutes, function () {
                 return DB::table('booking_data')
-                    ->select('country')
+                    ->select('country', 'city')
                     ->distinct()
-                    ->pluck('country')
-                    ->toArray();
+                    ->get()
+                    ->groupBy('country')
+                    ->map(function ($item) {
+                        return $item->pluck('city')->toArray();
+                    });
             });
             
             $cities = Cache::remember('cities', $minutes, function () {
@@ -302,7 +313,7 @@ class booking_data extends Controller
             $query->where('title', 'like', '%' . $filterTitle . '%');
         }
         if (!empty($filterCountry)) {
-            $query->whereIn('country', $filterCountry);
+            $query->where('country', $filterCountry);
         }
         if (!empty($filterCity)) {
             $query->whereIn('city', $filterCity);

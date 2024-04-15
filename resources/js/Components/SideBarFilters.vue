@@ -10,8 +10,8 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  countries: Array,
-  cities: Array,
+  countries: Object,
+  // cities: Array,
   types: Array,
   facilities: Array
 });
@@ -63,6 +63,11 @@ const clearData = (data) => {
   return cleanData;
 };
 
+const getCities = computed(() => {
+  if (selectedCountry.value) return props.countries[selectedCountry.value];
+  else return Object.values(Object.values(props.countries).flat());
+});
+
 const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
 
 const enterActiveClass = computed(() =>
@@ -101,15 +106,16 @@ const leaveToClass = computed(() =>
     <div v-if="!isDesktop" class="absolute -top-4 right-2 bg-gray-200 rounded-lg shadow-lg" @click="() => {emits('closeFilters')}">
       <Lucide class="text-gray-700 w-8 h-8" icon="X" />
     </div>
+
     <div>
       <label for="country">Select country</label>
-      <v-select v-model="selectedCountry" :options="clearData(props.countries)" multiple
+      <v-select v-model="selectedCountry" :options="Object.keys(props.countries)"
       @update:modelValue="selectCountry" />
     </div>
 
     <div>
       <label for="city">Select city</label>
-      <v-select v-model="selectedCity" :options="clearData(props.cities)" multiple :searchable="true"
+      <v-select v-model="selectedCity" :options="getCities" multiple :searchable="true"
         @update:modelValue="selectCity" />
     </div>
 

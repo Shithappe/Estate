@@ -23,6 +23,7 @@ const loadPage = async (link) => {
     
     const filters = {
             'title': localStorage.getItem('selectedTitle'),
+            'country': JSON.parse(localStorage.getItem('selectedCountry')),
             'city': JSON.parse(localStorage.getItem('selectedCity')),
             'type': JSON.parse(localStorage.getItem('selectedTypes')),
             'facilities': JSON.parse(localStorage.getItem('selectedFacilities')),

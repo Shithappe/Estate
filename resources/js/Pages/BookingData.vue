@@ -60,10 +60,10 @@ const closeFilters = () => {
 <template>
     <SimpleAppLayout title="Головна">
 
+        <!-- :cities="props.cities"  -->
             <SideBarFilters 
                 :show="showFilters"
                 :countries="props.countries"
-                :cities="props.cities" 
                 :types="props.types" 
                 :facilities="props.facilities" 
                 @applyFilters="applyFilters" 
