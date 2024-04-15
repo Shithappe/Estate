@@ -1,6 +1,5 @@
 <script setup>
 import { Link } from '@inertiajs/vue3'
-import { defineProps, defineEmits } from 'vue';
 // import html2pdf from 'html2pdf.js';
 
 const props = defineProps({

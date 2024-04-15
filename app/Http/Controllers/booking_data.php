@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class booking_data extends Controller
@@ -11,46 +12,60 @@ class booking_data extends Controller
     public function index(Request $request)
     {
         $data = DB::table('booking_data')
+            ->select('booking_data.id', 
+                    'booking_data.images',
+                    'booking_data.title', 
+                    'booking_data.city', 
+                    'booking_data.type', 
+                    'booking_data.price',
+                    'booking_data.star', 
+                    'booking_data.score', 
+                    DB::raw('COUNT(room_cache.id) as types_rooms'),
+                    DB::raw('SUM(room_cache.max_available) as count_rooms'),
+                    DB::raw('AVG(room_cache.occupancy_rate) as occupancy_rate')
+                    )
+            ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id')
             ->orderByRaw('
                 CASE 
-                    WHEN priority > 0 THEN priority
+                    WHEN booking_data.priority > 0 THEN booking_data.priority
                     ELSE 0
                 END DESC
             ')
-            ->orderBy('star', 'desc')
-            ->orderBy('review_count', 'desc')
-            ->orderBy('score', 'desc')
+            ->orderBy('booking_data.star', 'desc')
+            ->orderBy('booking_data.review_count', 'desc')
+            ->orderBy('booking_data.score', 'desc')
+            ->groupBy('booking_data.id')
             ->paginate(12);
 
-                    
-        foreach ($data as $item) {
-            $rooms = DB::table('room_cache')
-                ->where('booking_id', $item->id)
-                ->get();
-        
-            $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
-        }
 
-
-        $countries = DB::table('booking_data')
-        ->select('country')
-        ->distinct()
-        ->pluck('country')
-        ->toArray();
-
-        $cities = DB::table('booking_data')
-        ->select('city')
-        ->distinct()
-        ->pluck('city')
-        ->toArray();
-
-        $types = DB::table('booking_data')
-        ->select('type')
-        ->distinct()
-        ->pluck('type')
-        ->toArray();
-
-        $facilities = DB::table('facilities')->get();
+            $minutes = 1440;
+            $countries = Cache::remember('countries', $minutes, function () {
+                return DB::table('booking_data')
+                    ->select('country')
+                    ->distinct()
+                    ->pluck('country')
+                    ->toArray();
+            });
+            
+            $cities = Cache::remember('cities', $minutes, function () {
+                return DB::table('booking_data')
+                    ->select('city')
+                    ->distinct()
+                    ->pluck('city')
+                    ->toArray();
+            });
+            
+            $types = Cache::remember('types', $minutes, function () {
+                return DB::table('booking_data')
+                    ->select('type')
+                    ->distinct()
+                    ->pluck('type')
+                    ->toArray();
+            });
+            
+            $facilities = Cache::remember('facilities', $minutes, function () {
+                return DB::table('facilities')->get();
+            });
 
 
         return Inertia::render('BookingData', [
@@ -252,25 +267,37 @@ class booking_data extends Controller
         return $booking_data[0];
     }
 
-    public function booking_data_filters (Request $request)
+    public function booking_data_filters(Request $request)
     {
         $data = $request->json()->all();
-
+    
         $filterTitle = $data['title'];
         $filterCountry = $data['country'];
-        // return $filterCountry;
         $filterCity = $data['city'];
         $filterType = $data['type'];
         $filterFacilities = $data['facilities'];
         $filterPrice = $data['price'];
         $filterSort = $data['sort'];
-
-        $query = DB::table('booking_data');
-
+    
+        $query = DB::table('booking_data')
+            ->select('booking_data.id',
+                    'booking_data.images',
+                    'booking_data.title',
+                    'booking_data.city',
+                    'booking_data.type',
+                    'booking_data.price',
+                    'booking_data.star',
+                    'booking_data.score',
+                    DB::raw('COUNT(room_cache.id) as types_rooms'),
+                    DB::raw('SUM(room_cache.max_available) as count_rooms'),
+                    DB::raw('AVG(room_cache.occupancy_rate) as occupancy_rate')
+                    )
+            ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id');
+    
         if (empty($filterSort) || $filterSort == null) {
-            $query ->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
+            $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
         }
-
+    
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
         }
@@ -284,14 +311,9 @@ class booking_data extends Controller
             $query->whereIn('type', $filterType);
         }
         if (!empty($filterFacilities)) {
-            foreach ($filterFacilities as $facility) {
-                $query->whereExists(function ($subquery) use ($facility) {
-                    $subquery->select(DB::raw(1))
-                        ->from('booking_facilities')
-                        ->whereRaw('booking_facilities.booking_id = booking_data.id')
-                        ->where('facilities_id', $facility);
-                });
-            }
+            $query->whereHas('facilities', function ($query) use ($filterFacilities) {
+                $query->whereIn('facilities_id', $filterFacilities);
+            });
         }
         if (!empty($filterPrice)) {
             if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
@@ -305,62 +327,25 @@ class booking_data extends Controller
                 $query->orderBy('score', 'desc');
             }
             elseif ($filterSort == 'occupancy') {
-                $sortedBookingIds = DB::table('room_cache')
-                    ->select('booking_id', DB::raw('AVG(occupancy_rate) as avg_occupancy'))
-                    ->groupBy('booking_id')
-                    ->orderByDesc('avg_occupancy')
-                    ->pluck('booking_id');
-                
-                $sortedBookingIdsArray = $sortedBookingIds->toArray();
-
-                $query
-                ->whereIn('id', $sortedBookingIdsArray)
-                ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'));
+                $query->orderByRaw('AVG(room_cache.occupancy_rate) DESC');
             }
             elseif ($filterSort == 'room_type') {
-                $countPerBookingId = DB::table('room_cache')
-                    ->select('booking_id', DB::raw('COUNT(DISTINCT room_type) as room_type_count'))
-                    ->groupBy('booking_id')
-                    ->orderByDesc('room_type_count')
-                    ->pluck('room_type_count', 'booking_id');
-
-                $sortedBookingIdsArray = $countPerBookingId->keys()->toArray();
-
-                $query
-                    ->whereIn('id', $sortedBookingIdsArray)
-                    ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'))
-                    ->paginate(12);
+                $query->orderByRaw('COUNT(DISTINCT room_cache.room_type) DESC');
             }
             elseif ($filterSort == 'room_count') {
-                $sumPerRoomType = DB::table('room_cache')
-                    ->select('booking_id', DB::raw('SUM(max_available) as total_max_available'))
-                    ->groupBy('booking_id')
-                    ->orderByDesc('total_max_available')
-                    ->pluck('total_max_available', 'booking_id');
-
-                $sortedBookingIdsArray = $sumPerRoomType->keys()->toArray();
-
-                $query
-                    ->whereIn('id', $sortedBookingIdsArray)
-                    ->orderBy(\DB::raw('FIELD(id, ' . implode(',', $sortedBookingIdsArray) . ')'))
-                    ->paginate(12);
+                $query->orderByRaw('SUM(room_cache.max_available) DESC');
             }
         }
     
+        $data = $query->groupBy('booking_data.id')->paginate(12);
     
-        $data = $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->paginate(12); 
-
         foreach ($data as $item) {
-            $rooms = DB::table('room_cache')
-                ->where('booking_id', $item->id)
-                ->get();
-        
             $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
         }
-
+    
         return $data;
     }
-
+    
     public function setting_priority () 
     {
         $priority = DB::table('booking_data')

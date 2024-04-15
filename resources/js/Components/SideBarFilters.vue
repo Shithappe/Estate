@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, defineProps, defineEmits } from 'vue';
+import { ref, computed } from 'vue';
 import Lucide from '@/Components/Lucide.vue';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';

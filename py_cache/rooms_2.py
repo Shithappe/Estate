@@ -27,8 +27,8 @@ def main():
     
     cursor = connection.cursor()
 
-    cursor.execute('SELECT id FROM booking_data')
     # cursor.execute('SELECT id FROM booking_data')
+    cursor.execute("SELECT id FROM booking_data")
     arr_id = cursor.fetchall()
 
     for id in arr_id:

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import Lucide from '@/Components/Lucide.vue';
@@ -104,9 +104,10 @@ const closeFilters = () => {
                 <CardBookingData v-for="item in data.data" :key="item.id" :item="item" class="col-span-1" />
             </div>
 
+            <!-- {{ data.data }} -->
+
             <PaginationPost v-if="useFilters" class="mt-6" :links="data.links" :updateData="updateData" />
             <Pagination v-else class="mt-6" :links="data.links" />
         </div>
     </SimpleAppLayout>
 </template>
-

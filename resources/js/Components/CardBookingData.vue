@@ -2,21 +2,13 @@
 import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
+import { Carousel, Slide, Navigation } from 'vue3-carousel'; // Pagination
 
 const props = defineProps({
     item: Object,
 });
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
-const rooms = Array.isArray(props.item.rooms) ? props.item.rooms : JSON.parse(props.item.rooms);
-
-let count_rooms = 0, occupancy_rate = 0;
-rooms.forEach(room => {
-    count_rooms += Number(room.max_available);
-    occupancy_rate += Number(room.occupancy_rate);
-});
-occupancy_rate = Math.round(occupancy_rate / rooms.length);
 
 </script>
 
@@ -55,10 +47,10 @@ occupancy_rate = Math.round(occupancy_rate / rooms.length);
                         <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
                     </div>
                     <div class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Bed" /> {{ count_rooms }}
+                        <Lucide class="w-5 h-5" icon="Bed" /> {{ item.count_rooms }}
                     </div>
                     <div class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Tags" /> {{ item.rooms.length }}
+                        <Lucide class="w-5 h-5" icon="Tags" /> {{ item.types_rooms }}
                     </div>
 
                 </div>
@@ -72,8 +64,8 @@ occupancy_rate = Math.round(occupancy_rate / rooms.length);
                         <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
                     </div>
 
-                    <div v-if="item.rooms[0]" class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Zap" /> {{ occupancy_rate }}%
+                    <div class="flex items-center gap-2">
+                        <Lucide class="w-5 h-5" icon="Zap" /> {{ Math.round(item.occupancy_rate) }}%
                     </div>
                 </div>
             </div>
