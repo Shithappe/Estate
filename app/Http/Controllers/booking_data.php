@@ -99,7 +99,6 @@ class booking_data extends Controller
         // Получение названий удобств из facilities на основе полученных id
         $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
  
-
         return Inertia::render('SingleBookingData', [
             'booking' => $booking,
             'facilities' => $facilities
@@ -127,20 +126,18 @@ class booking_data extends Controller
 
 
         $maxAvailableRooms = DB::table('rooms_30_day')
-            ->select('room_type', DB::raw('MAX(max_available_rooms) AS max_available'))
-            ->where('booking_id', $request->booking_id)
-            ->groupBy('room_type')
-        ->get();
-
-        if (count($maxAvailableRooms) == 0) {
-            $maxAvailableRooms = DB::table('rooms_2_day')
-            ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'))
+            ->select('room_type', DB::raw('MAX(max_available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
             ->where('booking_id', $request->booking_id)
             ->groupBy('room_type')
             ->get();
+
+        if ($maxAvailableRooms->isEmpty()) {
+            $maxAvailableRooms = DB::table('rooms_2_day')
+                ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
+                ->where('booking_id', $request->booking_id)
+                ->groupBy('room_type')
+                ->get();
         }
-
-
 
         $groupedRooms = $rooms->groupBy('room_type');
 
@@ -148,30 +145,35 @@ class booking_data extends Controller
 
         foreach ($groupedRooms as $roomType => $group) {
             // Находим соответствующую запись в $maxAvailableRooms по room_type
-            $maxAvailableRoom = $maxAvailableRooms->firstWhere('room_type', $roomType);
+            $maxAvailableRoom = $maxAvailableRooms
+            ->reverse() // Переворачиваем коллекцию, чтобы последний элемент стал первым
+            ->first(function ($item) use ($roomType) {
+                return $item->room_type === $roomType && $item->price !== null;
+            });
 
-            // Если запись найдена, продолжаем вычисления
-            if ($maxAvailableRoom) {
-                // Сумма свободных комнат по типу
-                $sum = $group->sum('available_rooms');
+        // Если запись найдена и цена не равна NULL, продолжаем вычисления
+        if ($maxAvailableRoom && $maxAvailableRoom->price !== null) {
+            // Сумма свободных комнат по типу
+            $sum = $group->sum('available_rooms');
 
-                // Количество записей по типу
-                $count = $group->count();
+            // Количество записей по типу
+            $count = $group->count();
 
-                // Расчет занятости
-                $occupancy = $sum / $count;  // среднее
-                $occupancy = $maxAvailableRoom->max_available - $occupancy; // отнимает от максимального
-                if ($occupancy > 0) $occupancy = round(($occupancy / $maxAvailableRoom->max_available) * 100, 2); // переводим в %
-                if ($occupancy < 0) $occupancy = -1;
-            } else {
-                // Обработка ситуации, если не найдено соответствие
-                $occupancy = -1;
-            }
+            // Расчет занятости
+            $occupancy = $sum / $count;  // среднее
+            $occupancy = $maxAvailableRoom->max_available - $occupancy; // отнимает от максимального
+            if ($occupancy > 0) $occupancy = round(($occupancy / $maxAvailableRoom->max_available) * 100, 2); // переводим в %
+            if ($occupancy < 0) $occupancy = -1;
+        } else {
+            // Обработка ситуации, если не найдено соответствие или цена равна NULL
+            $occupancy = -1;
+        }
 
             // Добавляем результаты в массив
             $resultArray[] = [
                 'room_type' => $roomType,
-                'occupancy' => $occupancy,
+                'price' => $maxAvailableRoom ? rtrim($maxAvailableRoom->price, '.0') : null,
+                'occupancy' => $occupancy
             ];
         }
 

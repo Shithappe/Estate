@@ -180,9 +180,13 @@ onMounted(() => {
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 my-4">
                             <div v-for="room in rooms" :key="room">
                                 <div
-                                    class="shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
-                                    <div class="text-2xl">{{ room.occupancy > 0 ? room.occupancy + '%' : 'N/A' }}</div>
-                                    <div>{{ room.room_type }}</div>
+                                    class="flex justify-between shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
+                                    <div>
+                                        <div class="text-2xl">{{ room.occupancy > 0 ? room.occupancy + '%' : 'N/A' }}
+                                        </div>
+                                        <div>{{ room.room_type }}</div>
+                                    </div>
+                                    <div v-if="room.price" class="text-xl">{{ room.price }}$</div>
                                 </div>
                             </div>
                         </div>
@@ -266,18 +270,19 @@ onMounted(() => {
 </template>
 
 <style scoped>
-     table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-    th {
-      background-color: #f2f2f2;
-    }
-  </style>
+th {
+    background-color: #f2f2f2;
+}
+</style>
