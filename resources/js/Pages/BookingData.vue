@@ -24,7 +24,7 @@ const data = ref(props.data);
 const showFilters = ref(false);
 const useFilters = ref(false);
 
-const selectedTitle = ref(null);
+const selectedTitle = ref("");
 
 const updateData = (newData) => {
     data.value = newData;
@@ -42,8 +42,8 @@ const closeHistory = (event) => {
 
 const applyFilters = async () => {
     // add title to history
-    showHistory = false;
-    if (!history.value.includes(selectedTitle.value)) {
+    showHistory.value = false;
+    if (selectedTitle.value.length > 0 && !history.value.includes(selectedTitle.value)) {
         if (history.value.lenght >= 10) history.value.pop();
         history.value.unshift(selectedTitle.value);
         localStorage.setItem('history', JSON.stringify(history.value));

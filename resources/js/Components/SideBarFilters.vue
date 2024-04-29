@@ -44,7 +44,6 @@ const selectFacilities = () => {
 };
 
 const selectPrice = () => {
-  console.log(selectedPrice.value);
   localStorage.setItem('selectedPrice', JSON.stringify(selectedPrice.value));
 };
 
@@ -64,6 +63,7 @@ const clearData = (data) => {
 };
 
 const getCities = computed(() => {
+  console.log('1');
   if (selectedCountry.value) return props.countries[selectedCountry.value];
   else return Object.values(Object.values(props.countries).flat());
 });
