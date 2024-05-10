@@ -148,11 +148,11 @@ class booking_data extends Controller
             $maxAvailableRoom = $maxAvailableRooms
             ->reverse() // Переворачиваем коллекцию, чтобы последний элемент стал первым
             ->first(function ($item) use ($roomType) {
-                return $item->room_type === $roomType && $item->price !== null;
+                return $item->room_type === $roomType;  // && $item->price !== null
             });
 
         // Если запись найдена и цена не равна NULL, продолжаем вычисления
-        if ($maxAvailableRoom && $maxAvailableRoom->price !== null) {
+        if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
             // Сумма свободных комнат по типу
             $sum = $group->sum('available_rooms');
 
