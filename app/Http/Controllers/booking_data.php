@@ -131,6 +131,8 @@ class booking_data extends Controller
             ->groupBy('room_type')
             ->get();
 
+            return $maxAvailableRooms;
+
         if ($maxAvailableRooms->isEmpty()) {
             $maxAvailableRooms = DB::table('rooms_2_day')
                 ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
@@ -146,10 +148,11 @@ class booking_data extends Controller
         foreach ($groupedRooms as $roomType => $group) {
             // Находим соответствующую запись в $maxAvailableRooms по room_type
             $maxAvailableRoom = $maxAvailableRooms
-            ->reverse() // Переворачиваем коллекцию, чтобы последний элемент стал первым
             ->first(function ($item) use ($roomType) {
                 return $item->room_type === $roomType;  // && $item->price !== null
             });
+
+            // return $maxAvailableRooms;
 
         // Если запись найдена и цена не равна NULL, продолжаем вычисления
         if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
@@ -165,14 +168,14 @@ class booking_data extends Controller
             if ($occupancy > 0) $occupancy = round(($occupancy / $maxAvailableRoom->max_available) * 100, 2); // переводим в %
             if ($occupancy < 0) $occupancy = -1;
         } else {
-            // Обработка ситуации, если не найдено соответствие или цена равна NULL
+            // Обработка ситуации, если не найдено соответствие
             $occupancy = -1;
         }
 
             // Добавляем результаты в массив
             $resultArray[] = [
                 'room_type' => $roomType,
-                'price' => $maxAvailableRoom ? rtrim($maxAvailableRoom->price, '.0') : null,
+                'price' => $maxAvailableRoom ? intval($maxAvailableRoom->price) : null,
                 'occupancy' => $occupancy
             ];
         }

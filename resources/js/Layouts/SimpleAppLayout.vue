@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+// import { ref } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import ApplicationMark from '@/Components/ApplicationMark.vue';
+// import ApplicationMark from '@/Components/ApplicationMark.vue';
 
 defineProps({
     title: String,
@@ -18,15 +18,17 @@ defineProps({
         <nav class="text-slate-200 bg-slate-800 border-b border-gray-100">
             <div class="mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
-                    <div class="hidden lg:block flex items-center justify-between">
-                        <!-- Logo -->
-                        <div class="shrink-0 flex items-center">
-                            <!-- <ApplicationMark class="block h-9 w-auto" /> -->
-                            <p class="mx-2 text-lg">Estate market</p>
+                    <Link href="/">
+                        <div class="hidden lg:block flex items-center justify-between">
+                            <!-- Logo -->
+                            <div class="shrink-0 flex items-center">
+                                <!-- <ApplicationMark class="block h-9 w-auto" /> -->
+                                <p class="mx-2 text-lg">Estate market</p>
+                            </div>
+                            
+                            
                         </div>
-
-
-                    </div>
+                    </Link>
 
                     <div class="flex gap-x-4 text-sm lg:text-md">
                         <a href="/booking_data-map"
