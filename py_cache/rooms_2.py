@@ -27,7 +27,6 @@ def main():
     
     cursor = connection.cursor()
 
-    # cursor.execute('SELECT id FROM booking_data')
     cursor.execute("SELECT id FROM booking_data")
     arr_id = cursor.fetchall()
 
@@ -38,7 +37,22 @@ def main():
                             WHERE booking_id = %s
                             GROUP BY room_type''', (id[0],))
         max_available = cursor.fetchall()
-        # print(max_available)
+
+
+        cursor.execute('''SELECT MIN(price) AS min_price, MAX(price) AS max_price
+                            FROM rooms_30_day
+                            WHERE booking_id = %s''', (id[0],))
+        price = cursor.fetchall()
+
+        if price is not None:
+            min_price, max_price = price[0]
+            if min_price is not None and max_price is not None:
+                cursor.execute(
+                    "UPDATE booking_data SET min_price = %s, max_price = %s WHERE id = %s",
+                    (int(min_price), int(max_price), id[0])
+                )
+                connection.commit()
+                print(id[0], int(min_price), int(max_price)) 
 
 
         # get available rooms

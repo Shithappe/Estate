@@ -46,6 +46,27 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
                     </div>
+
+                    
+
+                    <div class="flex items-center gap-2">
+                        <Lucide class="w-5 h-5" icon="Zap" /> {{ Math.round(item.occupancy_rate) }}%
+                    </div>
+                   
+
+                    <div v-if="item.min_price && item.max_price" class="flex items-center gap-2">
+                        <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.min_price }} - {{ item.max_price }}
+                    </div>
+
+                </div>
+
+                <div class="flex flex-col">
+                    <!-- <div v-if="item.price" class="flex items-center gap-2">
+                        <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
+                    </div> -->
+
+                    
+
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Bed" /> {{ item.count_rooms }}
                     </div>
@@ -53,26 +74,17 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                         <Lucide class="w-5 h-5" icon="Tags" /> {{ item.types_rooms }}
                     </div>
 
-                </div>
-
-                <div class="flex flex-col">
-                    <div v-if="item.price" class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
-                    </div>
-
                     <div v-if="item.score" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
                     </div>
-
-                    <div class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Zap" /> {{ Math.round(item.occupancy_rate) }}%
-                    </div>
                 </div>
             </div>
+
+
 
             <Link :href="'booking_data/' + item.id" class="absolute bottom-3 w-full">
             <button class="w-full p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
             </Link>
         </div>
     </div>
-</template> 
+</template>
