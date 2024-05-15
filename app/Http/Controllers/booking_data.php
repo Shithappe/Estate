@@ -131,8 +131,6 @@ class booking_data extends Controller
             ->groupBy('room_type')
             ->get();
 
-            return $maxAvailableRooms;
-
         if ($maxAvailableRooms->isEmpty()) {
             $maxAvailableRooms = DB::table('rooms_2_day')
                 ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
