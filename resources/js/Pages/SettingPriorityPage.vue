@@ -53,7 +53,7 @@ const submitForm = async (msg, def = false) => {
 </script>
 
 <template>
-    <SimpleAppLayout title="Головна">
+    <SimpleAppLayout title="EstateMarket">
 
         <div  class="max-w-4xl mt-8 mx-auto sm:px-6 lg:px-8">
 

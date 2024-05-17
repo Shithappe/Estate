@@ -15,7 +15,7 @@ const images = ref(props.item.images.unshift(props.item.main_image));
 </script>
 
 <template>
-    <SimpleAppLayout title="Головна">
+    <SimpleAppLayout title="EstateMarket">
         <template #header>
             <h2 class="flex gap-x-2 font-semibold text-xl text-gray-800 leading-tight">
                 <Link href="/">

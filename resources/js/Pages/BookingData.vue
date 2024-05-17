@@ -86,7 +86,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SimpleAppLayout title="Головна">
+    <SimpleAppLayout title="">
 
         <SideBarFilters :show="showFilters" :countries="props.countries" :types="props.types"
             :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />

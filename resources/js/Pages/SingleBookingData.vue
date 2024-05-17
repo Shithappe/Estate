@@ -122,7 +122,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SimpleAppLayout title="Головна">
+    <SimpleAppLayout :title="book.title + ' -'">
         <template #header>
             <h2 class="flex gap-x-2 font-semibold text-xl text-gray-800 leading-tight">
                 <Link href="/">

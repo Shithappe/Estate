@@ -39,7 +39,7 @@ defineProps({
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Estate
                         </a>
-                        <a href="http://65.21.157.152/" target="_blank"
+                        <a href="https://offers.estatemarket.io/" target="_blank"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Offer Analysis
                         </a>

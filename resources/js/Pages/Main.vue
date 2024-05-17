@@ -38,7 +38,7 @@ const applyQuery = () => {
 </script>
 
 <template>
-    <SimpleAppLayout title="Головна">
+    <SimpleAppLayout title="EstateMarket">
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
