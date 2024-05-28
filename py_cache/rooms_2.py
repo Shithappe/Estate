@@ -27,7 +27,7 @@ def main():
     
     cursor = connection.cursor()
 
-    cursor.execute("SELECT id FROM booking_data where id > 4758")
+    cursor.execute("SELECT id FROM booking_data")
     arr_id = cursor.fetchall()
 
     for id in arr_id:
