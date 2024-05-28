@@ -186,14 +186,17 @@ onMounted(() => {
                                         </div>
                                         <div>{{ room.room_type }}</div>
                                     </div>
-                                    <div v-if="room.price" class="text-xl">{{ room.price }}$</div>
+                                    <div class="flex flex-col justify-between items-end">
+                                        <div v-if="room.price" class="text-xl">{{ room.price }}$</div>
+                                        <div v-if="!room.active && room.active !== null" class="text-sm">*not on the site</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div>
 
-                        <button @click="getAll">Get all data</button>
+                        <!-- <button @click="getAll">Get all data</button> -->
                         <div v-if="allData" class="flex flex-col gap-y-2">
                             <table v-if="allData?.booking_data">
                                 <thead>

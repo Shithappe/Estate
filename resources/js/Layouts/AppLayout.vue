@@ -42,29 +42,8 @@ const form = useForm({
         <!-- max-w-7xl -->
 
         <div class="min-h-screen bg-gray-100">
-            <div class="w-16 h-full fixed flex-col shadow-md">
-                <div
-                    class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
-                    <Lucide class="w-6 h-6" icon="AlignJustify" />
-                </div>
-                <div
-                    class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
-                    <Lucide class="w-6 h-6" icon="Gauge" />
-                </div>
-                <div
-                    class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
-                    <Lucide class="w-6 h-6" icon="Folders" />
-                </div>
-                <div
-                    class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
-                    <Lucide class="w-6 h-6" icon="ShoppingCart" />
-                </div>
-                <div
-                    class="py-5 flex justify-center aling-center cursor-pointer hover:bg-red-500 hover:text-white hover:shadow transition ease-in-out duration-150">
-                    <Lucide class="w-6 h-6" icon="Undo2" />
-                </div>
-            </div>
-            <div class="pl-16">
+            
+            <div class="">
                 <nav class="text-slate-200 bg-slate-800 border-b border-gray-100">
                     <!-- Primary Navigation Menu -->
                     <div class="mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,8 +52,8 @@ const form = useForm({
                                 <!-- Logo -->
                                 <div class="shrink-0 flex items-center">
                                     <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-9 w-auto" />
-                                    logo
+                                    <!-- <ApplicationMark class="block h-9 w-auto" /> -->
+                                    Estate Market
                                     </Link>
                                 </div>
 
@@ -156,8 +135,6 @@ const form = useForm({
                                         </template>
                                     </Dropdown>
                                 </div>
-
-                                <TextInput id="name" v-model="form.name" type="text" class="" placeholder="Пошук товару" />
 
                                 <!-- Settings Dropdown -->
                                 <div class="ml-3 relative">
@@ -329,10 +306,10 @@ const form = useForm({
                 <header v-if="$slots.header" class="bg-white shadow">
                     <div class=" mx-auto flex justify-between items-center py-3 px-4 sm:px-6 lg:px-8">
                         <slot name="header" />
-                        <button class="flex items-center px-2 py-1 border shadow rounded-lg">
+                        <!-- <button class="flex items-center px-2 py-1 border shadow rounded-lg">
                             <Lucide class="w-4 h-4 mr-1" icon="ShoppingCart" />
                             <Link href="/cart">Кошик</Link>
-                        </button>
+                        </button> -->
                     </div>
                 </header>
 

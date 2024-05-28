@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from "vue";
 import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import 'vue3-carousel/dist/carousel.css'
@@ -8,13 +9,16 @@ const props = defineProps({
     item: Object,
 });
 
+const loading = ref(true);
+
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
 </script>
 
 <template>
     <div class="m-4 w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
-        :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }">
+        :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }"
+        @click="() => {loading = false}">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">
@@ -50,12 +54,12 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                     
 
                     <div class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Zap" /> {{ Math.round(item.occupancy_rate) }}%
+                        <Lucide class="w-5 h-5" icon="Zap" /> <div class="w-16" :class="{ loading: loading }">{{ Math.round(item.occupancy_rate) }}%</div>
                     </div>
                    
 
                     <div v-if="item.min_price && item.max_price" class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.min_price }} - {{ item.max_price }}
+                        <Lucide class="w-5 h-5" icon="DollarSign" /> <div class="w-24" :class="{ loading: loading }">{{ item.min_price }} - {{ item.max_price }}</div>
                     </div>
 
                 </div>
@@ -88,3 +92,26 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
         </div>
     </div>
 </template>
+
+
+<style scoped>
+.loading {
+  color: transparent;
+  /* width: 15vh; */
+  margin: 1px 0;
+  /* height: 50px; */
+  border-radius:6px;
+  background: linear-gradient(100deg, #e8eaeb 30%, #d1d2d3 50%, #e8eaeb 70%);
+  background-size: 400%;
+  animation: loading 1.2s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+</style>

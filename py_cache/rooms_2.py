@@ -27,7 +27,7 @@ def main():
     
     cursor = connection.cursor()
 
-    cursor.execute("SELECT id FROM booking_data")
+    cursor.execute("SELECT id FROM booking_data where id > 4758")
     arr_id = cursor.fetchall()
 
     for id in arr_id:
@@ -141,9 +141,10 @@ def main():
                 sum_occupancy_rate[0] += data['occupancy_rate']
                 sum_occupancy_rate[1] += 1
 
-            cursor.execute("INSERT INTO room_cache (booking_id, room_type, max_available, occupancy_rate) VALUES (%s, %s, %s, %s)",
-                        (id[0], room_type, max_available, occupancy_rate))
+            print(occupancy_rate, id[0], room_type)
+            cursor.execute("UPDATE rooms SET occupancy = %s WHERE booking_id = %s AND room_type = %s", (occupancy_rate, id[0], room_type))
             connection.commit()
+
 
         if sum_occupancy_rate[1] > 0:
             sum_occupancy_rate[0] = round(sum_occupancy_rate[0] / sum_occupancy_rate[1], 2)

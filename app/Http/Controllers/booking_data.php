@@ -21,11 +21,11 @@ class booking_data extends Controller
                     'booking_data.max_price',
                     'booking_data.star', 
                     'booking_data.score', 
-                    DB::raw('COUNT(room_cache.id) as types_rooms'),
-                    DB::raw('SUM(room_cache.max_available) as count_rooms'),
-                    DB::raw('AVG(room_cache.occupancy_rate) as occupancy_rate')
+                    DB::raw('COUNT(rooms.id) as types_rooms'),
+                    DB::raw('SUM(rooms.max_available) as count_rooms'),
+                    DB::raw('AVG(rooms.occupancy) as occupancy_rate')
                     )
-            ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id')
+            ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
             ->orderByRaw('
                 CASE 
                     WHEN booking_data.priority > 0 THEN booking_data.priority
@@ -119,26 +119,24 @@ class booking_data extends Controller
                 ->get();
         }
         else {
-            $rooms = DB::table('rooms_2_day')
-                ->where('booking_id', $request->booking_id)
-                ->whereDate('checkin', '=', DB::raw('DATE(created_at)'))
-                ->get();
-        }
-
-
-        $maxAvailableRooms = DB::table('rooms_30_day')
-            ->select('room_type', DB::raw('MAX(max_available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
+            $rooms_data = DB::table('rooms')
+            ->select('room_type', 'active', 'price', 'occupancy')
             ->where('booking_id', $request->booking_id)
-            ->groupBy('room_type')
             ->get();
 
-        if ($maxAvailableRooms->isEmpty()) {
-            $maxAvailableRooms = DB::table('rooms_2_day')
-                ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
-                ->where('booking_id', $request->booking_id)
-                ->groupBy('room_type')
-                ->get();
+            return $rooms_data;
+         
+            // return Inertia::render('BookingData', [
+            //     'data' => $rooms_data
+            // ]);
         }
+
+
+        $maxAvailableRooms = DB::table('rooms')
+            ->select('room_type', DB::raw('MAX(max_available) AS max_available'), 'active', DB::raw('MAX(price) AS price'))
+            ->where('booking_id', $request->booking_id)
+            ->groupBy('room_type', 'active')
+            ->get();
 
         $groupedRooms = $rooms->groupBy('room_type');
 
@@ -148,7 +146,7 @@ class booking_data extends Controller
             // Находим соответствующую запись в $maxAvailableRooms по room_type
             $maxAvailableRoom = $maxAvailableRooms
             ->first(function ($item) use ($roomType) {
-                return $item->room_type === $roomType;  // && $item->price !== null
+                return $item->room_type === $roomType; // && $item->price !== null;
             });
 
             // return $maxAvailableRooms;
@@ -171,12 +169,15 @@ class booking_data extends Controller
             $occupancy = -1;
         }
 
+        // if ($occupancy > 0 && $occupancy < 100) {
             // Добавляем результаты в массив
             $resultArray[] = [
                 'room_type' => $roomType,
+                'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
                 'price' => $maxAvailableRoom ? intval($maxAvailableRoom->price) : null,
                 'occupancy' => $occupancy
             ];
+        // }
         }
 
         return $resultArray;
