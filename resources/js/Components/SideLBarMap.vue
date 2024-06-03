@@ -24,7 +24,7 @@ const props = defineProps({
         <pagination />
       </template>
     </carousel>
-    <div class="flex flex-col gap-y-4 m-4 lg:m-0">
+    <div class="flex flex-col gap-y-4 m-4 lg:m-0 lg:ml-2">
       <div class="text-2xl font-bold">
         <Link :href="'booking_data/' + booking_data.id" class="hover:text-blue-800">{{ booking_data.title }}</Link>
         <div class="text-xl font-medium rounded-lg">{{ booking_data.type }}</div>
@@ -43,7 +43,7 @@ const props = defineProps({
       </div>
       <div v-for="room in booking_data.rooms" :key="room.id">
         <div>
-          {{ room.room_type }} - {{ room.occupancy_rate }}%
+          {{ room.room_type }} - {{ room.occupancy }}%
         </div>
       </div>
     </div>

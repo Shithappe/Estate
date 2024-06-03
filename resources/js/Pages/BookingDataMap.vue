@@ -17,6 +17,7 @@ import BottomSheet from '@/Components/BottomSheet.vue';
 
 const props = defineProps({
   locations: Array,
+  countries: Object,
   cities: Array,
   types: Array,
   facilities: Array
@@ -278,8 +279,8 @@ const closeFilters = () => {
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </BottomSheet>
 
-    <SideBarFilters :show="showFilters" :map="true" :cities="props.cities" :types="props.types"
-      :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />
+    <SideBarFilters :show="showFilters" :map="true" :countries="props.countries" :types="props.types"
+            :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />
 
     <div class="absolute z-10 top-3 flex flex-col gap-y-2"
       :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }">

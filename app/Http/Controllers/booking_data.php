@@ -40,13 +40,6 @@ class booking_data extends Controller
 
 
             $minutes = 1440;
-            // $countries = Cache::remember('countries', $minutes, function () {
-            //     return DB::table('booking_data')
-            //         ->select('country')
-            //         ->distinct()
-            //         ->pluck('country')
-            //         ->toArray();
-            // });
 
             $countries = Cache::remember('countries', $minutes, function () {
                 return DB::table('booking_data')
@@ -234,22 +227,42 @@ class booking_data extends Controller
             return $coordinatesArray;
         }
 
-        $cities = DB::table('booking_data')
-            ->select('city')
-            ->distinct()
-            ->pluck('city')
-            ->toArray();
+        $minutes = 1440;
 
-        $types = DB::table('booking_data')
-            ->select('type')
-            ->distinct()
-            ->pluck('type')
-            ->toArray();
-
-        $facilities = DB::table('facilities')->get();
+        $countries = Cache::remember('countries', $minutes, function () {
+            return DB::table('booking_data')
+                ->select('country', 'city')
+                ->distinct()
+                ->get()
+                ->groupBy('country')
+                ->map(function ($item) {
+                    return $item->pluck('city')->toArray();
+                });
+        });
+        
+        $cities = Cache::remember('cities', $minutes, function () {
+            return DB::table('booking_data')
+                ->select('city')
+                ->distinct()
+                ->pluck('city')
+                ->toArray();
+        });
+        
+        $types = Cache::remember('types', $minutes, function () {
+            return DB::table('booking_data')
+                ->select('type')
+                ->distinct()
+                ->pluck('type')
+                ->toArray();
+        });
+        
+        $facilities = Cache::remember('facilities', $minutes, function () {
+            return DB::table('facilities')->get();
+        });
 
         return Inertia::render('BookingDataMap', [
             'locations' => $coordinatesArray,
+            'countries' => $countries,
             'cities' => $cities,
             'types' => $types,
             'facilities' => $facilities
@@ -264,7 +277,7 @@ class booking_data extends Controller
         ->where('id', $booking_id)
         ->get();
 
-        $rooms = DB::table('room_cache')
+        $rooms = DB::table('rooms')
                 ->where('booking_id', $booking_id)
                 ->get();
 
@@ -301,14 +314,16 @@ class booking_data extends Controller
                     'booking_data.title',
                     'booking_data.city',
                     'booking_data.type',
-                    'booking_data.price',
+                    // 'booking_data.price',
                     'booking_data.star',
                     'booking_data.score',
-                    DB::raw('COUNT(room_cache.id) as types_rooms'),
-                    DB::raw('SUM(room_cache.max_available) as count_rooms'),
-                    DB::raw('AVG(room_cache.occupancy_rate) as occupancy_rate')
+                    DB::raw('COUNT(rooms.id) as types_rooms'),
+                    DB::raw('SUM(rooms.max_available) as count_rooms'),
+                    DB::raw('MIN(rooms.price) as min_price'),
+                    DB::raw('MAX(rooms.price) as max_price'),
+                    DB::raw('AVG(rooms.occupancy) as occupancy_rate')
                     )
-            ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id');
+            ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id');
     
         if (empty($filterSort) || $filterSort == null) {
             $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
@@ -332,8 +347,8 @@ class booking_data extends Controller
             });
         }
         if (!empty($filterPrice)) {
-            if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
-            if (isset($filterPrice['max'])) $query->where('price', '<=', $filterPrice['max']);
+            if (isset($filterPrice['min'])) $query->where('min_price', '>=', $filterPrice['min']);
+            if (isset($filterPrice['max'])) $query->where('max_price', '<=', $filterPrice['max']);
         }
         if (!empty($filterSort)) {
             if ($filterSort == 'price') {
@@ -343,20 +358,20 @@ class booking_data extends Controller
                 $query->orderBy('score', 'desc');
             }
             elseif ($filterSort == 'occupancy') {
-                $query->orderByRaw('AVG(room_cache.occupancy_rate) DESC');
+                $query->orderByRaw('AVG(rooms.occupancy) DESC');
             }
             elseif ($filterSort == 'room_type') {
-                $query->orderByRaw('COUNT(DISTINCT room_cache.room_type) DESC');
+                $query->orderByRaw('COUNT(DISTINCT rooms.room_type) DESC');
             }
             elseif ($filterSort == 'room_count') {
-                $query->orderByRaw('SUM(room_cache.max_available) DESC');
+                $query->orderByRaw('SUM(rooms.max_available) DESC');
             }
         }
     
         $data = $query->groupBy('booking_data.id')->paginate(12);
     
         foreach ($data as $item) {
-            $item->rooms = DB::table('room_cache')->where('booking_id', $item->id)->get();
+            $item->rooms = DB::table('rooms')->where('booking_id', $item->id)->get();
         }
     
         return $data;
@@ -396,13 +411,13 @@ class booking_data extends Controller
     {
         $data = DB::table('booking_data')
             ->whereIn('booking_data.id', $request->input('id'))
-            ->leftJoin('room_cache', 'booking_data.id', '=', 'room_cache.booking_id')
+            ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
             ->select([
                 'booking_data.*',
                 DB::raw('JSON_ARRAYAGG(JSON_OBJECT(
-                    "room_type", room_cache.room_type,
-                    "max_available", room_cache.max_available,
-                    "occupancy_rate", room_cache.occupancy_rate
+                    "room_type", rooms.room_type,
+                    "max_available", rooms.max_available,
+                    "occupancy", rooms.occupancy
                 )) AS rooms'),
             ])
             ->groupBy('booking_data.id')

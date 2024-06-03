@@ -62,7 +62,7 @@ def main():
         available_rooms = cursor.fetchall()
 
         # delete old data
-        cursor.execute("DELETE FROM room_cache WHERE booking_id = %s", (id[0],))
+        cursor.execute("DELETE FROM rooms WHERE booking_id = %s", (id[0],))
         connection.commit()
 
 
