@@ -62,8 +62,8 @@ def main():
         available_rooms = cursor.fetchall()
 
         # delete old data
-        cursor.execute("DELETE FROM rooms WHERE booking_id = %s", (id[0],))
-        connection.commit()
+        # cursor.execute("DELETE FROM rooms WHERE booking_id = %s", (id[0],))
+        # connection.commit()
 
 
         # available rooms sum
