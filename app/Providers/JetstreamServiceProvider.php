@@ -4,7 +4,10 @@ namespace App\Providers;
 
 use App\Actions\Jetstream\DeleteUser;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Request;
 use Laravel\Jetstream\Jetstream;
+use Inertia\Inertia;
+
 
 class JetstreamServiceProvider extends ServiceProvider
 {
@@ -23,7 +26,15 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         $this->configurePermissions();
 
-        Jetstream::deleteUsersUsing(DeleteUser::class);
+        // Jetstream::deleteUsersUsing(DeleteUser::class);
+
+        Inertia::share([
+            'auth.user' => function (Request $request) {
+                return $request->user()
+                    ? $request->user()->only('id', 'name', 'email')
+                    : null;
+            },
+        ]);
     }
 
     /**

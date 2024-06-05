@@ -28,19 +28,19 @@ use App\Http\Controllers\booking_data;
 //     ]);
 // });
 
-// Route::middleware([
-//     'auth:sanctum',
-//     config('jetstream.auth_session'),
-//     'verified',
-// ])->group(function () {
-//     Route::get('/dashboard', function () {
-//         return Inertia::render('Dashboard');
-//     })->name('dashboard');
-// });
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
 
-// Route::get('/', function () {
-//     return Inertia::render('Main');
-// })->name('main');
+    Route::get('/home', [booking_data::class, 'index']); 
+    
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
+});
+
 
 Route::get('/estate', [BookController::class, 'index']);
 Route::get('/estate/{id}', [BookController::class, 'getEstate']);
