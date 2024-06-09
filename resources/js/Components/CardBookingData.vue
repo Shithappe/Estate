@@ -7,9 +7,22 @@ import { Carousel, Slide, Navigation } from 'vue3-carousel'; // Pagination
 
 const props = defineProps({
     item: Object,
+    canOpenCart: Number,
+    auth: Boolean
 });
 
-const loading = ref(true);
+const emit = defineEmits(['updateCanOpenCart']);
+
+const loading = ref(props.auth ? false : true);
+const openCart = () => {
+    if (!props.auth) {
+        if (props.canOpenCart > 0) {
+            emit('updateCanOpenCart');
+            loading.value = false;
+        }
+        else window.location.href = '/login';
+    }
+};
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
@@ -17,8 +30,7 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
 
 <template>
     <div class="m-4 w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
-        :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }"
-        @click="() => {loading = false}">
+        :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }" @click="openCart">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">
@@ -51,17 +63,20 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                         <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
                     </div>
 
-                    
+
 
                     <div class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="Zap" /> <div class="w-16" :class="{ loading: loading }">{{ Math.round(item.occupancy_rate) }}%</div>
-                    </div>
-                   
-
-                    <div v-if="item.min_price && item.max_price" class="flex items-center gap-2">
-                        <Lucide class="w-5 h-5" icon="DollarSign" /> <div class="w-24" :class="{ loading: loading }">{{ item.min_price }} - {{ item.max_price }}</div>
+                        <Lucide class="w-5 h-5" icon="Zap" />
+                        <div v-if="!loading">{{ Math.round(item.occupancy_rate) }}%</div>
+                        <div v-else class="loading px-1 text-slate-500">Occupancy</div>
                     </div>
 
+
+                    <div v-if="item.min_price && item.max_price" class="flex items-center gap-x-2 z-3">
+                        <Lucide class="w-5 h-5" icon="DollarSign" />
+                        <div v-if="!loading">{{ item.min_price }} - {{ item.max_price }}</div>
+                        <div v-else class="loading px-1 text-slate-500">Price</div>
+                    </div>
                 </div>
 
                 <div class="flex flex-col">
@@ -69,7 +84,7 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                         <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
                     </div> -->
 
-                    
+
 
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Bed" /> {{ item.count_rooms }}
@@ -87,7 +102,9 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
 
 
             <Link :href="'booking_data/' + item.id" class="absolute bottom-3 w-full">
-            <button class="w-full p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
+            <button
+                class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See
+                Details</button>
             </Link>
         </div>
     </div>
@@ -96,22 +113,24 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
 
 <style scoped>
 .loading {
-  color: transparent;
-  /* width: 15vh; */
-  margin: 1px 0;
-  /* height: 50px; */
-  border-radius:6px;
-  background: linear-gradient(100deg, #e8eaeb 30%, #d1d2d3 50%, #e8eaeb 70%);
-  background-size: 400%;
-  animation: loading 1.2s ease-in-out infinite;
+    z-index: 2;
+    /* color: transparent; */
+    min-width: 5vh;
+    margin: 1px 0;
+    height: 1.5em;
+    border-radius: 6px;
+    background: linear-gradient(100deg, #e8eaeb 30%, #d1d2d3 50%, #e8eaeb 70%);
+    background-size: 400%;
+    animation: loading 1.2s ease-in-out infinite;
 }
 
 @keyframes loading {
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
+    0% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0 50%;
+    }
 }
 </style>

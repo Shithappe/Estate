@@ -1,7 +1,5 @@
 <script setup>
-import { ref } from 'vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-// import ApplicationMark from '@/Components/ApplicationMark.vue';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
@@ -13,6 +11,7 @@ defineProps({
 
 
 const logout = () => {
+    // мб снести localstorage
     router.post(route('logout'));
 };
 
@@ -31,7 +30,6 @@ const logout = () => {
                     <div class="hidden lg:block flex items-center justify-between">
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
-                            <!-- <ApplicationMark class="block h-9 w-auto" /> -->
                             <p class="mx-2 text-lg">Estate market</p>
                         </div>
 
