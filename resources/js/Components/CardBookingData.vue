@@ -16,11 +16,11 @@ const emit = defineEmits(['updateCanOpenCart']);
 const loading = ref(props.auth ? false : true);
 const openCart = () => {
     if (!props.auth) {
-        if (props.canOpenCart > 0) {
-            emit('updateCanOpenCart');
+        // if (props.canOpenCart > 0) {
+            // emit('updateCanOpenCart');
             loading.value = false;
-        }
-        else window.location.href = '/login';
+        // }
+        // else window.location.href = '/login';
     }
 };
 
