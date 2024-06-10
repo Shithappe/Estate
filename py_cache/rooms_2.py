@@ -32,15 +32,15 @@ def main():
 
     for id in arr_id:
         # get max_available_rooms 
-        cursor.execute('''SELECT room_type, MAX(max_available_rooms) AS max_available
-                            FROM rooms_30_day
+        cursor.execute('''SELECT room_type, MAX(max_available) AS max_available
+                            FROM rooms
                             WHERE booking_id = %s
                             GROUP BY room_type''', (id[0],))
         max_available = cursor.fetchall()
 
 
         cursor.execute('''SELECT MIN(price) AS min_price, MAX(price) AS max_price
-                            FROM rooms_30_day
+                            FROM rooms
                             WHERE booking_id = %s''', (id[0],))
         price = cursor.fetchall()
 
