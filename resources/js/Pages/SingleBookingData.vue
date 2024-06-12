@@ -196,7 +196,7 @@ onMounted(() => {
 
                         <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div>
 
-                        <!-- <button @click="getAll">Get all data</button> -->
+                        <button @click="getAll">Get all data</button>
                         <div v-if="allData" class="flex flex-col gap-y-2">
                             <table v-if="allData?.booking_data">
                                 <thead>
@@ -229,19 +229,25 @@ onMounted(() => {
                                     </tr>
                                 </tbody>
                             </table>
-                            <table v-if="allData?.room_cache">
+                            <table v-if="allData?.rooms">
                                 <thead>
                                     <tr>
                                         <th>Room type</th>
                                         <th>Max available</th>
-                                        <th>Occupancy rate</th>
+                                        <th>Active</th>
+                                        <th>Price</th>
+                                        <th>Occupancy</th>
+                                        <th>Updated at</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="book in allData.room_cache" :key="book.id">
+                                    <tr v-for="book in allData.rooms" :key="book.id">
                                         <td>{{ book.room_type }}</td>
                                         <td>{{ book.max_available }}</td>
-                                        <td>{{ book.occupancy_rate }}</td>
+                                        <td>{{ book.active }}</td>
+                                        <td>{{ book.price }}</td>
+                                        <td>{{ book.occupancy }}</td>
+                                        <td>{{ book.updated_at }}</td>
                                     </tr>
                                 </tbody>
                             </table>
