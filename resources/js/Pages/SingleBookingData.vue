@@ -24,6 +24,28 @@ const props = defineProps({
     facilities: Object
 });
 
+const today = new Date();
+
+// Получаем дату месяц назад
+const lastMonth = new Date();
+lastMonth.setMonth(today.getMonth() - 1);
+
+// Функция для форматирования даты в формат DD MMM YYYY
+const formatDate = (date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
+};
+
+// Форматируем даты
+const startDateStr = formatDate(lastMonth);
+const endDateStr = formatDate(today);
+
+// Формируем строку в требуемом формате
+const dateRange = `${startDateStr} ~ ${endDateStr}`;
+
 
 const book = props.booking[0];
 const rooms = ref(null);
@@ -50,6 +72,7 @@ watch(dateValue, (newValue) => {
 });
 
 function convertDateRange(dateString) {
+    console.log(dateString);
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
     let dayFormat = 'D';
 
@@ -69,6 +92,7 @@ function convertDateRange(dateString) {
 
 
 const selectedDated = async (checkin, checkout) => {
+    console.log(checkin, checkout);
     try {
         const response = await axios.post("/api/booking_data_rate", {
             'booking_id': book.id,
@@ -95,6 +119,7 @@ let map = null;
 const location = book.location.split(',')
 
 onMounted(() => {
+    dateValue.value = dateRange;
     selectedDated();
 
     map = L.map("mapContainer").setView(location, 15);
