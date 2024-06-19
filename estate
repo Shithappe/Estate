@@ -1,0 +1,71 @@
+server {
+    listen 80;
+    server_name estatemarket.io www.estatemarket.io;
+    client_max_body_size 100M;
+
+    # Переадресация с HTTP на HTTPS
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+}
+
+server {
+    client_max_body_size 100M;
+    listen 443 ssl;
+    server_name estatemarket.io www.estatemarket.io;
+
+    # Остальная конфигурация HTTPS сервера
+    ssl_certificate /etc/letsencrypt/live/estatemarket.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/estatemarket.io/privkey.pem;
+    
+    root /var/www/estate/public;
+    index index.php;
+
+    location /storage {
+        alias /var/www/estate/public/storage;
+        add_header 'Access-Control-Allow-Origin' 'estatemarket.io';
+        add_header 'Access-Control-Allow-Methods' *;
+        add_header 'Access-Control-Allow-Credentials' 'true';
+    }
+
+    location /main_image {
+        alias /var/www/estate/public/storage/main_image;
+    }
+
+    location /images {
+        alias /var/www/estate/public/storage/images;
+    }
+
+    location /node {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        add_header 'Access-Control-Allow-Origin' 'https://offers.estatemarket.io' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
+
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' 'https://offers.estatemarket.io';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Credentials' 'true';
+            add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization';
+            return 204;
+        }
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+        fastcgi_param HTTP_X-CSRF-TOKEN $http_x_csrf_token;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
