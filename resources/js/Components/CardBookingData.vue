@@ -67,7 +67,7 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
 
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Zap" />
-                        <div v-if="!loading">{{ Math.round(item.occupancy_rate) }}%</div>
+                        <div v-if="!loading">{{ Math.round(item.occupancy_rate) < 0 ? Math.round(item.occupancy_rate) : N/A }}%</div>
                         <div v-else class="loading px-1 text-slate-500">Occupancy</div>
                     </div>
 

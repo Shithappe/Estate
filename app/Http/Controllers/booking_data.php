@@ -100,10 +100,90 @@ class booking_data extends Controller
         ]);
     } 
     
+    // public function booking_data_rate(Request $request)
+    // {
+    //     $rooms = NULL;
+
+    //     // if (isset($request->checkin) && isset($request->checkout)){
+    //         $rooms = DB::table('rooms_2_day')
+    //             // ->select('room_type', 'active', 'price', 'occupancy')
+    //             ->where('booking_id', $request->booking_id)
+    //             ->where('checkin', '>=', $request->checkin)
+    //             ->where('checkin', '<=', $request->checkout)
+    //             ->whereDate('checkin', '=', DB::raw('DATE(created_at)'))
+    //             ->get();
+    //         // }
+    //         // else {
+    //         //     $rooms = DB::table('rooms')
+    //         //     ->select('room_type', 'active', 'price', 'occupancy')
+    //         //     ->where('booking_id', $request->booking_id)
+    //         //     ->get();
+
+                
+    //         // }
+    //         return [$request->booking_id, $rooms];
+
+
+    //     // $maxAvailableRooms = DB::table('rooms')
+    //     //     ->select('room_type', DB::raw('MAX(max_available) AS max_available'), 'active', DB::raw('MAX(price) AS price'))
+    //     //     ->where('booking_id', $request->booking_id)
+    //     //     ->groupBy('room_type', 'active')
+    //     //     ->get();
+    //     $maxAvailableRooms = DB::table('rooms_30_day')
+    //         ->select('room_type', DB::raw('MAX(max_available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
+    //         ->where('booking_id', $request->booking_id)
+    //         ->groupBy('room_type')
+    //         ->get();
+
+    //     $groupedRooms = $rooms->groupBy('room_type');
+
+    //     $resultArray = [];
+
+    //     foreach ($groupedRooms as $roomType => $group) {
+    //         // Находим соответствующую запись в $maxAvailableRooms по room_type
+    //         $maxAvailableRoom = $maxAvailableRooms
+    //         ->first(function ($item) use ($roomType) {
+    //             return $item->room_type === $roomType; // && $item->price !== null;
+    //         });
+
+
+    //     // Если запись найдена и цена не равна NULL, продолжаем вычисления
+    //     if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
+    //         // Сумма свободных комнат по типу
+    //         $sum = $group->sum('available_rooms');
+    //         return $sum;
+
+    //         // Количество записей по типу
+    //         $count = $group->count();
+
+    //         // Расчет занятости
+    //         $occupancy = $sum / $count;  // среднее
+    //         $occupancy = $maxAvailableRoom->max_available - $occupancy; // отнимает от максимального
+    //         if ($occupancy > 0) $occupancy = round(($occupancy / $maxAvailableRoom->max_available) * 100, 2); // переводим в %
+    //         if ($occupancy < 0) $occupancy = -1;
+    //     } else {
+    //         // Обработка ситуации, если не найдено соответствие
+    //         $occupancy = -1;
+    //     }
+
+    //     // if ($occupancy > 0 && $occupancy < 100) {
+    //         // Добавляем результаты в массив
+    //         $resultArray[] = [
+    //             'room_type' => $roomType,
+    //             // 'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
+    //             'price' => $maxAvailableRoom ? intval($maxAvailableRoom->price) : null,
+    //             'occupancy' => $occupancy
+    //         ];
+    //     // }
+    //     }
+
+    //     return $resultArray;
+    // }
+
+
     public function booking_data_rate(Request $request)
     {
         $rooms = NULL;
-
         if (isset($request->checkin) && isset($request->checkout)){
             $rooms = DB::table('rooms_2_day')
                 ->where('booking_id', $request->booking_id)
@@ -113,16 +193,10 @@ class booking_data extends Controller
                 ->get();
         }
         else {
-            $rooms_data = DB::table('rooms')
-            ->select('room_type', 'active', 'price', 'occupancy')
+            $rooms = DB::table('rooms_2_day')
             ->where('booking_id', $request->booking_id)
+                ->whereDate('checkin', '=', DB::raw('DATE(created_at)'))
             ->get();
-
-            return $rooms_data;
-         
-            // return Inertia::render('BookingData', [
-            //     'data' => $rooms_data
-            // ]);
         }
 
 
@@ -132,27 +206,30 @@ class booking_data extends Controller
             ->groupBy('room_type', 'active')
             ->get();
 
+        if ($maxAvailableRooms->isEmpty()) {
+            $maxAvailableRooms = DB::table('rooms_2_day')
+                ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
+            ->where('booking_id', $request->booking_id)
+                ->groupBy('room_type')
+            ->get();
+        }
+
         $groupedRooms = $rooms->groupBy('room_type');
-
+  
         $resultArray = [];
-
         foreach ($groupedRooms as $roomType => $group) {
             // Находим соответствующую запись в $maxAvailableRooms по room_type
             $maxAvailableRoom = $maxAvailableRooms
             ->first(function ($item) use ($roomType) {
-                return $item->room_type === $roomType; // && $item->price !== null;
+                return $item->room_type === $roomType;  // && $item->price !== null
             });
-
-            // return $maxAvailableRooms;
-
+  
         // Если запись найдена и цена не равна NULL, продолжаем вычисления
         if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
             // Сумма свободных комнат по типу
             $sum = $group->sum('available_rooms');
-
             // Количество записей по типу
             $count = $group->count();
-
             // Расчет занятости
             $occupancy = $sum / $count;  // среднее
             $occupancy = $maxAvailableRoom->max_available - $occupancy; // отнимает от максимального
@@ -163,7 +240,6 @@ class booking_data extends Controller
             $occupancy = -1;
         }
 
-        // if ($occupancy > 0 && $occupancy < 100) {
             // Добавляем результаты в массив
             $resultArray[] = [
                 'room_type' => $roomType,
@@ -171,11 +247,11 @@ class booking_data extends Controller
                 'price' => $maxAvailableRoom ? intval($maxAvailableRoom->price) : null,
                 'occupancy' => $occupancy
             ];
-        // }
         }
 
         return $resultArray;
     }
+
 
     public function booking_data_map(Request $request)
     {
