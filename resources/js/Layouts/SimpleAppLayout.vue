@@ -1,9 +1,7 @@
 <script setup>
-import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
 defineProps({
     title: String,
@@ -27,9 +25,10 @@ const logout = () => {
             <div class="mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <Link href="/">
-                    <div class="hidden lg:block flex items-center justify-between">
-                        <!-- Logo -->
-                        <div class="shrink-0 flex items-center">
+                        <div class="flex gap-x-1 items-center justify-between">
+                            <!-- Logo -->
+                            <img class="w-7 invert" src="/favicon.ico" alt="">
+                        <div class="shrink-0 hidden lg:flex items-center">
                             <p class="mx-2 text-lg">Estate market</p>
                         </div>
 

@@ -25,6 +25,22 @@ const openCart = () => {
 };
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
+console.log(images);
+
+const addDots = (str) => {
+    str = String(str)
+    // Преобразуем строку в массив символов и перевернем его
+    let reversed = str.split('').reverse().join('');
+    
+    // Используем регулярное выражение для добавления точек через каждые три символа
+    let withDots = reversed.replace(/(\d{3})/g, '$1.');
+    
+    // Удалим последнюю точку, если она есть, и перевернем строку обратно
+    withDots = withDots.split('').reverse().join('');
+    if (withDots.startsWith('.')) withDots = withDots.slice(1);
+    
+    return withDots;
+}
 
 </script>
 
@@ -57,7 +73,7 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                 {{ item.city }}
             </div>
 
-            <div class="mt-4 mb-6 flex justify-between gap-y-2 px-2 font-medium">
+            <div class="mt-2 mb-2 flex justify-between gap-y-2 px-2 font-medium">
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
@@ -77,14 +93,16 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                         <div v-if="!loading">{{ item.min_price }} - {{ item.max_price }}</div>
                         <div v-else class="loading px-1 text-slate-500">Price</div>
                     </div>
+                    <div v-if="item.forecast_price" class="flex items-center gap-x-2">
+                        <Lucide class="w-5 h-5" icon="Receipt" />
+                        <div>{{ addDots(item.forecast_price) }}$</div>
+                    </div>
                 </div>
 
                 <div class="flex flex-col">
                     <!-- <div v-if="item.price" class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="DollarSign" /> {{ item.price }}
                     </div> -->
-
-
 
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Bed" /> {{ item.count_rooms }}
@@ -98,7 +116,6 @@ const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice
                     </div>
                 </div>
             </div>
-
 
 
             <Link :href="'booking_data/' + item.id" class="absolute bottom-3 w-full">

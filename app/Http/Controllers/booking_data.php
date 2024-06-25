@@ -21,7 +21,8 @@ class booking_data extends Controller
                     'booking_data.min_price',
                     'booking_data.max_price',
                     'booking_data.star', 
-                    'booking_data.score', 
+                    'booking_data.score',
+                    'booking_data.forecast_price',
                     DB::raw('COUNT(rooms.id) as types_rooms'),
                     DB::raw('SUM(rooms.max_available) as count_rooms'),
                     DB::raw('AVG(rooms.occupancy) as occupancy_rate')
@@ -46,6 +47,7 @@ class booking_data extends Controller
                 return DB::table('booking_data')
                     ->select('country', 'city')
                     ->distinct()
+                    // ->whereNotNull('country') // Исключаем пустые страны
                     ->get()
                     ->groupBy('country')
                     ->map(function ($item) {
@@ -470,18 +472,18 @@ class booking_data extends Controller
 
     public function priority_edit (Request $request)
     {
-        switch ($request->msg) {
-            case 'edit':
-                DB::table('booking_data')->where('id', $request->id)->update(['priority' => $request->priority]);
-              break;
-            case 'delete':
-                DB::table('booking_data')->where('id', $request->id)->update(['priority' => null]);
-              break;
-          }
-          return DB::table('booking_data')
-          ->where('priority', '>', 0)
-          ->orderBy('priority', 'desc')
-          ->get();
+        if ($request->id && $request->show_priority) {
+            DB::table('booking_data')->where('id', $request->id)->update(['priority' => $request->priority]);
+        }
+
+        if ($request->id && $request->show_forecast_price) {
+            DB::table('booking_data')->where('id', $request->id)->update(['forecast_price' => $request->forecast_price]);
+        }
+
+        return DB::table('booking_data')
+            ->where('priority', '>', 0)
+            ->orderBy('priority', 'desc')
+            ->get();
     }
 
     public function get_report(Request $request)
