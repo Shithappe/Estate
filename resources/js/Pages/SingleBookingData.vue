@@ -23,8 +23,9 @@ const props = defineProps({
     booking: Object,
     facilities: Object
 });
-
 const today = new Date();
+const tomorrow = new Date(today);
+tomorrow.setDate(today.getDate() + 1);
 
 // Получаем дату месяц назад
 const lastMonth = new Date();
@@ -118,6 +119,22 @@ const getAll = async () => {
 let map = null;
 const location = book.location.split(',')
 
+
+function formatDateForLink(date) {
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    if (month < 10) month = '0' + month;
+    let day = date.getDate();
+    if (day < 10) day = '0' + day;
+    return `${year}-${month}-${day}`;
+}
+
+function wrapParagraphs(text) {
+    const paragraphs = text.split(/\n\n/); // Разбиваем текст на абзацы
+    const wrappedParagraphs = paragraphs.map(paragraph => `<p>${paragraph.trim()}</p>`); // Оборачиваем каждый абзац в тег <p>
+    return wrappedParagraphs.join('\n'); // Объединяем абзацы с новыми тегами <p>
+}
+
 onMounted(() => {
     dateValue.value = dateRange;
     selectedDated();
@@ -172,12 +189,11 @@ onMounted(() => {
                     </carousel>
 
                     <div class="mt-6 relative">
-                        <div
-                            class="absolute z-10 -top-36 left-1.5 rounded-lg px-4 pt-2 backdrop-filter backdrop-blur-md bg-gray-200 bg-opacity-30">
+                        <div class="sm:block lg:absolute z-10 -top-36 left-1.5 rounded-lg lg:px-4 lg:pt-2 lg:backdrop-filter lg:backdrop-blur-md lg:bg-gray-200 lg:bg-opacity-30">
                             <div class="flex gap-x-2 items-center text-3xl font-semibold">
                                 <div>{{ book.title }}</div>
 
-                                <a :href="book.link" target="_blank" rel="noopener noreferrer">
+                                <a :href="`${book.link}?checkin=${formatDateForLink(today)}&checkout=${formatDateForLink(tomorrow)}`" target="_blank" rel="noopener noreferrer">
                                     <Lucide class="w-5 h-5 cursor-pointer" icon="ExternalLink" />
                                 </a>
                             </div>
@@ -195,7 +211,7 @@ onMounted(() => {
                         </div>
 
 
-                        <div class="mb-4">{{ book.description }}</div>
+                        <div class="flex flex-col gap-y-2 mb-4" v-html="wrapParagraphs(book.description)"></div>
 
                         <VueTailwindDatePicker v-model="dateValue" :formatter="formatter" :disable-date="dDate"
                             @change="() => { console.log(dateValue); }" />
@@ -318,5 +334,13 @@ td {
 
 th {
     background-color: #f2f2f2;
+}
+
+br {
+    height: 10px;
+}
+
+.break-lines {
+        white-space: pre-line;
 }
 </style>
