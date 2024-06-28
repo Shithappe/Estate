@@ -228,7 +228,7 @@ onMounted(() => {
                                         <div>{{ room.room_type }}</div>
                                     </div>
                                     <div class="flex flex-col justify-between items-end">
-                                        <div v-if="room.price" class="text-xl">{{ room.price }}$</div>
+                                        <div v-if="room.price" class="text-xl">${{ room.price }}</div>
                                         <!-- <div v-if="room.hasOwnProperty('active') && room.active == false" class="text-sm">{{ room.active }}*not on the site</div> -->
                                     </div>
                                 </div>

@@ -25,7 +25,6 @@ const openCart = () => {
 };
 
 const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
-console.log(images);
 
 const addDots = (str) => {
     str = String(str)
@@ -95,7 +94,7 @@ const addDots = (str) => {
                     </div>
                     <div v-if="item.forecast_price" class="flex items-center gap-x-2">
                         <Lucide class="w-5 h-5" icon="Receipt" />
-                        <div>{{ addDots(item.forecast_price) }}$</div>
+                        <div>${{ addDots(item.forecast_price) }}</div>
                     </div>
                 </div>
 
