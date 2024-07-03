@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref, defineProps, watch } from 'vue';
 import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 
@@ -17,12 +17,6 @@ const selectItem = ref({
     show_forecast_price: false,
     priority: null,
     forecast_price: null
-});
-
-const formData = ref({
-    id: '',
-    priority: '',
-    msg: ''
 });
 
 const changePriority = (id, priority) => {
@@ -51,10 +45,20 @@ const close = () => {
     };
 }
 
+watch(() => selectItem.value.priority, (newVal) => {
+    selectItem.value.show_priority = newVal !== null && newVal !== undefined;
+});
+
+watch(() => selectItem.value.forecast_price, (newVal) => {
+    selectItem.value.show_forecast_price = newVal !== null && newVal !== undefined;
+});
+
 const submitForm = async () => {
+    console.log(selectItem.value);
     try {
         const response = await axios.post('/api/setting_priority', selectItem.value);
         priority.value = response.data;
+        console.log(response.data);
         close();
     } catch (error) {
         console.error('Error:', error);
@@ -73,8 +77,9 @@ const submitForm = async () => {
             </div>
 
             <form class="flex gap-x-4 my-2" @submit.prevent="() => submitForm()">
-                <input class="shadow rounded-lg" type="number" v-model="formData.id" placeholder="ID" required>
-                <input class="shadow rounded-lg" type="number" v-model="formData.priority" placeholder="Priority" required>
+                <input class="shadow rounded-lg" type="number" v-model="selectItem.id" placeholder="ID" required>
+                <input class="shadow rounded-lg" type="number" v-model="selectItem.priority" placeholder="Priority">
+                <input class="shadow rounded-lg" type="number" v-model="selectItem.forecast_price" placeholder="Forecast price">
 
                 <button class="px-3 py-1 border shadow rounded-lg" type="submit">Add</button>
             </form>

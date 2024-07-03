@@ -462,8 +462,6 @@ class booking_data extends Controller
                     ->where('priority', '>', 0)
                     ->orderBy('priority', 'desc')
                     ->get();
-                    // ->orderBy('review_count', 'desc')
-                    // ->orderBy('score', 'desc');
 
         return Inertia::render('SettingPriorityPage', [
             'priority' => $priority

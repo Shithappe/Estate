@@ -44,7 +44,7 @@ const addDots = (str) => {
 </script>
 
 <template>
-    <div class="m-4 w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
+    <div class="m-4 ms:w-96 lg:w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
         :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }" @click="openCart">
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
