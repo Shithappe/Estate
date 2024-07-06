@@ -524,4 +524,21 @@ class booking_data extends Controller
             "rooms_2_day" => $rooms_2_day
           ];
     }
+
+    public function for_extension(Request $request)
+    {
+        $url = $request->url;
+
+        $booking = DB::table('booking_data')->where('link', $url)->first();
+
+        if ($booking) {
+            $booking_id = $booking->id;
+
+            $rooms = DB::table('rooms')->where('booking_id', $booking_id)->get();
+
+            return response()->json($rooms);
+        } else {
+            return response()->json(['error' => 'Booking not found'], 404);
+        }
+    }
 }

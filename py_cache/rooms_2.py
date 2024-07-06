@@ -12,20 +12,16 @@ def connect_to_db():
     }
     
     try:
-        cnx = mysql.connector.connect(**config)
-        return cnx
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        return connection, cursor
+
     except mysql.connector.Error as err:
         print(err)
 
 def main():
 
-    connection = connect_to_db()
-    if connection and connection.is_connected():
-        print('\nConnection to DB success\n')
-    else:
-        raise SystemExit("Failed to connect to DB")
-    
-    cursor = connection.cursor()
+    connection, cursor = connect_to_db()
 
     cursor.execute("SELECT id FROM booking_data")
     arr_id = cursor.fetchall()
@@ -58,12 +54,14 @@ def main():
         # get available rooms
         cursor.execute('''SELECT room_type, available_rooms
                             FROM rooms_2_day
-                            WHERE booking_id = %s AND DATE(checkin) = DATE(created_at)''', (id[0],))
+                            WHERE booking_id = %s 
+                            AND DATE(checkin) = DATE(created_at) 
+                            AND created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)''', (id[0],))
         available_rooms = cursor.fetchall()
 
-        # delete old data
-        # cursor.execute("DELETE FROM rooms WHERE booking_id = %s", (id[0],))
-        # connection.commit()
+        # print('\n\nINFO\n\n')
+        # print(id, max_available)
+        # return
 
 
         # available rooms sum
