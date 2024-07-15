@@ -137,6 +137,7 @@ class booking_data extends Controller
         $allHaveRoomId = $rooms->every(function ($room) {
             return isset($room->room_id) && !empty($room->room_id);
         });
+
         
         $groupByField = $allHaveRoomId ? 'room_id' : 'room_type';
         $groupedRooms = $rooms->groupBy($groupByField);
@@ -145,10 +146,11 @@ class booking_data extends Controller
         $resultArray = [];
         foreach ($groupedRooms as $groupKey => $group) {
             // Находим соответствующую запись в $maxAvailableRooms
-            $maxAvailableRoom = $maxAvailableRooms
-                ->first(function ($item) use ($groupKey, $groupByField) {
-                    return $item->$groupByField == $groupKey;
-                });
+            $maxAvailableRoom = $maxAvailableRooms->first(function ($item) use ($groupKey, $groupByField) {
+                return $item->$groupByField == $groupKey;
+            });
+    
+            // array_push($resultArray, $maxAvailableRoom);
 
             // Если запись найдена и цена не равна NULL, продолжаем вычисления
             if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
@@ -166,13 +168,17 @@ class booking_data extends Controller
                 $occupancy = -1;
             }
 
+            
+
             $resultArray[] = [
                 'room_id' => $allHaveRoomId ? $groupKey : null,
-                'room_type' => $maxAvailableRoom->room_type,
+                'room_type' => !$allHaveRoomId ? $groupKey : null,
+                // 'room_type' => $maxAvailableRoom->room_type,
                 'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
                 'price' => $maxAvailableRoom ? intval($maxAvailableRoom->price) : null,
                 'occupancy' => $occupancy
             ];
+
         // foreach ($groupedRooms as $roomType => $group) {
         //     // Находим соответствующую запись в $maxAvailableRooms по room_type
         //     $maxAvailableRoom = $maxAvailableRooms
