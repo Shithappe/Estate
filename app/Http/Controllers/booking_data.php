@@ -156,7 +156,10 @@ class booking_data extends Controller
             if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
                 // Сумма свободных комнат по типу
                 $sum = $group->sum('available_rooms');
-                $price_avg = round($group->sum('price') / $group->whereNotNull('price')->count(), 0);
+                $price_avg = $maxAvailableRoom->price;
+                if ($group->whereNotNull('price')->count() > 0) {
+                    $price_avg = round($group->sum('price') / $group->whereNotNull('price')->count(), 0);
+                }
                 // Количество записей по типу
                 $count = $group->count();
                 // Расчет занятости
