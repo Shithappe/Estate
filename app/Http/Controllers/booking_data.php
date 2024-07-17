@@ -491,4 +491,18 @@ class booking_data extends Controller
             return response()->json(['error' => 'Booking not found'], 404);
         }
     }
+
+    public function form_submissions(Request $request)
+    {
+        DB::table('form_submissions')->insert([
+            'booking_id' => $request->input('booking_id', null),
+            'target' => $request->input('target'),
+            'name' => $request->input('name'),
+            'phone_number' => $request->input('phone_number'),
+            'messenger' => $request->input('messenger'),
+            'email' => $request->input('email')
+        ]);
+
+        return response()->json(['message' => 'Form submission successful'], 200);
+    }
 }

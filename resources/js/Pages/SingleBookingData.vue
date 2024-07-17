@@ -18,6 +18,9 @@ import "leaflet.markercluster";
 import markerIcon from "@/assets/pin.png";
 // import LineChart from '@/Components/LineChart.vue';
 
+import FormSubmissions from '@/Components/FormSubmissions.vue';
+
+
 
 const props = defineProps({
     booking: Object,
@@ -26,6 +29,12 @@ const props = defineProps({
 const today = new Date();
 const tomorrow = new Date(today);
 tomorrow.setDate(today.getDate() + 1);
+
+const showModal = ref(false);
+const showModal1 = ref(false);
+const openModal = () => { showModal.value = true; };
+const openModal1 = () => { showModal1.value = true; };
+const closeModal = () => { showModal.value = false; showModal1.value = false; };
 
 // Получаем дату месяц назад
 const lastMonth = new Date();
@@ -209,6 +218,14 @@ onMounted(() => {
                                 {{ facility }}
                             </span>
                         </div>
+
+                        <div class="flex gap-x-2 mb-2">
+                            <button @click="openModal" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Buy object</button>
+                            <button @click="openModal1" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Get a consultation</button>
+                        </div>
+                        <FormSubmissions :booking_id="book.id" target="buy" title="Buy investment property in Bali with passive income" des="" :show="showModal" @close="closeModal" />
+                        <FormSubmissions :booking_id="book.id" target="get_consultation" title="Get advice on buying investment property in Bali with passive income" des="" :show="showModal1" @close="closeModal" />
+
 
 
                         <div class="flex flex-col gap-y-2 mb-4" v-html="wrapParagraphs(book.description)"></div>

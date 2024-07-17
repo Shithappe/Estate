@@ -4,12 +4,18 @@ import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'; // Pagination
+import FormSubmissions from '@/Components/FormSubmissions.vue';
+
 
 const props = defineProps({
     item: Object,
     canOpenCart: Number,
     auth: Boolean
 });
+
+const showModal = ref(false);
+const openModal = () => { showModal.value = true; };
+const closeModal = () => { showModal.value = false; };
 
 const emit = defineEmits(['updateCanOpenCart']);
 
@@ -30,14 +36,14 @@ const addDots = (str) => {
     str = String(str)
     // Преобразуем строку в массив символов и перевернем его
     let reversed = str.split('').reverse().join('');
-    
+
     // Используем регулярное выражение для добавления точек через каждые три символа
     let withDots = reversed.replace(/(\d{3})/g, '$1.');
-    
+
     // Удалим последнюю точку, если она есть, и перевернем строку обратно
     withDots = withDots.split('').reverse().join('');
     if (withDots.startsWith('.')) withDots = withDots.slice(1);
-    
+
     return withDots;
 }
 
@@ -58,7 +64,7 @@ const addDots = (str) => {
         </carousel>
 
 
-        <div class="relative col-span-3 h-72 mx-3 pt-2 pb-2">
+        <div class="relative col-span-3 h-80 mx-3 pt-2 pb-2">
             <div class="flex flex-col relative">
                 <div class="text-xl font-semibold hover:text-blue-800">
                     <Link :href="'booking_data/' + item.id">{{ item.title }}</Link>
@@ -82,7 +88,9 @@ const addDots = (str) => {
 
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Zap" />
-                        <div v-if="!loading">{{ Math.round(item.occupancy_rate) >= 0 ? Math.round(item.occupancy_rate) + '%' : 'N/A' }}</div>
+                        <div v-if="!loading">{{ Math.round(item.occupancy_rate) >= 0 ? Math.round(item.occupancy_rate) +
+                            '%' :
+                            'N/A' }}</div>
                         <div v-else class="loading px-1 text-slate-500">Occupancy</div>
                     </div>
 
@@ -116,12 +124,16 @@ const addDots = (str) => {
                 </div>
             </div>
 
-
-            <Link :href="'booking_data/' + item.id" class="absolute bottom-3 w-full">
-            <button
-                class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See
-                Details</button>
-            </Link>
+            <div class="absolute bottom-3 w-full flex flex-col gap-y-2">
+                <button @click="openModal"
+                    class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-900 bg-slate-100 rounded-lg">Buy</button>
+                <Link :href="'booking_data/' + item.id" class="">
+                <button
+                    class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See
+                    Details</button>
+                </Link>
+            </div>
+            <FormSubmissions :booking_id="props.item.id" target="buy" title="Buy investment property in Bali with passive income" des="" :show="showModal" @close="closeModal" />
         </div>
     </div>
 </template>

@@ -38,3 +38,4 @@ Route::post('/booking_data-map', [booking_data::class, 'booking_data_map']);
 Route::post('/setting_priority', [booking_data::class, 'priority_edit']);
 
 Route::post('/for_extension', [booking_data::class, 'for_extension']);
+Route::post('/form_submissions', [booking_data::class, 'form_submissions']);

@@ -1,12 +1,17 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import FormSubmissions from '@/Components/FormSubmissions.vue';
 
 defineProps({
     title: String,
 });
 
+const showModal = ref(false);
+const openModal = () => { showModal.value = true; };
+const closeModal = () => { showModal.value = false; };
 
 const logout = () => {
     // мб снести localstorage
@@ -41,14 +46,15 @@ const logout = () => {
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Map
                         </a>
-                        <a href="/estate"
+                        <!-- <a href="/estate"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Estate
-                        </a>
-                        <a href="https://offers.estatemarket.io/" target="_blank"
+                        </a> -->
+                        <!-- <a href="https://offers.estatemarket.io/" target="_blank"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Offer Analysis
-                        </a>
+                        </a> -->
+                        <button @click="openModal" class="p-2 text-black bg-slate-200 rounded-md transition duration-300 ease-in-out">Estate</button>
                         <Link v-if="!$page.props.auth.user" :href="route('login')"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Log in
@@ -112,6 +118,10 @@ const logout = () => {
                 <slot name="header" />
             </div>
         </header>
+
+        
+        
+        <FormSubmissions target="download" title="Download a catalog with the best investment properties in Bali" des="(Over 11'452 complexes analyzed)" :show="showModal" @close="closeModal" />
 
         <!-- Page Content -->
         <main>
