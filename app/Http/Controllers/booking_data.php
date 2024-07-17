@@ -112,6 +112,7 @@ class booking_data extends Controller
                 ->where('checkin', '<', $request->checkout)
                 ->whereRaw('DATE(checkin) = DATE(created_at)')
                 ->get();
+                // return $rooms;
         }
         else {
             $rooms = DB::table('rooms_2_day')
@@ -126,13 +127,13 @@ class booking_data extends Controller
             ->groupBy('room_id', 'active')
             ->get();
 
-        if ($maxAvailableRooms->isEmpty()) {
-            $maxAvailableRooms = DB::table('rooms_2_day')
-                ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
-            ->where('booking_id', $request->booking_id)
-                ->groupBy('room_type')
-            ->get();
-        }
+        // if ($maxAvailableRooms->isEmpty()) {
+        //     $maxAvailableRooms = DB::table('rooms_2_day')
+        //         ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
+        //     ->where('booking_id', $request->booking_id)
+        //         ->groupBy('room_type')
+        //     ->get();
+        // }
 
         $allHaveRoomId = $rooms->every(function ($room) {
             return isset($room->room_id) && !empty($room->room_id);
@@ -143,6 +144,7 @@ class booking_data extends Controller
         $groupedRooms = $rooms->groupBy($groupByField);
         // return $groupedRooms;
         
+        $price_avg = 0;
         $resultArray = [];
         foreach ($groupedRooms as $groupKey => $group) {
             // Находим соответствующую запись в $maxAvailableRooms
@@ -150,14 +152,14 @@ class booking_data extends Controller
                 return $item->$groupByField == $groupKey;
             });
     
-            // array_push($resultArray, $maxAvailableRoom);
-
+            // return [$maxAvailableRoom];
             // Если запись найдена и цена не равна NULL, продолжаем вычисления
             if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
                 // Сумма свободных комнат по типу
                 $sum = $group->sum('available_rooms');
                 $price_avg = $maxAvailableRoom->price;
                 if ($group->whereNotNull('price')->count() > 0) {
+                    // dd($maxAvailableRoom);
                     $price_avg = round($group->sum('price') / $group->whereNotNull('price')->count(), 0);
                 }
                 // Количество записей по типу
@@ -176,7 +178,7 @@ class booking_data extends Controller
 
             $resultArray[] = [
                 'room_id' => $allHaveRoomId ? $groupKey : null,
-                'room_type' => !$allHaveRoomId ? $groupKey : null,
+                'room_type' => !$allHaveRoomId ? $groupKey : $maxAvailableRoom->room_type,
                 // 'room_type' => $maxAvailableRoom->room_type,
                 'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
                 'price' => $price_avg ? $price_avg : null,
@@ -185,6 +187,10 @@ class booking_data extends Controller
             ];
 
         }
+
+        usort($resultArray, function($a, $b) {
+            return $a['price'] <=> $b['price'];
+        });
 
         return $resultArray;
     }

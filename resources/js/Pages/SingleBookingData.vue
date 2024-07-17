@@ -218,7 +218,8 @@ onMounted(() => {
 
                         <!-- <LineChart /> -->
 
-                        <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p>
+                        <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
+                        <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p>
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 my-2">
                             <div v-for="room in rooms" :key="room">
