@@ -189,6 +189,15 @@ class booking_data extends Controller
         }
 
         usort($resultArray, function($a, $b) {
+            // Сначала проверяем на наличие occupancy равного -1
+            if ($a['occupancy'] == -1 && $b['occupancy'] != -1) {
+                return 1;
+            }
+            if ($a['occupancy'] != -1 && $b['occupancy'] == -1) {
+                return -1;
+            }
+        
+            // Если оба элемента имеют одинаковое значение occupancy (-1 или не -1), сортируем по price
             return $a['price'] <=> $b['price'];
         });
 
