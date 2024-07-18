@@ -62,7 +62,7 @@ const rooms = ref(null);
 
 const images = book.images.replaceAll('max500', 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
 
-const dateValue = ref("");
+const dateValue = ref(dateRange); // инициализация сразу сдатами за прошлый месяц
 const formatter = ref({
     date: 'DD MMM YYYY',
     month: 'MMM',
@@ -82,7 +82,7 @@ watch(dateValue, (newValue) => {
 });
 
 function convertDateRange(dateString) {
-    console.log(dateString);
+    // console.log(dateString);
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
     let dayFormat = 'D';
 
@@ -145,8 +145,8 @@ function wrapParagraphs(text) {
 }
 
 onMounted(() => {
-    dateValue.value = dateRange;
-    selectedDated();
+    const { startDate, endDate } = convertDateRange(dateRange); // Получаем значения для запроса
+    selectedDated(startDate, endDate);
 
     map = L.map("mapContainer").setView(location, 15);
     L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
