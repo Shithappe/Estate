@@ -25,7 +25,8 @@ class booking_data extends Controller
                     'booking_data.forecast_price',
                     DB::raw('COUNT(rooms.id) as types_rooms'),
                     DB::raw('SUM(rooms.max_available) as count_rooms'),
-                    DB::raw('AVG(rooms.occupancy) as occupancy_rate')
+                    // DB::raw('AVG(rooms.occupancy) as occupancy_rate')
+                    'booking_data.occupancy as occupancy_rate',
                     )
             ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
             ->orderByRaw('
@@ -175,19 +176,28 @@ class booking_data extends Controller
             }
 
             
-
-            $resultArray[] = [
-                'room_id' => $allHaveRoomId ? $groupKey : null,
-                'room_type' => !$allHaveRoomId ? $groupKey : $maxAvailableRoom->room_type,
-                // 'room_type' => $maxAvailableRoom->room_type,
-                'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
-                'price' => $price_avg ? $price_avg : null,
-                // 'price' => $maxAvailableRoom ? intval($maxAvailableRoom->price) : null,
-                'occupancy' => $occupancy
-            ];
+            // проверка на наличие room_type && occupancy перед добавлением к результату 
+            if ( 
+                ((!is_null($groupKey) && $groupKey !== '') || 
+                (!is_null($maxAvailableRoom) && !is_null($maxAvailableRoom->room_type) && $maxAvailableRoom->room_type !== '')) &&
+                $occupancy > 0
+            ) {
+                $room_type = !$allHaveRoomId ? $groupKey : ($maxAvailableRoom ? $maxAvailableRoom->room_type : null);
+                
+                if (!is_null($room_type) && $room_type !== '') {
+                    $resultArray[] = [
+                        'room_id' => $allHaveRoomId ? $groupKey : null,
+                        'room_type' => $room_type,
+                        'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
+                        'price' => $price_avg ?? null,
+                        'occupancy' => $occupancy
+                    ];
+                }
+            }
 
         }
 
+        // сортировка результата по цене
         usort($resultArray, function($a, $b) {
             // Сначала проверяем на наличие occupancy равного -1
             if ($a['occupancy'] == -1 && $b['occupancy'] != -1) {

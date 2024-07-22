@@ -238,7 +238,7 @@ onMounted(() => {
                         <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
                         <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 my-2">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 mt-2 mb-4">
                             <div v-for="room in rooms" :key="room">
                                 <div
                                     class="flex justify-between shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
@@ -249,7 +249,7 @@ onMounted(() => {
                                     </div>
                                     <div class="flex flex-col justify-between items-end">
                                         <div v-if="room.price" class="text-xl">${{ room.price }}</div>
-                                        <!-- <div v-if="room.hasOwnProperty('active') && room.active == false" class="text-sm">{{ room.active }}*not on the site</div> -->
+                                        <div v-if="room.hasOwnProperty('active') && room.active == false" class="text-sm">*hidden by owner</div>
                                     </div>
                                 </div>
                             </div>

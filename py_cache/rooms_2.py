@@ -29,15 +29,15 @@ def main():
     for id in arr_id:
         # get max_available_rooms 
         cursor.execute('''SELECT room_type, MAX(max_available) AS max_available
-                            FROM rooms
-                            WHERE booking_id = %s
+                            FROM rooms_id
+                            WHERE booking_id = %s and active = 1
                             GROUP BY room_type''', (id[0],))
         max_available = cursor.fetchall()
 
 
         cursor.execute('''SELECT MIN(price) AS min_price, MAX(price) AS max_price
-                            FROM rooms
-                            WHERE booking_id = %s''', (id[0],))
+                            FROM rooms_id
+                            WHERE booking_id = %s and active = 1''', (id[0],))
         price = cursor.fetchall()
 
         if price is not None:
@@ -140,7 +140,7 @@ def main():
                 sum_occupancy_rate[1] += 1
 
             print(occupancy_rate, id[0], room_type)
-            cursor.execute("UPDATE rooms SET occupancy = %s WHERE booking_id = %s AND room_type = %s", (occupancy_rate, id[0], room_type))
+            cursor.execute("UPDATE rooms_id SET occupancy = %s WHERE booking_id = %s AND room_type = %s", (occupancy_rate, id[0], room_type))
             connection.commit()
 
 
