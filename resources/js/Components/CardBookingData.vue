@@ -126,7 +126,7 @@ const addDots = (str) => {
 
             <div class="absolute bottom-3 w-full flex flex-col gap-y-2">
                 <button @click="openModal"
-                    class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-900 bg-slate-100 rounded-lg">Buy</button>
+                    class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-900 bg-slate-100 border-2 rounded-lg">Buy object</button>
                 <Link :href="'booking_data/' + item.id" class="">
                 <button
                     class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See
