@@ -60,7 +60,34 @@ const dateRange = `${startDateStr} ~ ${endDateStr}`;
 const book = props.booking[0];
 const rooms = ref(null);
 
-const images = book.images.replaceAll('max500', 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
+// const images = book.images.replaceAll('max500', 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
+const filteredImages = ref([]);
+
+const bookImages = book.images.replace(/max\d+/g, 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
+
+const determineImageOrientation = (url) => {
+    return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = function() {
+        resolve({ url, isLandscape: img.width >= img.height });
+    };
+    img.onerror = function() {
+        resolve({ url, isLandscape: false, error: true });
+    };
+    img.src = url;
+    });
+};
+
+const filterImages = async (images) => {
+    const promises = images.map(determineImageOrientation);
+    const results = await Promise.all(promises);
+    return results.filter(result => !result.error && result.isLandscape).map(result => result.url);
+};
+
+const initializeImages = async () => {
+    filteredImages.value = await filterImages(bookImages);
+};
+
 
 const dateValue = ref(dateRange); // инициализация сразу сдатами за прошлый месяц
 const formatter = ref({
@@ -145,6 +172,10 @@ function wrapParagraphs(text) {
 }
 
 onMounted(() => {
+
+    initializeImages();
+
+
     const { startDate, endDate } = convertDateRange(dateRange); // Получаем значения для запроса
     selectedDated(startDate, endDate);
 
@@ -187,7 +218,7 @@ onMounted(() => {
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
                 <div>
                     <carousel id="gallery" :items-to-show="1" :wrap-around="false">
-                        <slide v-for="image in images" :key="image" class="">
+                        <slide v-for="image in filteredImages" :key="image" class="">
                             <img class="w-full max-h-128 object-cover rounded-lg" :src="image" alt="">
                         </slide>
 
