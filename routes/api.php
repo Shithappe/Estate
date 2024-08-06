@@ -39,3 +39,7 @@ Route::post('/setting_priority', [booking_data::class, 'priority_edit']);
 
 Route::post('/for_extension', [booking_data::class, 'for_extension']);
 Route::post('/form_submissions', [booking_data::class, 'form_submissions']);
+
+Route::post('/create_list', [booking_data::class, 'create_list']);
+Route::post('/add_to_list', [booking_data::class, 'add_to_list']);
+Route::post('/get_list', [booking_data::class, 'get_list']);

@@ -35,6 +35,8 @@ Route::middleware([
 ])->group(function () {
 
     Route::get('/home', [booking_data::class, 'index']); 
+    Route::get('/list', [booking_data::class, 'list']);
+    Route::get('/list/{list_id}', [booking_data::class, 'list_show']);
     
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');

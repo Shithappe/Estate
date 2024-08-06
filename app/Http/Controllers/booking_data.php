@@ -25,8 +25,8 @@ class booking_data extends Controller
                     'booking_data.forecast_price',
                     DB::raw('COUNT(rooms.id) as types_rooms'),
                     DB::raw('SUM(rooms.max_available) as count_rooms'),
-                    // DB::raw('AVG(rooms.occupancy) as occupancy_rate')
-                    'booking_data.occupancy as occupancy_rate',
+                    // DB::raw('AVG(rooms.occupancy) as occupancy')
+                    'booking_data.occupancy as occupancy',
                     )
             ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
             ->orderByRaw('
@@ -360,7 +360,7 @@ class booking_data extends Controller
                     DB::raw('SUM(rooms.max_available) as count_rooms'),
                     DB::raw('MIN(rooms.price) as min_price'),
                     DB::raw('MAX(rooms.price) as max_price'),
-                    DB::raw('AVG(rooms.occupancy) as occupancy_rate')
+                    DB::raw('AVG(rooms.occupancy) as occupancy')
                     )
             ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id');
     
@@ -514,5 +514,176 @@ class booking_data extends Controller
         ]);
 
         return response()->json(['message' => 'Form submission successful'], 200);
+    }
+
+    public function create_list(Request $request)
+    {
+        // Валидация данных запроса
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'name' => 'required|string|max:255',
+            'booking_id' => 'nullable|exists:booking_data,id'
+        ]);
+
+        // Создание нового списка пользователя
+        $listId = DB::table('user_lists')->insertGetId([
+            'user_id' => $validatedData['user_id'],
+            'name' => $validatedData['name']
+        ]);
+
+        if (!empty($validatedData['booking_id'])) {
+            DB::table('list_hotels')->insert([
+                'list_id' => $listId,
+                'booking_id' => $validatedData['booking_id']
+            ]);
+        }
+
+        // Возврат успешного ответа
+        return response()->json([
+            'message' => 'List created successfully',
+            'list_id' => $listId,
+        ], 201);
+    }
+
+    public function add_to_list(Request $request)
+    {
+        // Валидация данных запроса
+        $validatedData = $request->validate([
+            'list_id' => 'required|exists:user_lists,id',
+            'booking_id' => 'required|exists:booking_data,id',
+        ]);
+
+        // Проверка, не существует ли уже запись с этим booking_id в этом списке
+        $exists = DB::table('list_hotels')
+            ->where('list_id', $validatedData['list_id'])
+            ->where('booking_id', $validatedData['booking_id'])
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'message' => 'The hotel is already in the list',
+            ], 400);
+        }
+
+        // Добавление отеля в список
+        DB::table('list_hotels')->insert([
+            'list_id' => $validatedData['list_id'],
+            'booking_id' => $validatedData['booking_id']
+        ]);
+
+        // Возврат успешного ответа
+        return response()->json([
+            'message' => 'Hotel added to list successfully',
+        ], 201);
+    }
+
+    public function get_list(Request $request)
+    {
+        // Валидация данных запроса
+        $validatedData = $request->validate([
+            'user_id' => 'nullable|exists:users,id',
+            'list_id' => 'nullable|exists:user_lists,id',
+        ]);
+
+        if (!empty($validatedData['list_id'])) {
+            // Получение определенного списка
+            $list = DB::table('user_lists')
+                ->where('id', $validatedData['list_id'])
+                ->first();
+
+            if ($list) {
+                $hotels = DB::table('list_hotels')
+                    ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+                    ->where('list_hotels.list_id', $validatedData['list_id'])
+                    ->select('booking_data.*')
+                    ->get();
+
+                return response()->json([
+                    'list' => $list,
+                    'hotels' => $hotels,
+                ], 200);
+            } else {
+                return response()->json(['message' => 'List not found'], 404);
+            }
+        } elseif (!empty($validatedData['user_id'])) {
+            // Получение всех списков пользователя
+            $lists = DB::table('user_lists')
+                ->where('user_id', $validatedData['user_id'])
+                ->get();
+
+            $result = [];
+            foreach ($lists as $list) {
+                $hotels = DB::table('list_hotels')
+                    ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+                    ->where('list_hotels.list_id', $list->id)
+                    ->select('booking_data.*')
+                    ->get();
+
+                $result[] = [
+                    'list' => $list,
+                    'hotels' => $hotels,
+                ];
+            }
+
+            return response()->json($result, 200);
+        } else {
+            return response()->json(['message' => 'Invalid request'], 400);
+        }
+    }
+
+    public function list(Request $request)
+    {
+        // Получение ID авторизованного пользователя
+        $userId = $request->user()->id;
+
+        // Получение всех списков пользователя
+        $lists = DB::table('user_lists')
+            ->where('user_id', $userId)
+            ->get();
+
+        foreach ($lists as $list) {
+            $hotels = DB::table('list_hotels')
+                ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+                ->where('list_hotels.list_id', $list->id)
+                ->select('booking_data.*')
+                ->get();
+
+            $list->hotels = $hotels;
+        }
+
+        // Возврат шаблона Inertia с данными списков
+        return Inertia::render('ListBookingData', [
+            'lists' => $lists
+        ]);
+    }
+
+    public function list_show(Request $request, $list_id)
+    {
+        // Получение ID авторизованного пользователя
+        $userId = $request->user()->id;
+
+        // Получение списка пользователя
+        $list = DB::table('user_lists')
+            ->where('id', $list_id)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$list) {
+            return response()->json(['message' => 'List not found or you do not have permission to view this list'], 404);
+        }
+
+        // Получение отелей в списке
+        $hotels = DB::table('list_hotels')
+            ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+            ->where('list_hotels.list_id', $list_id)
+            ->select('booking_data.*')
+            ->get();
+
+        $list->hotels = $hotels;
+
+        // Возврат шаблона Inertia с данными списка
+        return Inertia::render('ListShowBookingData', [
+            'list' => $list
+        ]);
     }
 }

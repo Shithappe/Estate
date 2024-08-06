@@ -43,9 +43,13 @@ const logout = () => {
 
                     <div class="flex gap-x-4 text-sm lg:text-md">
                         <a href="/booking_data-map"
-                            class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
-                            Map
-                        </a>
+                        class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
+                        Map
+                    </a>
+                    <a href="/list"
+                        class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
+                        List
+                    </a>
                         <!-- <a href="/estate"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
                             Estate

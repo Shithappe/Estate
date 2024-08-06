@@ -67,7 +67,7 @@ const addDots = (str) => {
         <div class="relative col-span-3 h-80 mx-3 pt-2 pb-2">
             <div class="flex flex-col relative">
                 <div class="text-xl font-semibold hover:text-blue-800">
-                    <Link :href="'booking_data/' + item.id">{{ item.title }}</Link>
+                    <Link :href="'/booking_data/' + item.id">{{ item.title }}</Link>
                 </div>
                 <div class="mt-1 flex">
                     <Lucide v-for="star in item.star" class="w-5 h-5 fill-black" icon="Star" />
@@ -88,7 +88,7 @@ const addDots = (str) => {
 
                     <div class="flex items-center gap-2">
                         <Lucide class="w-5 h-5" icon="Zap" />
-                        <div v-if="!loading">{{ Math.round(item.occupancy_rate) >= 0 ? Math.round(item.occupancy_rate) +
+                        <div v-if="!loading">{{ Math.round(item.occupancy) >= 0 ? Math.round(item.occupancy) +
                             '%' :
                             'N/A' }}</div>
                         <div v-else class="loading px-1 text-slate-500">Occupancy</div>
