@@ -474,7 +474,7 @@ class booking_data extends Controller
         // $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
         // $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
 
-        $rooms = DB::table('rooms')->where('booking_id', $booking_id)->get();
+        $rooms = DB::table('rooms_id')->where('booking_id', $booking_id)->get();
         $rooms_2_day = DB::table('rooms_2_day')->where('booking_id', $booking_id)->get();
 
         return [
