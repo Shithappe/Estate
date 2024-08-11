@@ -5,6 +5,7 @@ import Lucide from '@/Components/Lucide.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
 import FormSubmissions from '@/Components/FormSubmissions.vue';
+import { strToArray } from '@/Utils/strToArray.js';
 
 
 const props = defineProps({
@@ -30,7 +31,8 @@ const openCart = () => {
     }
 };
 
-const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
+// const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
+const images = strToArray(props.item.images, 500);
 
 const addDots = (str) => {
     str = String(str)

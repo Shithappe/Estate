@@ -5,7 +5,6 @@ import { Link } from '@inertiajs/vue3';
 import moment from 'moment';
 import Lucide from '@/Components/Lucide.vue';
 import Dropdown from '@/Components/Dropdown.vue';
-import DropdownList from '@/Components/DropdownList.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
@@ -21,6 +20,7 @@ import markerIcon from "@/assets/pin.png";
 // import LineChart from '@/Components/LineChart.vue';
 
 import FormSubmissions from '@/Components/FormSubmissions.vue';
+import { strToArray } from '@/Utils/strToArray.js';
 
 
 
@@ -64,7 +64,8 @@ const book = props.booking[0];
 const rooms = ref(null);
 
 const filteredImages = ref([]);
-const bookImages = book.images.replace(/max\d+/g, 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
+// const bookImages = book.images.replace(/max\d+/g, 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
+const bookImages = strToArray(book.images, 1024);
 
 const determineImageOrientation = (url) => {
     return new Promise((resolve) => {
