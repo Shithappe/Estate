@@ -6,5 +6,6 @@
  */
 
 export function strToArray(str, resol) {
+    if (!str) return [];
     return str.replace(/max\d+/g, `max${resol}`).split(',');
 }

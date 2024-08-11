@@ -14,6 +14,7 @@ class booking_data extends Controller
     {
         $data = DB::table('booking_data')
             ->select('booking_data.id', 
+                    'booking_data.static_images',
                     'booking_data.images',
                     'booking_data.title', 
                     'booking_data.city', 
@@ -428,7 +429,7 @@ class booking_data extends Controller
         ]);
     }
 
-    public function priority_edit (Request $request)
+    public function update_booking (Request $request)
     {
         if ($request->id && $request->show_priority) {
             DB::table('booking_data')->where('id', $request->id)->update(['priority' => $request->priority]);
@@ -685,5 +686,16 @@ class booking_data extends Controller
         return Inertia::render('ListShowBookingData', [
             'list' => $list
         ]);
+    }
+
+    public function change_images_order(Request $request)
+    {
+        DB::table('booking_data')
+        ->where('id', $request->input('id')) // Условие поиска по booking_id
+        ->update([
+            'static_images' => $request->input('static_images') // Обновление поля static_images
+        ]);
+
+        return response()->json(['status' => 'success']);
     }
 }

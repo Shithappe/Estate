@@ -74,10 +74,6 @@ const submitForm = async () => {
                             class="bg-slate-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="John" required />
                     </div>
-                    <!-- <div class="mb-4">
-                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
-                        <input type="tel" v-model="formData.phone" id="phone" class="mt-1 block w-full" required />
-                    </div> -->
 
                     <div class="mb-4">
                         <label for="phone-input" class="block mb-1 text-sm font-medium text-gray-900">Phone
@@ -118,34 +114,7 @@ const submitForm = async () => {
                             </template>
                         </Dropdown>
                     </div>
-                    <!-- <ul class="grid w-full gap-6 md:grid-cols-2">
-                        <li>
-                            <input type="radio" id="hosting-small" name="hosting" value="hosting-small" class="hidden peer" required />
-                            <label for="hosting-small" class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">                           
-                                <div class="block">
-                                    <div class="w-full text-lg font-semibold">0-50 MB</div>
-                                </div>
-                                <svg class="w-5 h-5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                                </svg>
-                            </label>
-                        </li>
-                        <li>
-                            <input type="radio" id="hosting-big" name="hosting" value="hosting-big" class="hidden peer">
-                            <label for="hosting-big" class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
-                                <div class="block">
-                                    <div class="w-full text-lg font-semibold">500-1000 MB</div>
-                                </div>
-                                <svg class="w-5 h-5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                                </svg>
-                            </label>
-                        </li>
-                    </ul> -->
-                    <!-- <div class="mb-4">
-                        <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
-                        <input type="email" v-model="formData.email" id="email" class="mt-1 block w-full" required />
-                    </div> -->
+                    
                     <div class="mb-6">
                         <label for="email" class="block mb-1 text-sm font-medium text-gray-900">Email address</label>
                         <input type="email" id="email"

@@ -64,7 +64,6 @@ const book = props.booking[0];
 const rooms = ref(null);
 
 const filteredImages = ref([]);
-// const bookImages = book.images.replace(/max\d+/g, 'max1024').slice(1, -1).split(', ').map(item => item.slice(1, -1));
 const bookImages = strToArray(book.images, 1024);
 
 const determineImageOrientation = (url) => {

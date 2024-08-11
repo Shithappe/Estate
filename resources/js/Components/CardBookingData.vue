@@ -32,7 +32,8 @@ const openCart = () => {
 };
 
 // const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
-const images = strToArray(props.item.images, 500);
+// const images = strToArray(props.item.images, 500);
+const images = [...new Set([...strToArray(props.item.static_images, 500), ...strToArray(props.item.images, 500)])];
 
 const addDots = (str) => {
     str = String(str)
