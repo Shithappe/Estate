@@ -254,15 +254,6 @@ onMounted(() => {
                         <div class="flex gap-x-2 mb-2">
                             <button @click="openModal" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Buy object</button>
                             <button @click="openModal1" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Get a consultation</button>
-                            <!-- <button @click="" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Add this to list</button> -->
-                            <!-- <DropdownList :lists="[
-                                { id: 1, name: 'List 1' },
-                                { id: 2, name: 'List 2' },
-                            ]" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg"">
-                                <template #trigger>
-                                    <button class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Add this to list</button>
-                                </template>
-                            </DropdownList> -->
                             <Dropdown class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">
                             <template #trigger>
                                 <button>Add this to list</button>
@@ -298,7 +289,7 @@ onMounted(() => {
                                 <div
                                     class="flex justify-between shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
                                     <div>
-                                        <div class="text-2xl">{{ room.occupancy > 0 ? room.occupancy + '%' : 'N/A' }}
+                                        <div class="text-2xl">{{ room.occupancy > 0 ? Math.round(room.occupancy) + '%' : 'N/A' }}
                                         </div>
                                         <div>{{ room.room_type }}</div>
                                     </div>
