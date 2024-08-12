@@ -37,7 +37,7 @@ const changeForecastPrice = (id, forecast_price) => {
     selectItem.value.show_forecast_price = true;
 }
 
-const updateImages = async (item) => {
+const initializeImages = async (item) => {
     modalItem.value.images = await checkImages([...new Set([...strToArray(item.static_images, 500), ...strToArray(item.images, 500)])]);
 };
 
@@ -46,7 +46,7 @@ const show = ref(false);
 const openModal = (item) => {
     show.value = true;
     modalItem.value = item;
-    updateImages(item);
+    initializeImages(item);
     modalItem.value.images = [...new Set([...strToArray(item.static_images, 500), ...strToArray(item.images, 500)])];
 }
 

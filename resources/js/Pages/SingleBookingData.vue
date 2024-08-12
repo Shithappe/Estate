@@ -21,6 +21,7 @@ import markerIcon from "@/assets/pin.png";
 
 import FormSubmissions from '@/Components/FormSubmissions.vue';
 import { strToArray } from '@/Utils/strToArray.js';
+import { checkImages } from '@/Utils/checkImages.js';
 
 
 
@@ -64,29 +65,9 @@ const book = props.booking[0];
 const rooms = ref(null);
 
 const filteredImages = ref([]);
-const bookImages = strToArray(book.images, 1024);
-
-const determineImageOrientation = (url) => {
-    return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = function() {
-        resolve({ url, isLandscape: img.width >= img.height });
-    };
-    img.onerror = function() {
-        resolve({ url, isLandscape: false, error: true });
-    };
-    img.src = url;
-    });
-};
-
-const filterImages = async (images) => {
-    const promises = images.map(determineImageOrientation);
-    const results = await Promise.all(promises);
-    return results.filter(result => !result.error && result.isLandscape).map(result => result.url);
-};
 
 const initializeImages = async () => {
-    filteredImages.value = await filterImages(bookImages);
+    filteredImages.value = await checkImages([...new Set([...strToArray(book.static_images, 1024), ...strToArray(book.images, 1024)])]);
 };
 
 
