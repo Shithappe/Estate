@@ -44,3 +44,6 @@ Route::post('/form_submissions', [booking_data::class, 'form_submissions']);
 Route::post('/create_list', [booking_data::class, 'create_list']);
 Route::post('/add_to_list', [booking_data::class, 'add_to_list']);
 Route::post('/get_list', [booking_data::class, 'get_list']);
+
+Route::patch('/list/{list_id}', [booking_data::class, 'update_list']);
+Route::delete('/list/{list_id}', [booking_data::class, 'delete_list']);

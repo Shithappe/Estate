@@ -69,15 +69,17 @@ const addDots = (str) => {
 
         <div class="relative col-span-3 h-80 mx-3 pt-2 pb-2">
             <div class="flex flex-col relative">
-                <div class="text-xl font-semibold hover:text-blue-800">
-                    <Link :href="'/booking_data/' + item.id">{{ item.title }}</Link>
+                <div class="flex items-center justify-between">
+                    <Link class="text-xl font-semibold hover:text-blue-800" :href="'/booking_data/' + item.id">{{ item.title }}</Link>
+                    <!-- <Lucide class="w-5 h-5" icon="ListPlus" /> -->
+                    
                 </div>
                 <div class="mt-1 flex">
                     <Lucide v-for="star in item.star" class="w-5 h-5 fill-black" icon="Star" />
                 </div>
             </div>
 
-            <div class="flex items-center text-md mb-1">
+            <div class="flex items-center justify-between text-md mb-1 pr-3">
                 {{ item.city }}
             </div>
 

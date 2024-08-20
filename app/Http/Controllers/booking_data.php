@@ -688,6 +688,33 @@ class booking_data extends Controller
         ]);
     }
 
+    public function delete_list(Request $request, $list_id)
+    {
+        // $userId = $request->user()->id;
+
+        DB::table('user_lists')
+            ->where('id', $list_id)
+            // ->where('user_id', $userId)
+            ->delete();
+    }
+
+    public function update_list(Request $request, $list_id)
+    {
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'name' => 'nullable|string',
+            // 'asses' => 'nullable|array',
+        ]);
+        
+        DB::table('user_lists')
+            ->where('id', $list_id)
+            ->where('user_id', $validatedData['user_id'])
+            ->update([
+                'name' => $validatedData['name'],
+                // Добавьте другие поля для обновления, если необходимо
+            ]);
+    }
+
     public function change_images_order(Request $request)
     {
         DB::table('booking_data')
