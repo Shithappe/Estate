@@ -64,3 +64,4 @@ Route::get('/get-report', function () {
 });
 
 Route::get('/get_all/{id}', [booking_data::class, 'get_all']);
+Route::get('/list/share/{token}', [booking_data::class, 'accessSharedList']);

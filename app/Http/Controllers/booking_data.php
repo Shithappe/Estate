@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class booking_data extends Controller
@@ -526,23 +527,28 @@ class booking_data extends Controller
             'booking_id' => 'nullable|exists:booking_data,id'
         ]);
 
-        // Создание нового списка пользователя
-        $listId = DB::table('user_lists')->insertGetId([
+        // Создание нового объекта списка
+        $list = [
             'user_id' => $validatedData['user_id'],
-            'name' => $validatedData['name']
-        ]);
+            'name' => $validatedData['name'],
+            'share_token' => Str::random(32),
+        ];
 
+        // Вставка данных в таблицу и получение ID
+        $list['id'] = DB::table('user_lists')->insertGetId($list);
+        $list['hotels'] = [];
+
+        // Добавление данных в связанную таблицу, если указано booking_id
         if (!empty($validatedData['booking_id'])) {
             DB::table('list_hotels')->insert([
-                'list_id' => $listId,
+                'list_id' => $list['id'],
                 'booking_id' => $validatedData['booking_id']
             ]);
         }
 
-        // Возврат успешного ответа
+        // Возврат успешного ответа с объектом списка
         return response()->json([
-            'message' => 'List created successfully',
-            'list_id' => $listId,
+            'list' => $list
         ], 201);
     }
 
@@ -703,17 +709,79 @@ class booking_data extends Controller
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
             'name' => 'nullable|string',
-            // 'asses' => 'nullable|array',
+            'privacy_mode' => 'nullable|in:private,link,specific_users',
+            'shared_with_users' => 'nullable|array',
+            'shared_with_users.*' => 'exists:users,id',
         ]);
         
+        // Обновление данных списка
+        $updateData = array_filter([
+            'name' => $validatedData['name'] ?? null,
+            'privacy_mode' => $validatedData['privacy_mode'] ?? null,
+        ]);
+
         DB::table('user_lists')
             ->where('id', $list_id)
             ->where('user_id', $validatedData['user_id'])
-            ->update([
-                'name' => $validatedData['name'],
-                // Добавьте другие поля для обновления, если необходимо
-            ]);
+            ->update($updateData);
+        
+        // Обработка добавления пользователей для режима specific_users
+        if (isset($validatedData['privacy_mode']) && $validatedData['privacy_mode'] === 'specific_users') {
+            DB::table('shared_lists')
+                ->where('list_id', $list_id)
+                ->delete(); // Удаляем текущих пользователей, чтобы обновить список
+
+            if (!empty($validatedData['shared_with_users'])) {
+                foreach ($validatedData['shared_with_users'] as $userId) {
+                    DB::table('shared_lists')->insert([
+                        'list_id' => $list_id,
+                        'shared_with_user_id' => $userId,
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        // Генерация ссылки для режима link
+        if (isset($validatedData['privacy_mode']) && $validatedData['privacy_mode'] === 'link') {
+
+            $shareToken = DB::table('user_lists')
+                ->where('id', $list_id)
+                ->where('user_id', $validatedData['user_id'])
+                ->value('share_token');
+
+            $shareLink = url('list/share/' . $shareToken);
+            return response()->json(['link' => $shareLink], 200);
+        }
+
+        return response()->json(['message' => 'List updated successfully']);
     }
+
+    public function accessSharedList($share_token)
+    {
+        $list = DB::table('user_lists')
+            ->where('share_token', $share_token)
+            ->where('privacy_mode', '=',  'link')
+            ->first();
+        
+        if (!$list) {
+            return response()->json(['error' => 'Invalid link'], 404);
+        }
+
+        
+        $hotels = DB::table('list_hotels')
+            ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+            ->where('list_hotels.list_id', $list->id)
+            ->select('booking_data.*')
+            ->get();
+
+        $list->hotels = $hotels;
+        
+        return Inertia::render('ListShowBookingData', [
+            'list' => $list
+        ]);
+    }
+
 
     public function change_images_order(Request $request)
     {
