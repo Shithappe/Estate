@@ -153,7 +153,7 @@ onMounted(() => {
                 <button @click="openModal"
                     class="w-full p-2 text-slate-900 bg-slate-100 border-2 border-slate-400 rounded-lg">Buy object</button>
 
-                <Link v-if="!props.auth" :href="'booking_data/' + item.id">
+                <Link v-if="!props.auth.user_id" :href="'booking_data/' + item.id">
                 <button
                     class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See
                     Details</button>
