@@ -21,7 +21,7 @@ def connect_to_db():
 def main():
     connection, cursor = connect_to_db()
 
-    cursor.execute("SELECT id FROM booking_data WHERE id = 7449")
+    cursor.execute("SELECT id FROM booking_data WHERE")
     arr_id = cursor.fetchall()
 
     for id in arr_id:
