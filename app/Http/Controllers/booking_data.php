@@ -362,7 +362,8 @@ class booking_data extends Controller
                     DB::raw('SUM(rooms.max_available) as count_rooms'),
                     DB::raw('MIN(rooms.price) as min_price'),
                     DB::raw('MAX(rooms.price) as max_price'),
-                    DB::raw('AVG(rooms.occupancy) as occupancy')
+                    'booking_data.occupancy as occupancy',
+                    // DB::raw('AVG(rooms.occupancy) as occupancy')
                     )
             ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id');
     
