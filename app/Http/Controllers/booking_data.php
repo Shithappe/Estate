@@ -107,99 +107,49 @@ class booking_data extends Controller
     
     public function booking_data_rate(Request $request)
     {
-        $rooms = NULL;
-        if (isset($request->checkin) && isset($request->checkout)){
-            $rooms = DB::table('rooms_2_day')
-                ->where('booking_id', $request->booking_id)
-                ->where('checkin', '>=', $request->checkin)
-                ->where('checkin', '<', $request->checkout)
-                ->whereRaw('DATE(checkin) = DATE(created_at)')
-                ->get();
-                // return $rooms;
-        }
-        else {
-            $rooms = DB::table('rooms_2_day')
-            ->where('booking_id', $request->booking_id)
-                ->whereDate('checkin', '=', DB::raw('DATE(created_at)'))
+        $bookingId = $request->booking_id;
+        $checkinDate = $request->checkin;
+        $checkoutDate = $request->checkout;
+
+        // Запрос к базе данных для получения всех необходимых данных
+        $rooms = DB::table('rooms_2_day as r2d')
+            ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
+            ->select('r2d.room_id',
+                DB::raw('SUM(r2d.available_rooms) AS sum'),
+                DB::raw('COUNT(r2d.available_rooms) AS count'),
+                DB::raw('MAX(ri.max_available) AS max_available'),
+                'ri.room_type',
+                'ri.price',
+                'ri.active'
+            )
+            ->where('r2d.booking_id', $bookingId)
+            ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
+                return $query->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate]);
+            })
+            ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active')
             ->get();
-        }
 
-        $maxAvailableRooms = DB::table('rooms_id')
-            ->select('room_id', 'room_type', DB::raw('MAX(max_available) AS max_available'), 'active', DB::raw('MAX(price) AS price'))
-            ->where('booking_id', $request->booking_id)
-            ->groupBy('room_id', 'active')
-            ->get();
-
-        // if ($maxAvailableRooms->isEmpty()) {
-        //     $maxAvailableRooms = DB::table('rooms_2_day')
-        //         ->select('room_type', DB::raw('MAX(available_rooms) AS max_available'), DB::raw('MAX(price) AS price'))
-        //     ->where('booking_id', $request->booking_id)
-        //         ->groupBy('room_type')
-        //     ->get();
-        // }
-
-        $allHaveRoomId = $rooms->every(function ($room) {
-            return isset($room->room_id) && !empty($room->room_id);
-        });
-
-        
-        $groupByField = $allHaveRoomId ? 'room_id' : 'room_type';
-        $groupedRooms = $rooms->groupBy($groupByField);
-        // return $groupedRooms;
-        
-        $price_avg = 0;
         $resultArray = [];
-        foreach ($groupedRooms as $groupKey => $group) {
-            // Находим соответствующую запись в $maxAvailableRooms
-            $maxAvailableRoom = $maxAvailableRooms->first(function ($item) use ($groupKey, $groupByField) {
-                return $item->$groupByField == $groupKey;
-            });
-    
-            // return [$maxAvailableRoom];
-            // Если запись найдена и цена не равна NULL, продолжаем вычисления
-            if ($maxAvailableRoom) { // && $maxAvailableRoom->price !== null
-                // Сумма свободных комнат по типу
-                $sum = $group->sum('available_rooms');
-                $price_avg = $maxAvailableRoom->price;
-                if ($group->whereNotNull('price')->count() > 0) {
-                    // dd($maxAvailableRoom);
-                    $price_avg = round($group->sum('price') / $group->whereNotNull('price')->count(), 0);
-                }
-                // Количество записей по типу
-                $count = $group->count();
-                // Расчет занятости
-                $occupancy = $sum / $count;  // среднее
-                $occupancy = $maxAvailableRoom->max_available - $occupancy; // отнимает от максимального
-                if ($occupancy > 0) $occupancy = round(($occupancy / $maxAvailableRoom->max_available) * 100, 2); // переводим в %
-                if ($occupancy < 0) $occupancy = -1;
-            } else {
-                // Обработка ситуации, если не найдено соответствие
-                $occupancy = -1;
-            }
+        foreach ($rooms as $room) {
+            $sum = $room->sum;
+            $count = $room->count;
+            $maxAvailable = $room->max_available;
 
-            
-            // проверка на наличие room_type && occupancy перед добавлением к результату 
-            if ( 
-                ((!is_null($groupKey) && $groupKey !== '') || 
-                (!is_null($maxAvailableRoom) && !is_null($maxAvailableRoom->room_type) && $maxAvailableRoom->room_type !== '')) &&
-                $occupancy > 0
-            ) {
-                $room_type = !$allHaveRoomId ? $groupKey : ($maxAvailableRoom ? $maxAvailableRoom->room_type : null);
-                
-                if (!is_null($room_type) && $room_type !== '') {
-                    $resultArray[] = [
-                        'room_id' => $allHaveRoomId ? $groupKey : null,
-                        'room_type' => $room_type,
-                        'active' => $maxAvailableRoom ? $maxAvailableRoom->active : null,
-                        'price' => $price_avg ?? null,
-                        'occupancy' => $occupancy
-                    ];
-                }
-            }
+            // Расчет занятости
+            $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
+            if ($occupancy < 0) $occupancy = -1;
 
+            // Добавляем результат в массив
+            $resultArray[] = [
+                'room_id' => $room->room_id,
+                'room_type' => $room->room_type,
+                'active' => $room->active,
+                'price' => $room->price,
+                'occupancy' => round($occupancy)
+            ];
         }
 
-        // сортировка результата по цене
+        // Сортировка результата по цене и занятости
         usort($resultArray, function($a, $b) {
             // Сначала проверяем на наличие occupancy равного -1
             if ($a['occupancy'] == -1 && $b['occupancy'] != -1) {
@@ -208,13 +158,14 @@ class booking_data extends Controller
             if ($a['occupancy'] != -1 && $b['occupancy'] == -1) {
                 return -1;
             }
-        
+
             // Если оба элемента имеют одинаковое значение occupancy (-1 или не -1), сортируем по price
             return $a['price'] <=> $b['price'];
         });
 
         return $resultArray;
     }
+
 
 
     public function booking_data_map(Request $request)
@@ -363,7 +314,6 @@ class booking_data extends Controller
                     DB::raw('MIN(rooms.price) as min_price'),
                     DB::raw('MAX(rooms.price) as max_price'),
                     'booking_data.occupancy as occupancy',
-                    // DB::raw('AVG(rooms.occupancy) as occupancy')
                     )
             ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id');
     
