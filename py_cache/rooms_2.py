@@ -32,7 +32,7 @@ def occupancy_calc(connection, cursor, booking_id):
             rooms_id ri ON r2d.room_id = ri.room_id 
         WHERE 
             r2d.booking_id = %s
-            AND r2d.created_at >= '2024-07-28'
+            AND r2d.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
         GROUP BY 
             r2d.room_id;
     '''
@@ -46,7 +46,7 @@ def occupancy_calc(connection, cursor, booking_id):
         room_id, sum_value, count_value, max_available = row
 
         if count_value != 0 and max_available > 0:
-            occupancy = round(((max_available - (sum_value / count_value)) / max_available) * 100, 2)
+            occupancy = ((max_available - (sum_value / count_value)) / max_available) * 100
             print(f"{room_id} - {occupancy:.2f}%")
 
             total_result += occupancy
@@ -56,7 +56,7 @@ def occupancy_calc(connection, cursor, booking_id):
         average_result = total_result / record_count
         cursor.execute('''UPDATE booking_data SET occupancy = %s WHERE id = %s''', (average_result, booking_id))
         connection.commit()
-        print(f"{average_result:.2f}%")
+        print(f"{average_result:.2f}%\n")
 
 
 def main():
@@ -71,6 +71,6 @@ def main():
     cursor.close()
     connection.close()
 
-    print('\nDone')
+    print('Done')
 
 main()
