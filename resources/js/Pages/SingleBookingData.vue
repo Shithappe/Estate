@@ -5,19 +5,12 @@ import { Link } from '@inertiajs/vue3';
 import moment from 'moment';
 import Lucide from '@/Components/Lucide.vue';
 import Dropdown from '@/Components/Dropdown.vue';
+import DateRangePicker from '@/Components/DateRangePicker.vue';
+import Map from '@/Components/Map.vue';
+import RoomInfo from '@/Components/RoomInfo.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
-
-import VueTailwindDatePicker from "vue-tailwind-datepicker";
-
-import "leaflet/dist/leaflet.css";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-import L from "leaflet";
-import "leaflet.markercluster";
-import markerIcon from "@/assets/pin.png";
-// import LineChart from '@/Components/LineChart.vue';
 
 import FormSubmissions from '@/Components/FormSubmissions.vue';
 import { strToArray } from '@/Utils/strToArray.js';
@@ -40,29 +33,9 @@ const openModal = () => { showModal.value = true; };
 const openModal1 = () => { showModal1.value = true; };
 const closeModal = () => { showModal.value = false; showModal1.value = false; };
 
-// Получаем дату месяц назад
-const lastMonth = new Date();
-lastMonth.setMonth(today.getMonth() - 1);
-
-// Функция для форматирования даты в формат DD MMM YYYY
-const formatDate = (date) => {
-  const day = String(date.getDate()).padStart(2, '0');
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const month = monthNames[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day} ${month} ${year}`;
-};
-
-// Форматируем даты
-const startDateStr = formatDate(lastMonth);
-const endDateStr = formatDate(today);
-
-// Формируем строку в требуемом формате
-const dateRange = `${startDateStr} ~ ${endDateStr}`;
-
-
 const book = props.booking[0];
 const rooms = ref(null);
+const dateRange = ref('');
 
 const filteredImages = ref([]);
 
@@ -71,27 +44,7 @@ const initializeImages = async () => {
 };
 
 
-const dateValue = ref(dateRange); // инициализация сразу сдатами за прошлый месяц
-const formatter = ref({
-    date: 'DD MMM YYYY',
-    month: 'MMM',
-});
-function dDate(date) {
-    return date > new Date()
-}
-
-watch(dateValue, (newValue) => {
-    let { startDate, endDate } = convertDateRange(newValue);
-
-    if (startDate == 'Invalid date' || endDate == 'Invalid date') {
-        startDate = null;
-        endDate = null;
-    }
-    selectedDated(startDate, endDate)
-});
-
 function convertDateRange(dateString) {
-    // console.log(dateString);
     const [startDateStr, endDateStr] = dateString.split(' ~ ');
     let dayFormat = 'D';
 
@@ -105,24 +58,32 @@ function convertDateRange(dateString) {
     const startDate = startMoment.format(`YYYY-MM-${dayFormat}`);
     const endDate = endMoment.format(`YYYY-MM-${dayFormat}`);
 
-    console.log(startDate, endDate);
     return { startDate, endDate };
 }
 
-
 const selectedDated = async (checkin, checkout) => {
-    console.log(checkin, checkout);
     try {
         const response = await axios.post("/api/booking_data_rate", {
             'booking_id': book.id,
             'checkin': checkin,
             'checkout': checkout
         });
+        // console.log("API response:", response.data); // Лог для отладки
         rooms.value = response.data;
     } catch (error) {
-        console.error(error);
+        console.error("Error in API call:", error);
     }
 }
+
+watch(dateRange, (newDateRange) => {
+    const { startDate, endDate } = convertDateRange(newDateRange);
+
+    if (startDate !== 'Invalid date' && endDate !== 'Invalid date') {
+        selectedDated(startDate, endDate);
+    } else {
+        console.log("Invalid date range"); // Лог для отладки
+    }
+});
 
 const allData = ref(null);
 const getAll = async () => {
@@ -154,10 +115,6 @@ const add_to_list = async (list_id) => {
 }
 
 
-let map = null;
-const location = book.location.split(',')
-
-
 function formatDateForLink(date) {
     const year = date.getFullYear();
     let month = date.getMonth() + 1;
@@ -173,33 +130,16 @@ function wrapParagraphs(text) {
     return wrappedParagraphs.join('\n'); // Объединяем абзацы с новыми тегами <p>
 }
 
+const mapLocations = ref([]);
+
 onMounted(() => {
     getLists();
     initializeImages();
-
-    const { startDate, endDate } = convertDateRange(dateRange); // Получаем значения для запроса
-    selectedDated(startDate, endDate);
-
-    map = L.map("mapContainer").setView(location, 15);
-    L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
-        attribution:
-            '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
-
-    const customIcon = L.icon({
-        iconUrl: markerIcon, // Путь к вашему изображению маркера
-        iconSize: [50, 50], // Размер изображения маркера
-        iconAnchor: [25, 48], // Якорь иконки
-    });
-
-
-    // Создание кластеризатора маркеров
-    const markerCluster = L.markerClusterGroup();
-
-    const markers = [L.marker(location, { icon: customIcon })];
-
-    markerCluster.addLayers(markers);
-    map.addLayer(markerCluster);
+    
+    // Подготавливаем данные для карты
+    mapLocations.value = [{
+        location: book.location.split(',').map(Number)
+    }];
 });
 
 </script>
@@ -276,32 +216,17 @@ onMounted(() => {
 
                         <div class="flex flex-col gap-y-2 mb-4" v-html="wrapParagraphs(book.description)"></div>
 
-                        <VueTailwindDatePicker v-model="dateValue" :formatter="formatter" :disable-date="dDate"
-                            @change="() => { console.log(dateValue); }" />
+                        <DateRangePicker v-model="dateRange" />
 
                         <!-- <LineChart /> -->
 
                         <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
                         <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 mt-2 mb-4">
-                            <div v-for="room in rooms" :key="room">
-                                <div
-                                    class="flex justify-between shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
-                                    <div>
-                                        <div class="text-2xl">{{ room.occupancy > 0 ? Math.round(room.occupancy) + '%' : 'N/A' }}
-                                        </div>
-                                        <div>{{ room.room_type }}</div>
-                                    </div>
-                                    <div class="flex flex-col justify-between items-end">
-                                        <div v-if="room.price" class="text-xl">${{ room.price }}</div>
-                                        <div v-if="room.hasOwnProperty('active') && room.active == false" class="text-sm">*hidden by owner</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <RoomInfo v-if="rooms" :rooms="rooms" />
 
-                        <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div>
+                        <Map :locations="mapLocations" />
+                        <!-- <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div> -->
 
                         <button @click="getAll">Get all data</button>
                         <div v-if="allData" class="flex flex-col gap-y-2">
