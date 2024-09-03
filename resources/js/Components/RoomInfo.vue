@@ -11,7 +11,7 @@ const props = defineProps({
 
 <template>
   <div>
-    <!-- <h3 v-if="rooms[0].booking_title" class="text-xl font-semibold mt-4 mb-2">{{ rooms[0].booking_title }}</h3> -->
+    <h3 v-if="rooms[0].booking_title" class="text-xl font-semibold mt-4 mb-2">{{ rooms[0].booking_title }}</h3>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 mt-2 mb-4">
       <div v-for="room in rooms" :key="room">
         <div
