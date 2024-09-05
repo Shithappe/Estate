@@ -48,7 +48,7 @@ const logout = () => {
                     </a>
                     <a href="/list"
                         class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">
-                        List
+                        Lists
                     </a>
                         <!-- <a href="/estate"
                             class="p-2 hover:text-black hover:bg-slate-200 rounded-md transition duration-300 ease-in-out">

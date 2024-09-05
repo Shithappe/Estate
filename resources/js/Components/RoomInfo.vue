@@ -5,6 +5,10 @@ const props = defineProps({
   rooms: {
     type: Array,
     required: true
+  },
+  isList: {
+    type: Boolean,
+    default: false
   }
 });
 </script>

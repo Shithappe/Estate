@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
-import Dropdown from '@/Components/Dropdown.vue';
+import DropdownList from '@/Components/DropdownList.vue';
 import FormSubmissions from '@/Components/FormSubmissions.vue';
 import { strToArray } from '@/Utils/strToArray.js';
 
@@ -12,7 +12,7 @@ import { strToArray } from '@/Utils/strToArray.js';
 const props = defineProps({
     item: Object,
     canOpenCart: Number,
-    auth: Boolean,
+    auth: Object,
     lists: {
         type: Object,
         default: null
@@ -25,9 +25,9 @@ const closeModal = () => { showModal.value = false; };
 
 const emit = defineEmits(['updateCanOpenCart']);
 
-const loading = ref(props.auth ? false : true);
+const loading = ref(props.auth?.user ? false : true);
 const openCart = () => {
-    if (!props.auth) {
+    if (!props.auth?.user) {
         if (props.canOpenCart > 0) {
             emit('updateCanOpenCart');
             loading.value = false;
@@ -76,7 +76,6 @@ const clickOutside = (e) => {
 onMounted(() => {
     document.addEventListener('click', clickOutside);
     console.log(props);
-    
 });
 </script>
 
@@ -155,7 +154,7 @@ onMounted(() => {
                 <button @click="openModal"
                     class="w-full p-2 text-slate-900 bg-slate-100 border-2 border-slate-400 rounded-lg">Buy object</button>
 
-                <Link v-if="!props.auth" :href="'booking_data/' + item.id">
+                <Link v-if="!props.auth?.user" :href="'booking_data/' + item.id">
                 <button
                     class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See
                     Details</button>
@@ -167,22 +166,12 @@ onMounted(() => {
                             See Details
                         </button>
                     </Link>
-                    
-                    <Dropdown class="w-1/5 flex items-center justify-center text-slate-100 bg-slate-900 rounded-lg z-100">
+
+                    <DropdownList :lists="lists.complex" type="complex" :itemId="item.id" :auth="auth" class="w-1/5 flex items-center justify-center text-slate-100 bg-slate-900 rounded-lg z-100">
                         <template #trigger>
-                            <button @click="() => { addZIndex = true }">
-                                <Lucide class="w-5 h-5 mt-1.5" icon="ChevronDown" />
-                            </button>
+                            <button><Lucide class="w-5 h-5 mt-1.5" icon="ChevronDown" /></button>
                         </template>
-                        <template #content>
-                            <div class="py-1 bg-white rounded-md shadow-xs z-100">
-                                <div v-for="list in props.lists" :key="list.list.id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 z-100"
-                                    @click="add_to_list(list.list.id)">
-                                    {{ list.list.name }}
-                                </div>
-                            </div>
-                        </template>
-                    </Dropdown>
+                    </DropdownList>
                 </div>
             </div>
             <FormSubmissions :booking_id="props.item.id" target="buy" title="Buy investment property in Bali with passive income" des="" :show="showModal" @close="closeModal" />

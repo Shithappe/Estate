@@ -17,13 +17,17 @@ const lists = ref([...props.lists]);
 const privacyMode = ref();
 
 const showInput = ref(false);
-const newListName = ref('');
+const newList = ref({
+    name: '',
+    type: null
+});
 
 const createNewList = async () => {
     try {
         const response = await axios.post("/api/create_list", {
             user_id: props.auth.user.id,
-            name: newListName.value
+            name: newList.value.name,
+            type: newList.value.type 
         });
         showInput.value = false;
         lists.value.push(response.data.list);
@@ -112,8 +116,18 @@ onMounted(() => {
                     <div>
                         <button @click="showInput = !showInput" class="flex text-lg text-slate-800">{{ showInput ? '&#x2715;' : 'New list' }}</button>
 
-                        <div v-if="showInput" class="absolute right-56 mb-4 p-2 z-10 bg-slate-200 rounded-md shadow-lg">
-                            <input v-model="newListName" placeholder="New List Name" class="w-full p-2 border rounded-md mb-2" />
+                        <div v-if="showInput" class="absolute w-1/6 right-56 mb-4 p-2 z-10 bg-slate-200 rounded-md shadow-lg">
+                            <input v-model="newList.name" placeholder="New List Name" class="w-full p-2 border rounded-md mb-2" />
+                            <div class="mb-2">
+                                <label>
+                                    <input type="radio" value="complex" v-model="newList.type" />
+                                    Complex
+                                </label>
+                                <label class="ml-4">
+                                    <input type="radio" value="unit" v-model="newList.type" />
+                                    Unit
+                                </label>
+                            </div>
                             <button @click="createNewList" class="w-full p-2 bg-blue-500 text-white rounded-md">Create List</button>
                         </div>
                     </div>

@@ -11,6 +11,21 @@ use Inertia\Inertia;
 
 class booking_data extends Controller
 {
+    public function getLists($user_id) //auth()->id()
+    {
+        $lists = DB::table('user_lists')
+            ->where('user_id', $user_id)
+            ->get()
+            ->groupBy('type'); 
+
+        $listsFormatted = [
+            'unit' => $lists->get('unit', collect()),     // Если типа 'unit' нет, вернёт пустую коллекцию
+            'complex' => $lists->get('complex', collect()) // Если типа 'complex' нет, вернёт пустую коллекцию
+        ];
+
+        return $listsFormatted;
+    }
+
     public function index(Request $request)
     {
         $data = DB::table('booking_data')
@@ -84,10 +99,10 @@ class booking_data extends Controller
             'countries' => $countries,
             'cities' => $cities,
             'types' => $types,
-            'facilities' => $facilities
+            'facilities' => $facilities,
+            'lists' => $this->getLists(auth()->id()),
         ]);
     }
-
 
     public function booking_page($booking_id)
     {
@@ -98,162 +113,99 @@ class booking_data extends Controller
  
         // Получение названий удобств из facilities на основе полученных id
         $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
- 
+
         return Inertia::render('SingleBookingData', [
             'booking' => $booking,
+            'lists' => $this->getLists(auth()->id()),
             'facilities' => $facilities
         ]);
     } 
 
     public function booking_data_rate(Request $request)
-{
-    $bookingId = $request->booking_id;
-    $bookingIds = $request->booking_ids;
-    $checkinDate = $request->checkin;
-    $checkoutDate = $request->checkout;
+    {
+        $bookingId = $request->booking_id;
+        $bookingIds = $request->booking_ids;
+        $checkinDate = $request->checkin;
+        $checkoutDate = $request->checkout;
 
-    // Проверяем, пришел ли один объект или массив
-    if ($bookingId) {
-        // Обрабатываем один объект
-        return $this->processBookingData($bookingId, $checkinDate, $checkoutDate, true);
-    } elseif (is_array($bookingIds) && !empty($bookingIds)) {
-        // Обрабатываем массив объектов
-        $resultArray = [];
-        foreach ($bookingIds as $id) {
-            $resultArray[] = $this->processBookingData($id, $checkinDate, $checkoutDate, false);
+        // Проверяем, пришел ли один объект или массив
+        if ($bookingId) {
+            // Обрабатываем один объект
+            return $this->processBookingData($bookingId, $checkinDate, $checkoutDate, true);
+        } elseif (is_array($bookingIds) && !empty($bookingIds)) {
+            // Обрабатываем массив объектов
+            $resultArray = [];
+            foreach ($bookingIds as $id) {
+                $resultArray[] = $this->processBookingData($id, $checkinDate, $checkoutDate, false);
+            }
+            return $resultArray;
+        } else {
+            return response()->json(['message' => 'Invalid booking_id or booking_ids'], 400);
         }
-        return $resultArray;
-    } else {
-        return response()->json(['message' => 'Invalid booking_id or booking_ids'], 400);
-    }
-}
-
-// Вспомогательная функция для обработки данных бронирования
-private function processBookingData($bookingId, $checkinDate, $checkoutDate, $sortResults)
-{
-    // Получение названия отеля только если это одиночный запрос
-    $bookingTitle = !$sortResults ? DB::table('booking_data')
-        ->where('id', $bookingId)
-        ->value('title') : null;
-
-    // Запрос к базе данных для получения всех необходимых данных
-    $rooms = DB::table('rooms_2_day as r2d')
-        ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
-        ->select('r2d.room_id',
-            DB::raw('SUM(r2d.available_rooms) AS sum'),
-            DB::raw('COUNT(r2d.available_rooms) AS count'),
-            DB::raw('MAX(ri.max_available) AS max_available'),
-            'ri.room_type',
-            'ri.price',
-            'ri.active'
-        )
-        ->where('r2d.booking_id', $bookingId)
-        ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
-            return $query->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate]);
-        })
-        ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active')
-        ->get();
-
-    $roomsArray = [];
-    foreach ($rooms as $room) {
-        $sum = $room->sum;
-        $count = $room->count;
-        $maxAvailable = $room->max_available;
-
-        // Расчет занятости
-        $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
-        if ($occupancy < 0) $occupancy = -1;
-
-        // Добавляем результат в массив
-        $roomsArray[] = [
-            'room_id' => $room->room_id,
-            'room_type' => $room->room_type,
-            'active' => $room->active,
-            'price' => $room->price,
-            'occupancy' => round($occupancy),
-            'booking_title' => $bookingTitle // Будет null для множественных запросов
-        ];
     }
 
-    // Сортируем результат только если это одиночный запрос
-    if ($sortResults) {
-        usort($roomsArray, function($a, $b) {
-            if ($a['occupancy'] == -1 && $b['occupancy'] != -1) {
-                return 1;
-            }
-            if ($a['occupancy'] != -1 && $b['occupancy'] == -1) {
-                return -1;
-            }
-            return $a['price'] <=> $b['price'];
-        });
+    // Вспомогательная функция для обработки данных бронирования
+    private function processBookingData($bookingId, $checkinDate, $checkoutDate, $sortResults)
+    {
+        // Получение названия отеля только если это одиночный запрос
+        $bookingTitle = !$sortResults ? DB::table('booking_data')
+            ->where('id', $bookingId)
+            ->value('title') : null;
+
+        // Запрос к базе данных для получения всех необходимых данных
+        $rooms = DB::table('rooms_2_day as r2d')
+            ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
+            ->select('r2d.room_id',
+                DB::raw('SUM(r2d.available_rooms) AS sum'),
+                DB::raw('COUNT(r2d.available_rooms) AS count'),
+                DB::raw('MAX(ri.max_available) AS max_available'),
+                'ri.room_type',
+                'ri.price',
+                'ri.active'
+            )
+            ->where('r2d.booking_id', $bookingId)
+            ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
+                return $query->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate]);
+            })
+            ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active')
+            ->get();
+
+        $roomsArray = [];
+        foreach ($rooms as $room) {
+            $sum = $room->sum;
+            $count = $room->count;
+            $maxAvailable = $room->max_available;
+
+            // Расчет занятости
+            $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
+            if ($occupancy < 0) $occupancy = -1;
+
+            // Добавляем результат в массив
+            $roomsArray[] = [
+                'room_id' => $room->room_id,
+                'room_type' => $room->room_type,
+                'active' => $room->active,
+                'price' => $room->price,
+                'occupancy' => round($occupancy),
+                'booking_title' => $bookingTitle // Будет null для множественных запросов
+            ];
+        }
+
+        // Сортируем результат только если это одиночный запрос
+        if ($sortResults) {
+            usort($roomsArray, function($a, $b) {
+                if ($a['occupancy'] == -1 && $b['occupancy'] != -1) {
+                    return 1;
+                }
+                if ($a['occupancy'] != -1 && $b['occupancy'] == -1) {
+                    return -1;
+                }
+                return $a['price'] <=> $b['price'];
+            });
+        }
+
+        return $roomsArray;
     }
-
-    return $roomsArray;
-}
-
-    
-    // public function booking_data_rate(Request $request)
-    // {
-    //     $bookingId = $request->booking_id;
-    //     $checkinDate = $request->checkin;
-    //     $checkoutDate = $request->checkout;
-
-    //     // Запрос к базе данных для получения всех необходимых данных
-    //     $rooms = DB::table('rooms_2_day as r2d')
-    //         ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
-    //         ->select('r2d.room_id',
-    //             DB::raw('SUM(r2d.available_rooms) AS sum'),
-    //             DB::raw('COUNT(r2d.available_rooms) AS count'),
-    //             DB::raw('MAX(ri.max_available) AS max_available'),
-    //             'ri.room_type',
-    //             'ri.price',
-    //             'ri.active'
-    //         )
-    //         ->where('r2d.booking_id', $bookingId)
-    //         ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
-    //             return $query->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate]);
-    //         })
-    //         ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active')
-    //         ->get();
-
-    //     $resultArray = [];
-    //     foreach ($rooms as $room) {
-    //         $sum = $room->sum;
-    //         $count = $room->count;
-    //         $maxAvailable = $room->max_available;
-
-    //         // Расчет занятости
-    //         $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
-    //         if ($occupancy < 0) $occupancy = -1;
-
-    //         // Добавляем результат в массив
-    //         $resultArray[] = [
-    //             'room_id' => $room->room_id,
-    //             'room_type' => $room->room_type,
-    //             'active' => $room->active,
-    //             'price' => $room->price,
-    //             'occupancy' => round($occupancy)
-    //         ];
-    //     }
-
-    //     // Сортировка результата по цене и занятости
-    //     usort($resultArray, function($a, $b) {
-    //         // Сначала проверяем на наличие occupancy равного -1
-    //         if ($a['occupancy'] == -1 && $b['occupancy'] != -1) {
-    //             return 1;
-    //         }
-    //         if ($a['occupancy'] != -1 && $b['occupancy'] == -1) {
-    //             return -1;
-    //         }
-
-    //         // Если оба элемента имеют одинаковое значение occupancy (-1 или не -1), сортируем по price
-    //         return $a['price'] <=> $b['price'];
-    //     });
-
-    //     return $resultArray;
-    // }
-
-
 
     public function booking_data_map(Request $request)
     {
@@ -561,6 +513,7 @@ private function processBookingData($bookingId, $checkinDate, $checkoutDate, $so
         // Валидация данных запроса
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
+            'type' => 'required|string|in:complex,unit',
             'name' => 'required|string|max:255',
             'booking_id' => 'nullable|exists:booking_data,id'
         ]);
@@ -568,6 +521,7 @@ private function processBookingData($bookingId, $checkinDate, $checkoutDate, $so
         // Создание нового объекта списка
         $list = [
             'user_id' => $validatedData['user_id'],
+            'type' => $validatedData['type'],
             'name' => $validatedData['name'],
             'share_token' => Str::random(32),
         ];

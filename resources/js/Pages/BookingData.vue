@@ -14,6 +14,7 @@ const props = defineProps({
     cities: Object,
     types: Object,
     facilities: Array,
+    lists: Object,
     auth: Object
 });
 
@@ -90,19 +91,8 @@ const closeFilters = () => {
     console.log(showFilters.value);
 }
 
-const lists = ref();
-const getLists = async () => {
-    try {
-        const response = await axios.post("/api/get_list/", {user_id: props.auth.user.id});
-        lists.value = response.data;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
 onMounted(() => {
     document.addEventListener('click', closeHistory);
-    getLists();
 });
 </script>
 
@@ -145,7 +135,7 @@ onMounted(() => {
 
             <div class="my-8 flex flex-wrap"
                 :class="{ 'xl:pl-4 2xl:pl-10': showFilters, 'justify-center': !showFilters, 'opacity-50': load }">
-                <CardBookingData v-for="item in data.data" :key="item.id" :item="item" :auth="Boolean(props.auth && props.auth.user)" :lists="lists" :canOpenCart="canOpenCart" @update-can-open-cart="updateCanOpenCart" class="col-span-1" />
+                <CardBookingData v-for="item in data.data" :key="item.id" :item="item" :auth="auth" :lists="lists" :canOpenCart="canOpenCart" @update-can-open-cart="updateCanOpenCart" class="col-span-1" />
             </div>
 
             <PaginationPost v-if="useFilters" class="mt-6" :links="data.links" :updateData="updateData" />

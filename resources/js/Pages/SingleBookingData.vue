@@ -4,10 +4,10 @@ import { Link } from '@inertiajs/vue3';
 
 import moment from 'moment';
 import Lucide from '@/Components/Lucide.vue';
-import Dropdown from '@/Components/Dropdown.vue';
 import DateRangePicker from '@/Components/DateRangePicker.vue';
 import Map from '@/Components/Map.vue';
 import RoomInfo from '@/Components/RoomInfo.vue';
+import DropdownList from '@/Components/DropdownList.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
@@ -20,6 +20,7 @@ import { checkImages } from '@/Utils/checkImages.js';
 
 const props = defineProps({
     booking: Object,
+    lists: Object,
     facilities: Object,
     auth: Object
 });
@@ -95,26 +96,6 @@ const getAll = async () => {
     }
 }
 
-const lists = ref();
-const getLists = async () => {
-    try {
-        const response = await axios.post("/api/get_list/", {user_id: props.auth.user.id});
-        lists.value = response.data;
-    } catch (error) {
-        console.error(error);
-    }
-}
-const add_to_list = async (list_id) => {
-    try {
-        const response = await axios.post("/api/add_to_list/", { list_id, booking_id: book.id});
-        console.log(response);
-        
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-
 function formatDateForLink(date) {
     const year = date.getFullYear();
     let month = date.getMonth() + 1;
@@ -133,7 +114,9 @@ function wrapParagraphs(text) {
 const mapLocations = ref([]);
 
 onMounted(() => {
-    getLists();
+    console.log(props.lists);
+    
+    // getLists();
     initializeImages();
     
     // Подготавливаем данные для карты
@@ -194,20 +177,11 @@ onMounted(() => {
                         <div class="flex gap-x-2 mb-2">
                             <button @click="openModal" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Buy object</button>
                             <button @click="openModal1" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Get a consultation</button>
-                            <Dropdown class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">
-                            <template #trigger>
-                                <button>Add this to list</button>
-                            </template>
-                            <template #content>
-                                <div class="py-1 bg-white rounded-md shadow-xs">
-                                    <div v-for="list in lists" :key="list.list.id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        @click="add_to_list(list.list.id)">
-                                        {{ list.list.name }}
-                                    </div>
-                                </div>
-                            </template>
-                        </Dropdown>
-
+                            <DropdownList :lists="lists.complex" type="complex" :itemId="book.id" :auth="auth" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">
+                                <template #trigger>
+                                    <button>Manage Lists</button>
+                                </template>
+                            </DropdownList>
                         </div>
                         <FormSubmissions :booking_id="book.id" target="buy" title="Buy investment property in Bali with passive income" des="" :show="showModal" @close="closeModal" />
                         <FormSubmissions :booking_id="book.id" target="get_consultation" title="Get advice on buying investment property in Bali with passive income" des="" :show="showModal1" @close="closeModal" />
