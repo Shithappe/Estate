@@ -1,16 +1,26 @@
 <script setup>
-import { defineProps } from 'vue';
+import { ref } from 'vue';
+import Lucide from '@/Components/Lucide.vue';
+import AddToListModal from '@/Components/AddToListModal.vue';
+
 
 const props = defineProps({
   rooms: {
     type: Array,
     required: true
   },
-  isList: {
-    type: Boolean,
-    default: false
-  }
+  lists: Object,
+  auth: Object,
 });
+
+const showAddToListModal = ref(false); // Состояние для модального окна добавления в список
+const closeAddToListModal = () => { showAddToListModal.value = false; };
+
+const emit = defineEmits(['updateLists']);
+
+const openAddToListModal = () => {
+    showAddToListModal.value = true;
+};
 </script>
 
 <template>
@@ -32,6 +42,24 @@ const props = defineProps({
             <div v-if="room.hasOwnProperty('active') && room.active == false" class="text-sm">
               *hidden by owner
             </div>
+
+            <button v-if="props.lists" @click="openAddToListModal">
+              <Lucide class="w-5 h-5 mt-1.5" icon="ChevronDown" />
+            </button>
+
+            <AddToListModal
+              v-if="props.lists"
+              :lists="props.lists.unit"
+              :itemId="room.room_id"
+              type='unit'
+              :auth="auth"
+              :show="showAddToListModal"
+              @close="closeAddToListModal"
+              @updateLists="newList => {
+                  emit('updateLists', newList);
+              }"
+            />
+
           </div>
         </div>
       </div>

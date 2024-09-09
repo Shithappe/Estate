@@ -7,7 +7,7 @@ import Lucide from '@/Components/Lucide.vue';
 import DateRangePicker from '@/Components/DateRangePicker.vue';
 import Map from '@/Components/Map.vue';
 import RoomInfo from '@/Components/RoomInfo.vue';
-import DropdownList from '@/Components/DropdownList.vue';
+import AddToListModal from '@/Components/AddToListModal.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
@@ -33,6 +33,13 @@ const showModal1 = ref(false);
 const openModal = () => { showModal.value = true; };
 const openModal1 = () => { showModal1.value = true; };
 const closeModal = () => { showModal.value = false; showModal1.value = false; };
+
+const showAddToListModal = ref(false);
+const closeAddToListModal = () => { showAddToListModal.value = false; };
+
+const openAddToListModal = () => {
+    showAddToListModal.value = true;
+};
 
 const book = props.booking[0];
 const rooms = ref(null);
@@ -114,9 +121,6 @@ function wrapParagraphs(text) {
 const mapLocations = ref([]);
 
 onMounted(() => {
-    console.log(props.lists);
-    
-    // getLists();
     initializeImages();
     
     // Подготавливаем данные для карты
@@ -177,15 +181,22 @@ onMounted(() => {
                         <div class="flex gap-x-2 mb-2">
                             <button @click="openModal" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Buy object</button>
                             <button @click="openModal1" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Get a consultation</button>
-                            <DropdownList :lists="lists.complex" type="complex" :itemId="book.id" :auth="auth" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">
-                                <template #trigger>
-                                    <button>Manage Lists</button>
-                                </template>
-                            </DropdownList>
+                            <button @click="openAddToListModal" class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Add to list</button>
                         </div>
                         <FormSubmissions :booking_id="book.id" target="buy" title="Buy investment property in Bali with passive income" des="" :show="showModal" @close="closeModal" />
                         <FormSubmissions :booking_id="book.id" target="get_consultation" title="Get advice on buying investment property in Bali with passive income" des="" :show="showModal1" @close="closeModal" />
 
+                        <AddToListModal
+                            :lists="props.lists.complex"
+                            :itemId="book.id"
+                            type='complex'
+                            :auth="auth"
+                            :show="showAddToListModal"
+                            @close="closeAddToListModal"
+                            @updateLists="newList => {
+                                emit('updateLists', newList);
+                            }"
+                        />
 
 
                         <div class="flex flex-col gap-y-2 mb-4" v-html="wrapParagraphs(book.description)"></div>
@@ -197,7 +208,7 @@ onMounted(() => {
                         <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
                         <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p>
 
-                        <RoomInfo v-if="rooms" :rooms="rooms" />
+                        <RoomInfo v-if="rooms" :rooms="rooms" :lists="lists" :auth="auth" />
 
                         <Map :locations="mapLocations" />
                         <!-- <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div> -->

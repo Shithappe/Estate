@@ -125,25 +125,33 @@ class booking_data extends Controller
     {
         $bookingId = $request->booking_id;
         $bookingIds = $request->booking_ids;
+        $roomIds = $request->rooms_ids; // Получаем массив комнат
         $checkinDate = $request->checkin;
         $checkoutDate = $request->checkout;
-
-        // Проверяем, пришел ли один объект или массив
+    
+        // Проверяем, пришел ли один объект, массив отелей или массив комнат
         if ($bookingId) {
-            // Обрабатываем один объект
+            // Обрабатываем один объект (один отель)
             return $this->processBookingData($bookingId, $checkinDate, $checkoutDate, true);
         } elseif (is_array($bookingIds) && !empty($bookingIds)) {
-            // Обрабатываем массив объектов
+            // Обрабатываем массив отелей
             $resultArray = [];
             foreach ($bookingIds as $id) {
                 $resultArray[] = $this->processBookingData($id, $checkinDate, $checkoutDate, false);
             }
             return $resultArray;
+        } elseif (is_array($roomIds) && !empty($roomIds)) {
+            // Обрабатываем массив комнат
+            $resultArray = [];
+            foreach ($roomIds as $roomId) {
+                $resultArray[] = $this->processRoomData($roomId, $checkinDate, $checkoutDate);
+            }
+            return $resultArray;
         } else {
-            return response()->json(['message' => 'Invalid booking_id or booking_ids'], 400);
+            return response()->json(['message' => 'Invalid booking_id, booking_ids, or rooms_ids'], 400);
         }
     }
-
+    
     // Вспомогательная функция для обработки данных бронирования
     private function processBookingData($bookingId, $checkinDate, $checkoutDate, $sortResults)
     {
@@ -151,7 +159,7 @@ class booking_data extends Controller
         $bookingTitle = !$sortResults ? DB::table('booking_data')
             ->where('id', $bookingId)
             ->value('title') : null;
-
+    
         // Запрос к базе данных для получения всех необходимых данных
         $rooms = DB::table('rooms_2_day as r2d')
             ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
@@ -169,7 +177,39 @@ class booking_data extends Controller
             })
             ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active')
             ->get();
+    
+        return $this->calculateOccupancy($rooms, $bookingTitle, $sortResults);
+    }
+    
+    // Вспомогательная функция для обработки данных комнат
+    private function processRoomData($roomId, $checkinDate, $checkoutDate)
+    {
+        // Запрос к базе данных для получения всех необходимых данных по конкретной комнате, включая название бронирования
+        $rooms = DB::table('rooms_2_day as r2d')
+            ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
+            ->join('booking_data as bd', 'ri.booking_id', '=', 'bd.id') // Добавляем JOIN с booking_data
+            ->select('r2d.room_id',
+                DB::raw('SUM(r2d.available_rooms) AS sum'),
+                DB::raw('COUNT(r2d.available_rooms) AS count'),
+                DB::raw('MAX(ri.max_available) AS max_available'),
+                'ri.room_type',
+                'ri.price',
+                'ri.active',
+                'bd.title as booking_title' // Получаем название бронирования
+            )
+            ->where('r2d.room_id', $roomId)
+            ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
+                return $query->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate]);
+            })
+            ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active', 'bd.title')
+            ->get();
 
+        return $this->calculateOccupancy($rooms, null, false);
+    }
+
+    // Функция для расчета занятости и создания итогового массива
+    private function calculateOccupancy($rooms, $bookingTitle, $sortResults)
+    {
         $roomsArray = [];
         foreach ($rooms as $room) {
             $sum = $room->sum;
@@ -187,7 +227,7 @@ class booking_data extends Controller
                 'active' => $room->active,
                 'price' => $room->price,
                 'occupancy' => round($occupancy),
-                'booking_title' => $bookingTitle // Будет null для множественных запросов
+                'booking_title' => $room->booking_title ?? $bookingTitle // Используем booking_title из JOIN или переданное значение
             ];
         }
 
@@ -206,6 +246,7 @@ class booking_data extends Controller
 
         return $roomsArray;
     }
+    
 
     public function booking_data_map(Request $request)
     {
@@ -548,10 +589,11 @@ class booking_data extends Controller
     {
         // Валидация данных запроса
         $validatedData = $request->validate([
-            'list_id' => 'required|exists:user_lists,id',
-            'booking_id' => 'required|exists:booking_data,id',
+            'list_id' => 'required',
+            'booking_id' => 'required',
         ]);
 
+        // return 'awd';
         // Проверка, не существует ли уже запись с этим booking_id в этом списке
         $exists = DB::table('list_hotels')
             ->where('list_id', $validatedData['list_id'])
@@ -563,6 +605,7 @@ class booking_data extends Controller
                 'message' => 'The hotel is already in the list',
             ], 400);
         }
+
 
         // Добавление отеля в список
         DB::table('list_hotels')->insert([
@@ -641,13 +684,11 @@ class booking_data extends Controller
             ->get();
 
         foreach ($lists as $list) {
-            $hotels = DB::table('list_hotels')
-                ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
-                ->where('list_hotels.list_id', $list->id)
-                ->select('booking_data.*')
-                ->get();
+            $itemsCount = DB::table('list_hotels')
+                ->where('list_id', $list->id)
+                ->count();
 
-            $list->hotels = $hotels;
+            $list->items_count = $itemsCount;
         }
 
         // Возврат шаблона Inertia с данными списков
@@ -656,35 +697,51 @@ class booking_data extends Controller
         ]);
     }
 
+
     public function list_show(Request $request, $list_id)
     {
         // Получение ID авторизованного пользователя
         $userId = $request->user()->id;
-
+    
         // Получение списка пользователя
         $list = DB::table('user_lists')
             ->where('id', $list_id)
             ->where('user_id', $userId)
             ->first();
-
+    
         if (!$list) {
             return response()->json(['message' => 'List not found or you do not have permission to view this list'], 404);
         }
-
-        // Получение отелей в списке
-        $hotels = DB::table('list_hotels')
-            ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
-            ->where('list_hotels.list_id', $list_id)
-            ->select('booking_data.*')
-            ->get();
-
-        $list->hotels = $hotels;
-
+    
+        // Если тип списка complex, получаем количество элементов (отелей)
+        if ($list->type == 'complex') {
+            $items = DB::table('list_hotels')
+                ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+                ->where('list_hotels.list_id', $list_id)
+                ->select('booking_data.*')
+                ->get();
+    
+            $list->items = $items;
+        }
+    
+        // Если тип списка unit, получаем комнаты, совпадающие по room_id
+        if ($list->type == 'unit') {
+            $items = DB::table('list_hotels')
+                ->join('rooms_id', 'list_hotels.booking_id', '=', 'rooms_id.room_id')
+                ->where('list_hotels.list_id', $list_id)
+                ->select('rooms_id.*')
+                ->get();
+    
+            $list->items = $items;
+        }
+    
+        // return $list;
         // Возврат шаблона Inertia с данными списка
         return Inertia::render('ListShowBookingData', [
             'list' => $list
         ]);
     }
+    
 
     public function delete_list(Request $request, $list_id)
     {

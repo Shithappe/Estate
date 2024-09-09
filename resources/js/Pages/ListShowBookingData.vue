@@ -14,12 +14,13 @@ const props = defineProps({
     auth: Object
 });
 
-const selectedOption = ref('Complexes');
+const selectedOption = ref(props.list.type === 'complex' ? 'Complexes' : 'Units');
 const bookingData = ref(null);
 
 // Вычисляемое свойство для получения массива id из props.list.hotels
-const bookingIds = computed(() => {
-    return props.list.hotels.map(hotel => hotel.id);
+const itemIds = computed(() => {
+    if (props.list.type === 'complex') return props.list.items.map(items => items.id);
+    if (props.list.type === 'unit') return props.list.items.map(items => items.room_id);
 });
 
 const dateRange = ref('');
@@ -48,12 +49,35 @@ const fetchBookingData = async (startDate, endDate) => {
     try {
         const response = await axios.post("/api/booking_data_rate", {
             booking_id: null,
-            booking_ids: bookingIds.value,
+            booking_ids: props.list.type === 'complex' ? itemIds.value : null,
+            rooms_ids: props.list.type === 'unit' ? itemIds.value : null,
             checkin: startDate,
             checkout: endDate
         });
-        console.log("API response:", response.data);
-        bookingData.value = response.data;
+        console.log(response.data);
+        if (props.list.type === 'unit') {
+            // Распаковываем вложенные массивы
+            const flattenedData = response.data.flat();
+
+            // Группируем элементы по полю booking_title
+            const groupedByBookingTitle = flattenedData.reduce((acc, item) => {
+                // Если массив для текущего booking_title не существует, создаем его
+                if (!acc[item.booking_title]) {
+                    acc[item.booking_title] = [];
+                }
+                // Добавляем элемент в соответствующий массив
+                acc[item.booking_title].push(item);
+                return acc;
+            }, {});
+
+            // Преобразуем объект в массив массивов
+            const groupedArray = Object.values(groupedByBookingTitle);
+            bookingData.value = groupedArray;
+        } else {
+            bookingData.value = response.data;
+        }
+        console.log(bookingData.value);
+        
     } catch (error) {
         console.error("Error in API call:", error);
     }
@@ -115,7 +139,7 @@ watch(filterText, (newValue) => {
                             </button>
                         </template>
                         <template #content>
-                            <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" @click="selectOption('Complexes')">Complexes</div>
+                            <div v-if="props.list.type === 'complex'" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" @click="selectOption('Complexes')">Complexes</div>
                             <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" @click="selectOption('Units')">Units</div>
                             <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" @click="selectOption('Map')">Map</div>
                         </template>
@@ -123,7 +147,7 @@ watch(filterText, (newValue) => {
                 </div>
 
                 <div v-if="selectedOption == 'Complexes'" class="my-8 flex flex-wrap">
-                    <CardBookingData v-for="item in props.list.hotels" :key="item.id" :item="item" :auth="true" class="col-span-1" />
+                    <CardBookingData v-for="item in props.list.items" :key="item.id" :item="item" :auth="auth" class="col-span-1" />
                 </div>
                 
                 <div v-if="selectedOption == 'Units'">

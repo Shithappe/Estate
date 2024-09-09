@@ -138,7 +138,7 @@ onMounted(() => {
                         <Link :href="'list/' + list.id">
                             <div class="relative min-w-64 block justify-between shadow rounded-xl p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
                                 <Lucide class="w-5 h-5 absolute top-2 right-2 opacity-70 hover:opacity-100 transition duration-100 ease-in-out" icon="Settings" @click.prevent.stop="openSetting(list)" />
-                                <div class="text-4xl font-extralight">{{ list.hotels.length }}</div>
+                                <div class="text-4xl font-extralight">{{ list.items_count }}</div>
                                 <div class="text-lg">{{ list.name }}</div>
                             </div>
                         </Link>
