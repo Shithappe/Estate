@@ -53,12 +53,14 @@ const submitForm = async () => {
             const response = await axios.post("/api/create_list", {
                 user_id: props.auth.user.id,
                 name: newItem.value,
-                type: props.type
+                type: props.type,
+                booking_id: props.itemId,
             });
             // Обновление списка в родительском компоненте
             emit('updateLists', response.data.list);
             newItem.value = '';
             showInput.value = false;
+            closeModal();
         } catch (error) {
             console.error(error);
         }
