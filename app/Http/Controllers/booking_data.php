@@ -142,13 +142,7 @@ class booking_data extends Controller
             return $resultArray;
         } elseif (is_array($roomIds) && !empty($roomIds)) {
             // Обрабатываем массив комнат
-            $resultArray = [];
-            $resultArray[] = $this->processRoomData($roomIds, $checkinDate, $checkoutDate);
-            // foreach ($roomIds as $roomId) {
-            //     $resultArray[] = $this->processRoomData($roomId, $checkinDate, $checkoutDate);
-            // }
-            // \Log::debug($resultArray)
-            return $resultArray;
+            return $this->processRoomData($roomIds, $checkinDate, $checkoutDate);
         } else {
             return response()->json(['message' => 'Invalid booking_id, booking_ids, or rooms_ids'], 400);
         }
@@ -187,7 +181,10 @@ class booking_data extends Controller
     private function processRoomData($roomIds, $checkinDate, $checkoutDate)
     {
         // Используем кэширование для оптимизации
-        $cacheKey = "room_data_{$roomIds}_{$checkinDate}_{$checkoutDate}";
+        $roomIdsKey = implode('_', $roomIds); // Превращаем массив в строку с разделителем "_"
+        $cacheKey = "room_data_{$roomIdsKey}_{$checkinDate}_{$checkoutDate}";
+    
+        // Используем кэширование для оптимизации
         $rooms = Cache::remember($cacheKey, 60, function () use ($roomIds, $checkinDate, $checkoutDate) {
             return DB::table('rooms_2_day as r2d')
                 ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
@@ -203,7 +200,7 @@ class booking_data extends Controller
                 )
                 ->whereIn('r2d.room_id', $roomIds)
                 ->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate])
-                ->groupBy('bd.title')
+                ->groupBy('bd.title', 'r2d.room_id', 'ri.max_available', 'ri.room_type', 'ri.price', 'ri.active')
                 ->get();
         });
         return $this->calculateOccupancy($rooms, null, false);
