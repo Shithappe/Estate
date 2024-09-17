@@ -41,7 +41,7 @@ const openAddToListModal = (roomId) => {
             <div class="text-2xl">
               {{ room.occupancy > 0 ? Math.round(room.occupancy) + '%' : 'N/A' }}
             </div>
-            <div>{{ room.room_type }} - {{ room.room_id }}</div>
+            <div>{{ room.room_type }}</div>
           </div>
           <div class="flex flex-col justify-between items-end">
             <div v-if="room.price" class="text-xl">${{ room.price }}</div>
