@@ -24,6 +24,8 @@ const props = defineProps({
     },
 });
 
+const lists = ref([...props.lists]);
+
 const emit = defineEmits(['close', 'updateLists']);
 
 const selectedListItem = ref('');
@@ -54,10 +56,11 @@ const submitForm = async () => {
                 user_id: props.auth.user.id,
                 name: newItem.value,
                 type: props.type,
-                booking_id: props.itemId,
+                item_id: props.itemId,
             });
             // Обновление списка в родительском компоненте
             emit('updateLists', response.data.list);
+            lists.value.push(response.data.list);
             newItem.value = '';
             showInput.value = false;
             closeModal();

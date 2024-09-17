@@ -556,7 +556,7 @@ class booking_data extends Controller
             'user_id' => 'required|exists:users,id',
             'type' => 'required|string|in:complex,unit',
             'name' => 'required|string|max:255',
-            'booking_id' => 'nullable|exists:booking_data,id'
+            'item_id' => 'nullable' // item_id может быть как booking_id так и room_id, в таблице списков он booking_id
         ]);
 
         // Создание нового объекта списка
@@ -572,10 +572,10 @@ class booking_data extends Controller
         $list['hotels'] = [];
 
         // Добавление данных в связанную таблицу, если указано booking_id
-        if (!empty($validatedData['booking_id'])) {
+        if (!empty($validatedData['item_id'])) {
             DB::table('list_hotels')->insert([
                 'list_id' => $list['id'],
-                'booking_id' => $validatedData['booking_id']
+                'booking_id' => $validatedData['item_id']
             ]);
         }
 
