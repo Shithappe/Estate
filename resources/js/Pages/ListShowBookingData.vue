@@ -159,7 +159,7 @@ const filteredBookingData = computed(() => {
                     </div>
                     
                     <div v-for="rooms in filteredBookingData" :key="rooms.booking_id">
-                        <RoomInfo :listId="props.list.id" :rooms="rooms" />
+                        <RoomInfo :listId="props.list.id" :listType="props.list.type" :rooms="rooms" />
                     </div>
                 </div>
 

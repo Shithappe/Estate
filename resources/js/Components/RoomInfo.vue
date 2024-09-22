@@ -9,8 +9,12 @@ const props = defineProps({
     type: Array,
     required: true
   },
-  lists: Object,
+  lists: {
+    type: Object,
+    default: null
+  },
   listId: Number,
+  listType: String,
   auth: Object,
 });
 
@@ -45,7 +49,7 @@ const removeFromList = async (id) => {
       <div v-for="room in rooms" :key="room.room_id">
         <div class="relative flex justify-between shadow rounded-lg p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
           <button
-            v-if="!props.lists"
+            v-if="props.listType === 'unit'"
             @click="removeFromList(room.room_id)"
             class="absolute -top-2 -right-2 bg-slate-400 text-white shadow-lg rounded-full w-5 h-5 flex items-center justify-center z-10"
             aria-label="Close"
