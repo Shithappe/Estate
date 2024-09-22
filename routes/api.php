@@ -47,3 +47,4 @@ Route::post('/get_list', [booking_data::class, 'get_list']);
 
 Route::patch('/list/{list_id}', [booking_data::class, 'update_list']);
 Route::delete('/list/{list_id}', [booking_data::class, 'delete_list']);
+Route::delete('/list_item/{list_id}/{item_id}', [booking_data::class, 'delete_item_from_list']);

@@ -54,7 +54,7 @@ const fetchBookingData = async (startDate, endDate) => {
             checkin: startDate,
             checkout: endDate
         });
-        console.log(response.data);
+
         if (props.list.type === 'unit') {
             // Распаковываем вложенные массивы
             const flattenedData = response.data.flat();
@@ -76,7 +76,6 @@ const fetchBookingData = async (startDate, endDate) => {
         } else {
             bookingData.value = response.data;
         }
-        console.log(bookingData.value);
         
     } catch (error) {
         console.error("Error in API call:", error);
@@ -100,6 +99,9 @@ onMounted(() => {
     const endDate = moment();
     const startDate = moment().subtract(1, 'month');
     dateRange.value = `${startDate.format('DD MMM YYYY')} ~ ${endDate.format('DD MMM YYYY')}`;
+
+    console.log('list id: ', props.list.id);
+    
 });
 
 const selectOption = (option) => { selectedOption.value = option }
@@ -115,11 +117,6 @@ const filteredBookingData = computed(() => {
     return bookingData.value.map(rooms => 
         rooms.filter(room => room.room_type.toLowerCase().includes(searchText))
     ).filter(filteredRooms => filteredRooms.length > 0);
-});
-
-// Добавьте этот watch для отслеживания изменений filterText
-watch(filterText, (newValue) => {
-    console.log('Filter text changed:', newValue);
 });
 </script>
 
@@ -147,7 +144,7 @@ watch(filterText, (newValue) => {
                 </div>
 
                 <div v-if="selectedOption == 'Complexes'" class="my-8 flex flex-wrap">
-                    <CardBookingData v-for="item in props.list.items" :key="item.id" :item="item" :auth="auth" class="col-span-1" />
+                    <CardBookingData v-for="item in props.list.items" :key="item.id" :listId="props.list.id" :item="item" :auth="auth" class="col-span-1" />
                 </div>
                 
                 <div v-if="selectedOption == 'Units'">
@@ -162,7 +159,7 @@ watch(filterText, (newValue) => {
                     </div>
                     
                     <div v-for="rooms in filteredBookingData" :key="rooms.booking_id">
-                        <RoomInfo :rooms="rooms" />
+                        <RoomInfo :listId="props.list.id" :rooms="rooms" />
                     </div>
                 </div>
 

@@ -16,7 +16,8 @@ const props = defineProps({
     lists: {
         type: Object,
         default: null
-    }
+    },
+    listId: Number
 });
 
 const showModal = ref(false);
@@ -61,6 +62,16 @@ const openAddToListModal = () => {
     showAddToListModal.value = true;
 };
 
+const removeFromList = async (id) => {
+  console.log('removeFromList', props.rooms, id);
+  
+  try {
+      await axios.delete(`/api/list_item/${props.listId}/${id}`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 // onMounted(() => {
 
 // });
@@ -68,8 +79,17 @@ const openAddToListModal = () => {
 </script>
 
 <template>
-    <div class="m-4 ms:w-96 lg:w-72 min-w-64 max-96 flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
+    <div class="m-4 ms:w-96 lg:w-72 min-w-64 max-96 relative flex flex-col bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 hover:bg-gray-200 transition duration-300 ease-in-out"
         :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }" @click="openCart">
+
+        <button
+            v-if="!props.lists"
+            @click="removeFromList(item.id)"
+            class="absolute -top-2 -right-2 bg-slate-400 text-white shadow-lg rounded-full w-5 h-5 flex items-center justify-center z-10"
+            aria-label="Close"
+          >
+            &times;
+          </button>
 
         <carousel id="gallery" :items-to-show="1" :wrap-around="false">
             <slide v-for="image in images" :key="image" class="w-full h-36 rounded-lg overflow-hidden">
@@ -87,7 +107,7 @@ const openAddToListModal = () => {
                     <Link class="text-xl font-semibold hover:text-blue-800" :href="'/booking_data/' + item.id">{{ item.title }}</Link>
                 </div>
                 <div class="mt-1 flex">
-                    <Lucide v-for="star in item.star" class="w-5 h-5 fill-black" icon="Star" />
+                    <Lucide v-for="(star, index) in item.star" :key="index" class="w-5 h-5 fill-black" icon="Star" />
                 </div>
             </div>
 

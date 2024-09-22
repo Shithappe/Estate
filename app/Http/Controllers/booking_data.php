@@ -753,6 +753,14 @@ class booking_data extends Controller
             ->delete();
     }
 
+    public function delete_item_from_list(Request $request, $list_id, $item_id)
+    {
+        DB::table('list_hotels')
+            ->where('list_id', $list_id)
+            ->where('booking_id', $item_id)
+            ->delete();
+    }
+
     public function update_list(Request $request, $list_id)
     {
         $validatedData = $request->validate([

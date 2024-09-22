@@ -100,6 +100,20 @@ const copyLink = (click = false) => {
     return shareLink;
 }
 
+const getPluralType = (type, count) => {
+    if (count === 1) {
+      return type; // Единственное число
+    } else {
+      // Логика для множественного числа (можно адаптировать в зависимости от типа)
+      if (type === 'unit') {
+        return 'units';
+      } else if (type === 'complex') {
+        return 'complexes';
+      }
+      return type + 's'; // Универсальное правило для добавления 's'
+    }
+  }
+
 onMounted(() => {
     console.log(props.lists);
 });
@@ -138,7 +152,10 @@ onMounted(() => {
                         <Link :href="'list/' + list.id">
                             <div class="relative min-w-64 block justify-between shadow rounded-xl p-4 bg-gray-100 shadow rounded-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out">
                                 <Lucide class="w-5 h-5 absolute top-2 right-2 opacity-70 hover:opacity-100 transition duration-100 ease-in-out" icon="Settings" @click.prevent.stop="openSetting(list)" />
-                                <div class="text-4xl font-extralight">{{ list.items_count }}</div>
+                                <div class="flex items-end gap-x-2">
+                                    <div class="text-4xl font-extralight">{{ list.items_count }}</div>
+                                    <span class="text-sm font-normal">{{ getPluralType(list.type, list.items_count) }}</span>
+                                </div>
                                 <div class="text-lg">{{ list.name }}</div>
                             </div>
                         </Link>
