@@ -26,7 +26,7 @@ const openModal = () => { showModal.value = true; };
 const closeModal = () => { showModal.value = false; };
 const closeAddToListModal = () => { showAddToListModal.value = false; };
 
-const emit = defineEmits(['updateCanOpenCart', 'updateLists']);
+const emit = defineEmits(['updateCanOpenCart', 'updateLists', 'removeItem']);
 
 const loading = ref(props.auth?.user ? false : true);
 const openCart = () => {
@@ -39,8 +39,6 @@ const openCart = () => {
     }
 };
 
-// const images = props.item.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
-// const images = strToArray(props.item.images, 500);
 const images = [...new Set([...strToArray(props.item.static_images, 500), ...strToArray(props.item.images, 500)])];
 
 const addDots = (str) => {
@@ -63,10 +61,9 @@ const openAddToListModal = () => {
 };
 
 const removeFromList = async (id) => {
-  console.log('removeFromList', props.rooms, id);
-  
-  try {
-      await axios.delete(`/api/list_item/${props.listId}/${id}`);
+    try {
+        await axios.delete(`/api/list_item/${props.listId}/${id}`);
+        emit('removeItem', 'complex', id);
     } catch (error) {
         console.error(error);
     }

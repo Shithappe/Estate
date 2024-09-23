@@ -26,7 +26,7 @@ const closeAddToListModal = () => {
   selectedRoomId.value = 0; 
 };
 
-const emit = defineEmits(['updateLists']);
+const emit = defineEmits(['updateLists', 'removeItem']);
 
 const openAddToListModal = (roomId) => {
   selectedRoomId.value = roomId;
@@ -35,7 +35,8 @@ const openAddToListModal = (roomId) => {
 
 const removeFromList = async (id) => {
   try {
-      await axios.delete(`/api/list_item/${props.listId}/${id}`);
+    await axios.delete(`/api/list_item/${props.listId}/${id}`);
+    emit('removeItem', 'unit', id);
     } catch (error) {
         console.error(error);
     }

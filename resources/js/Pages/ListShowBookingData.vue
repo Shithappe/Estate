@@ -118,6 +118,20 @@ const filteredBookingData = computed(() => {
         rooms.filter(room => room.room_type.toLowerCase().includes(searchText))
     ).filter(filteredRooms => filteredRooms.length > 0);
 });
+
+const removeItemFromList = (listType, itemId) => {
+    // console.log(listType, itemId);
+
+    if (listType === 'unit') {
+        bookingData.value = bookingData.value.map(group =>
+            group.filter(room => room.room_id !== itemId)
+        ).filter(group => group.length > 0);
+    }
+
+    if (listType === 'complex') {
+        props.list.items = props.list.items.filter(item => item.id !== itemId);
+    }
+};
 </script>
 
 <template>
@@ -144,7 +158,14 @@ const filteredBookingData = computed(() => {
                 </div>
 
                 <div v-if="selectedOption == 'Complexes'" class="my-8 flex flex-wrap">
-                    <CardBookingData v-for="item in props.list.items" :key="item.id" :listId="props.list.id" :item="item" :auth="auth" class="col-span-1" />
+                    <CardBookingData
+                        class="col-span-1"
+                        v-for="item in props.list.items" :key="item.id" 
+                        :listId="props.list.id"
+                        :item="item"
+                        :auth="auth"
+                        @removeItem="removeItemFromList"
+                    />
                 </div>
                 
                 <div v-if="selectedOption == 'Units'">
@@ -159,7 +180,12 @@ const filteredBookingData = computed(() => {
                     </div>
                     
                     <div v-for="rooms in filteredBookingData" :key="rooms.booking_id">
-                        <RoomInfo :listId="props.list.id" :listType="props.list.type" :rooms="rooms" />
+                        <RoomInfo
+                            :rooms="rooms"
+                            :listId="props.list.id"
+                            :listType="props.list.type"
+                            @removeItem="removeItemFromList"
+                        />
                     </div>
                 </div>
 
