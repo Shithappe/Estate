@@ -84,7 +84,7 @@ const applyFilters = async () => {
 
 const invertFilters = () => {
     showFilters.value = !showFilters.value;
-    console.log(showFilters.value);
+    // console.log(showFilters.value);
 }
 const closeFilters = () => {
     showFilters.value = false;

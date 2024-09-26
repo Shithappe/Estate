@@ -381,26 +381,38 @@ class booking_data extends Controller
         $filterSort = $data['sort'];
     
         $query = DB::table('booking_data')
-            ->select('booking_data.id',
-                    'booking_data.images',
-                    'booking_data.title',
-                    'booking_data.city',
-                    'booking_data.type',
-                    // 'booking_data.price',
-                    'booking_data.star',
-                    'booking_data.score',
-                    DB::raw('COUNT(rooms.id) as types_rooms'),
-                    DB::raw('SUM(rooms.max_available) as count_rooms'),
-                    DB::raw('MIN(rooms.price) as min_price'),
-                    DB::raw('MAX(rooms.price) as max_price'),
-                    'booking_data.occupancy as occupancy',
-                    )
-            ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id');
+        ->select(
+            'booking_data.id',
+            'booking_data.images',
+            'booking_data.title',
+            'booking_data.city',
+            'booking_data.type',
+            'booking_data.star',
+            'booking_data.score',
+            DB::raw('COUNT(rooms.id) as types_rooms'),
+            DB::raw('SUM(rooms.max_available) as count_rooms'),
+            DB::raw('MIN(rooms.price) as min_price'),
+            DB::raw('MAX(rooms.price) as max_price'),
+            'booking_data.occupancy as occupancy'
+        )
+        ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
+        ->groupBy(
+            'booking_data.id', // оставляем только одно упоминание booking_data.id
+            'booking_data.images',
+            'booking_data.title',
+            'booking_data.city',
+            'booking_data.type',
+            'booking_data.star',
+            'booking_data.score',
+            'booking_data.occupancy'
+        );
     
-        if (empty($filterSort) || $filterSort == null) {
-            $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
-        }
+        // Default sort if no filterSort provided
+        // if (empty($filterSort)) {
+        //     $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
+        // }
     
+        // Apply filters
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
         }
@@ -419,26 +431,30 @@ class booking_data extends Controller
             });
         }
         if (!empty($filterPrice)) {
-            if (isset($filterPrice['min'])) $query->where('min_price', '>=', $filterPrice['min']);
-            if (isset($filterPrice['max'])) $query->where('max_price', '<=', $filterPrice['max']);
+            if (isset($filterPrice['min'])) {
+                $query->having('min_price', '>=', $filterPrice['min']);
+            }
+            if (isset($filterPrice['max'])) {
+                $query->having('max_price', '<=', $filterPrice['max']);
+            }
         }
+    
+        // Apply sorting
         if (!empty($filterSort)) {
             if ($filterSort == 'price') {
-                $query->orderBy('price', 'desc');
-            }
-            elseif ($filterSort == 'rate') {
+                $query->orderBy('min_price', 'desc');  // Sort by min price instead of price
+            } elseif ($filterSort == 'rate') {
                 $query->orderBy('score', 'desc');
-            }
-            elseif ($filterSort == 'occupancy') {
-                $query->orderByRaw('AVG(rooms.occupancy) DESC');
-            }
-            elseif ($filterSort == 'room_type') {
+            } elseif ($filterSort == 'occupancy') {
+                $query->orderBy('booking_data.occupancy', 'desc');
+            } elseif ($filterSort == 'room_type') {
                 $query->orderByRaw('COUNT(DISTINCT rooms.room_type) DESC');
-            }
-            elseif ($filterSort == 'room_count') {
+            } elseif ($filterSort == 'room_count') {
                 $query->orderByRaw('SUM(rooms.max_available) DESC');
             }
         }
+
+        $query->orderBy('review_count', 'desc')->orderBy('score', 'desc')->orderBy('star', 'desc');
     
         $data = $query->groupBy('booking_data.id')->paginate(12);
     
@@ -448,7 +464,7 @@ class booking_data extends Controller
     
         return $data;
     }
-    
+        
     public function setting_priority () 
     {
         $priority = DB::table('booking_data')
