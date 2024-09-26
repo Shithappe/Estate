@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Lucide from '@/Components/Lucide.vue';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
@@ -88,6 +88,18 @@ const leaveToClass = computed(() =>
     isDesktop ? 'transform -translate-x-full opacity-0' : 'transform translate-y-full opacity-0'
 );
 
+let updatedCountries = Object.keys(props.countries).filter(country => country !== "").map(country => {
+    if (country === "Thailand" || country === "Spain") {
+        return country + " beta";
+    }
+    return country;
+});
+
+onMounted(() => {
+  console.log(updatedCountries);
+  
+})
+
 </script>
 
 <template>
@@ -108,7 +120,7 @@ const leaveToClass = computed(() =>
 
     <div>
       <label for="country">Select country</label>
-      <v-select v-model="selectedCountry" :options="Object.keys(props.countries)"
+      <v-select v-model="selectedCountry" :options="updatedCountries"
       @update:modelValue="selectCountry" />
     </div>
 
