@@ -62,7 +62,7 @@ def occupancy_calc(connection, cursor, booking_id):
 def main():
     connection, cursor = connect_to_db()
 
-    cursor.execute('''SELECT id FROM booking_data where id = 5370;''')
+    cursor.execute('''SELECT id FROM booking_data;''')
     booking_ids = cursor.fetchall()
 
     for booking_id in booking_ids:
