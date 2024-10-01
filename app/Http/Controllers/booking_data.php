@@ -832,29 +832,44 @@ class booking_data extends Controller
 
     public function accessSharedList($share_token)
     {
+        // Получение списка по share_token и проверка на privacy_mode
         $list = DB::table('user_lists')
             ->where('share_token', $share_token)
-            ->where('privacy_mode', '=',  'link')
+            ->where('privacy_mode', '=', 'link')
             ->first();
         
         if (!$list) {
             return response()->json(['error' => 'Invalid link'], 404);
         }
-
-        
-        $hotels = DB::table('list_hotels')
-            ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
-            ->where('list_hotels.list_id', $list->id)
-            ->select('booking_data.*')
-            ->get();
-
-        $list->hotels = $hotels;
-        
+    
+        // Если тип списка complex, получаем количество элементов (отелей)
+        if ($list->type == 'complex') {
+            $items = DB::table('list_hotels')
+                ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+                ->where('list_hotels.list_id', $list->id)
+                ->select('booking_data.*')
+                ->get();
+    
+            $list->items = $items;
+        }
+    
+        // Если тип списка unit, получаем комнаты, совпадающие по room_id
+        if ($list->type == 'unit') {
+            $items = DB::table('list_hotels')
+                ->join('rooms_id', 'list_hotels.booking_id', '=', 'rooms_id.room_id')
+                ->where('list_hotels.list_id', $list->id)
+                ->select('rooms_id.*')
+                ->get();
+    
+            $list->items = $items;
+        }
+    
+        // Возврат шаблона Inertia с данными списка
         return Inertia::render('ListShowBookingData', [
             'list' => $list
         ]);
     }
-
+    
 
     public function change_images_order(Request $request)
     {
