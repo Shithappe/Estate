@@ -45,7 +45,7 @@ def occupancy_calc(connection, cursor, booking_id):
     for row in data:
         room_id, sum_value, count_value, max_available = row
 
-        if count_value != 0 and max_available > 0:
+        if count_value != 0 and max_available > 0 and sum_value / count_value < max_available:
             occupancy = ((max_available - (sum_value / count_value)) / max_available) * 100
             print(f"{room_id} - {occupancy:.2f}%")
 
@@ -62,7 +62,7 @@ def occupancy_calc(connection, cursor, booking_id):
 def main():
     connection, cursor = connect_to_db()
 
-    cursor.execute('''SELECT id FROM booking_data;''')
+    cursor.execute('''SELECT id FROM booking_data where id = 5370;''')
     booking_ids = cursor.fetchall()
 
     for booking_id in booking_ids:
