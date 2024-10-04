@@ -41,6 +41,7 @@ def occupancy_calc(connection, cursor, booking_id):
 
     total_result = 0
     record_count = 0
+    update_data = []
 
     for row in data:
         room_id, sum_value, count_value, max_available = row
@@ -51,8 +52,23 @@ def occupancy_calc(connection, cursor, booking_id):
 
             total_result += occupancy
             record_count += 1
+            update_data.append((occupancy, room_id))
 
     if record_count > 0:
+        if update_data:
+            try:
+                update_query = """
+                    UPDATE rooms_id
+                    SET occupancy = %s
+                    WHERE room_id = %s
+                """
+                cursor.executemany(update_query, update_data)
+                connection.commit()
+                print(f"Обновлено {cursor.rowcount} записей")
+            except mysql.connector.Error as err:
+                connection.rollback()
+                print(f"Ошибка: {err}")
+
         average_result = total_result / record_count
         cursor.execute('''UPDATE booking_data SET occupancy = %s WHERE id = %s''', (average_result, booking_id))
         connection.commit()
