@@ -155,11 +155,20 @@ const removeFromList = async (id) => {
                 <div v-if="item.min_price && item.max_price" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5" icon="DollarSign" />
-                        <span>Prices</span>
+                        <span>Prices per night</span>
                     </div>
                     <div v-if="!loading">{{ item.min_price }} - {{ item.max_price }}</div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>
+                
+                <!-- <div v-if="item.min_price && item.max_price" class="flex items-center justify-between">
+                    <div class="flex gap-x-2">
+                        <Lucide class="w-5 h-5" icon="Up" />
+                        <span>Income</span>
+                    </div>
+                    <div v-if="!loading">min ${{ item.count_rooms * item.min_price }} max ${{ item.count_rooms * item.max_price }}</div>
+                    <div v-else class="loading px-1 text-slate-500">Price</div>
+                </div> -->
 
                 <div v-if="item.forecast_price" class="flex items-center justify-between">
                     <div class="flex gap-x-2">

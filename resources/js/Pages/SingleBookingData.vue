@@ -15,6 +15,7 @@ import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 import FormSubmissions from '@/Components/FormSubmissions.vue';
 import { strToArray } from '@/Utils/strToArray.js';
 import { checkImages } from '@/Utils/checkImages.js';
+import { computed } from 'vue';
 
 
 
@@ -118,6 +119,28 @@ function wrapParagraphs(text) {
     return wrappedParagraphs.join('\n'); // Объединяем абзацы с новыми тегами <p>
 }
 
+const cutDescription = (text) => {
+    // Разделяем текст на абзацы
+    const paragraphs = text.split("\n");
+    return paragraphs[0];
+
+    // Разбиваем первый абзац на предложения
+    const sentences = paragraphs[0].match(/[^.!?]+[.!?]+/g) || [];
+
+    // Возвращаем первые три предложения, если их 5, или весь первый абзац
+    // return sentences.length >= 5 ? sentences.slice(0, 3).join(" ") : firstParagraph;
+};
+
+const showFullText = ref(false);
+
+const formattedDescription = computed(() => {
+    const text = showFullText.value ? book.description : cutDescription(book.description);
+    console.log('change formattedDescription', showFullText.value, text.length);
+    console.log(wrapParagraphs(text));
+    
+    return wrapParagraphs(text);
+});
+
 const mapLocations = ref([]);
 
 onMounted(() => {
@@ -198,12 +221,15 @@ onMounted(() => {
                             }"
                         />
 
-
-                        <div class="flex flex-col gap-y-2 mb-4" v-html="wrapParagraphs(book.description)"></div>
+                        <div class="flex flex-wrap my-4">
+                            <div class="flex flex-col gap-y-2" v-html="formattedDescription"></div>
+                            
+                            <div v-if="!showFullText" @click="showFullText = true" class="cursor-pointer text-blue-500">Show more</div>
+                            <div v-else @click="showFullText = false" class="cursor-pointer text-blue-500">Show less</div>
+                        </div>
+                        <!-- <div class="flex flex-col gap-y-2 mb-4" v-html="wrapParagraphs(book.description)"></div> -->
 
                         <DateRangePicker v-model="dateRange" />
-
-                        <!-- <LineChart /> -->
 
                         <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
                         <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p>

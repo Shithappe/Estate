@@ -227,6 +227,7 @@ class booking_data extends Controller
                 'active' => $room->active,
                 'price' => $room->price,
                 'occupancy' => round($occupancy),
+                'profit' => $sum * $room->price,
                 'booking_title' => $room->booking_title ?? $bookingTitle // Используем booking_title из JOIN или переданное значение
             ];
         }
