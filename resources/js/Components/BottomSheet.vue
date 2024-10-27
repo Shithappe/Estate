@@ -31,24 +31,20 @@ onMounted(() => {
         if (isBottomSheetOpen.value > 0) isBottomSheetOpen.value -= 1;
     });
 });
-
 </script>
-
-
 
 <template>
     <div id="bottom-sheet"
-        class="h-full fixed bottom-0 left-0 right-0 z-50 flex rounded-t-3xl shadow-lg overflow-x-hidden overflow-y-auto"
+        class="h-full fixed bottom-0 left-0 right-0 z-50 flex backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 shadow-lg overflow-x-hidden overflow-y-auto"
         :style="{ transform: `translateY(${calculateTranslateY()}%)` }">
         <div class="relative flex-1">
-            <div class="py-2 backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30">
+            <!-- <div class="py-2">
                 <div class="h-2 w-1/3 mx-auto bg-gray-200 shadow-lg rounded-lg"></div>
-            </div>
+            </div> -->
             <slot />
         </div>
     </div>
 </template>
-  
   
 <style scoped>
 #bottom-sheet {

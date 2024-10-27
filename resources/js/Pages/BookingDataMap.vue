@@ -240,7 +240,7 @@ async function fetchData(markerId) {
   try {
     const response = await axios.get("/api/booking_data_map_card/" + markerId);
 
-    response.data.images = response.data.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
+    // response.data.images = response.data.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
     response.data.description = response.data.description.split('. ').slice(0, 2).join('. ');
 
     booking_data.value = response.data;

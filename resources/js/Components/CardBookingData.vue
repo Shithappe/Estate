@@ -1,4 +1,3 @@
-<!-- src/Components/CardComponent.vue -->
 <script setup>
 import { onMounted, ref } from "vue";
 import { Link } from '@inertiajs/vue3';

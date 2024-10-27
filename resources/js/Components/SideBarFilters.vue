@@ -95,11 +95,6 @@ let updatedCountries = Object.keys(props.countries).filter(country => country !=
     return country;
 });
 
-onMounted(() => {
-  console.log(updatedCountries);
-  
-})
-
 </script>
 
 <template>

@@ -6,6 +6,9 @@
  */
 
 export function strToArray(str, resol) {
-    if (!str) return [];
+    if (!str || str === undefined) {
+        console.log('No images');
+        return [];
+    }
     return str.replace(/max\d+/g, `max${resol}`).split(',');
 }

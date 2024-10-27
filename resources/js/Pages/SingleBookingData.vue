@@ -134,11 +134,7 @@ const cutDescription = (text) => {
 const showFullText = ref(false);
 
 const formattedDescription = computed(() => {
-    const text = showFullText.value ? book.description : cutDescription(book.description);
-    console.log('change formattedDescription', showFullText.value, text.length);
-    console.log(wrapParagraphs(text));
-    
-    return wrapParagraphs(text);
+    return wrapParagraphs(showFullText.value ? book.description : cutDescription(book.description));
 });
 
 const mapLocations = ref([]);

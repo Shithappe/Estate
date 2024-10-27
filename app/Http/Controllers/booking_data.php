@@ -346,7 +346,7 @@ class booking_data extends Controller
     public function booking_data_map_card ($booking_id)
     {
         $booking_data = DB::table('booking_data')
-        ->select('id', 'title', 'description', 'star', 'images', 'location', 'type')
+        ->select('id', 'title', 'description', 'star', 'images', 'location', 'type', 'occupancy', 'min_price', 'max_price')
         ->where('id', $booking_id)
         ->get();
 
