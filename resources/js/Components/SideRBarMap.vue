@@ -15,22 +15,16 @@ const handleBookingClick = (booking) => {
 </script>
 
 <template>
-  <div class="sm:block lg:absolute right-0 z-10 sm:w-full lg:w-1/5 h-screen shadow-lg md:backdrop-filter md:backdrop-blur-md md:bg-gray-400 md:bg-opacity-30 overflow-hidden">
-    
-    <!-- <div class="flex justify-center">
-      <Link href="/get-report" method="post" as="button" :data="{ id: props.booking_data.map(obj => obj.id) }"
-        v-if="props.booking_data.length > 0"
-        class="sm:block lg:fixed bottom-2 right-1 z-20 w-72 p-4 rounded-lg text-center text-white bg-black">
-      Get a report on {{ props.booking_data.length }} objects
-      </Link>
-    </div> -->
-
+  <div class="sm:block lg:absolute right-0 z-10 sm:w-full lg:w-1/5 h-screen shadow-lg md:backdrop-filter md:backdrop-blur-md md:bg-gray-400 md:bg-opacity-30 overflow-y-auto">
     <div class="relative flex flex-col gap-y-1 m-4">
-      <div v-for="book in booking_data" :key="book.id" @click="handleBookingClick(book)"
-        class="text-md hover:drop-shadow-md hover:cursor-pointer hover:shadow px-2 py-1 rounded-lg transition ease-out duration-100 sm:overflow-y-hidden lg:overflow-y-auto">
+      <div
+        v-for="book in booking_data"
+        :key="book.id"
+        @click="handleBookingClick(book)"
+        class="text-md hover:drop-shadow-md hover:cursor-pointer hover:shadow px-2 py-1 rounded-lg transition ease-out duration-100"
+      >
         {{ book.title }}
       </div>
-
     </div>
   </div>
 </template>

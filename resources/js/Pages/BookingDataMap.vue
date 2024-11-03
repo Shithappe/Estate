@@ -242,6 +242,7 @@ const handleBookingClick = (selectedBooking) => {
 
 async function fetchData(markerId) {
   try {
+    showBottomData.value = true;
     const response = await axios.get("/api/booking_data_map_card/" + markerId);
 
     // response.data.images = response.data.images.slice(1, -1).split(', ').map(item => item.slice(1, -1));
@@ -280,7 +281,6 @@ const closeBottom = () => {
     </transition>
 
       <BottomSheet v-if="(booking_data || locations) && !isDesktop && showBottomData" :mode="booking_data" @closeBottom="closeBottom">
-        
         <template #top>
           <div v-if="locations"
             class="absolute z-10 top-4 w-1/2 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
@@ -317,7 +317,7 @@ const closeBottom = () => {
     </div>
 
 
-    <div v-if="locations && !showBottomData" class="absolute z-10 bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
+    <div v-if="locations && (!showBottomData || isDesktop)" class="absolute z-10 bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
       <span class="mx-auto">{{ radius }} km</span>
       <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
     </div>
