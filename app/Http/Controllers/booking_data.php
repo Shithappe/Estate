@@ -338,7 +338,8 @@ class booking_data extends Controller
             'countries' => $countries,
             'cities' => $cities,
             'types' => $types,
-            'facilities' => $facilities
+            'facilities' => $facilities,
+            'lists' => $this->getLists(auth()->id())
         ]);
     }
 
@@ -585,9 +586,9 @@ class booking_data extends Controller
             'user_id' => 'required|exists:users,id',
             'type' => 'required|string|in:complex,unit',
             'name' => 'required|string|max:255',
-            'item_id' => 'nullable' // item_id может быть как booking_id так и room_id, в таблице списков он booking_id
+            'item_id' => 'nullable' // item_id может быть как одиночным booking_id, так и массивом booking_id
         ]);
-
+    
         // Создание нового объекта списка
         $list = [
             'user_id' => $validatedData['user_id'],
@@ -595,56 +596,88 @@ class booking_data extends Controller
             'name' => $validatedData['name'],
             'share_token' => Str::random(32),
         ];
-
+    
         // Вставка данных в таблицу и получение ID
         $list['id'] = DB::table('user_lists')->insertGetId($list);
         $list['hotels'] = [];
-
-        // Добавление данных в связанную таблицу, если указано booking_id
+    
+        // Проверка, является ли item_id массивом или одиночным значением
         if (!empty($validatedData['item_id'])) {
-            DB::table('list_hotels')->insert([
-                'list_id' => $list['id'],
-                'booking_id' => $validatedData['item_id']
-            ]);
+            // Если item_id массив, добавляем каждый элемент
+            if (is_array($validatedData['item_id'])) {
+                $hotels = [];
+                foreach ($validatedData['item_id'] as $itemId) {
+                    $hotels[] = [
+                        'list_id' => $list['id'],
+                        'booking_id' => $itemId
+                    ];
+                }
+                DB::table('list_hotels')->insert($hotels); // Вставка массива записей за один запрос
+                $list['hotels'] = $hotels;
+            } else {
+                // Если item_id одиночное значение, добавляем один элемент
+                DB::table('list_hotels')->insert([
+                    'list_id' => $list['id'],
+                    'booking_id' => $validatedData['item_id']
+                ]);
+                $list['hotels'] = [
+                    [
+                        'list_id' => $list['id'],
+                        'booking_id' => $validatedData['item_id']
+                    ]
+                ];
+            }
         }
-
+    
         // Возврат успешного ответа с объектом списка
         return response()->json([
             'list' => $list
         ], 201);
     }
+    
 
     public function add_to_list(Request $request)
     {
         // Валидация данных запроса
         $validatedData = $request->validate([
-            'list_id' => 'required',
-            'booking_id' => 'required',
+            'list_id' => 'required|integer',
+            'booking_id' => 'required',  // Может быть одиночным значением или массивом
         ]);
 
-        // return 'awd';
-        // Проверка, не существует ли уже запись с этим booking_id в этом списке
-        $exists = DB::table('list_hotels')
-            ->where('list_id', $validatedData['list_id'])
-            ->where('booking_id', $validatedData['booking_id'])
-            ->exists();
+        // Преобразуем booking_id в массив, если это одиночное значение
+        $bookingIds = is_array($validatedData['booking_id'])
+            ? $validatedData['booking_id']
+            : [$validatedData['booking_id']];
 
-        if ($exists) {
-            return response()->json([
-                'message' => 'The hotel is already in the list',
-            ], 400);
+        $listId = $validatedData['list_id'];
+
+        // Проверка существующих записей в списке
+        $existingBookings = DB::table('list_hotels')
+            ->where('list_id', $listId)
+            ->whereIn('booking_id', $bookingIds)
+            ->pluck('booking_id')
+            ->toArray();
+
+        // Отфильтровываем идентификаторы отелей, которые уже существуют в списке
+        $newBookingIds = array_diff($bookingIds, $existingBookings);
+
+        // Добавление новых отелей в список
+        $insertData = array_map(function ($bookingId) use ($listId) {
+            return [
+                'list_id' => $listId,
+                'booking_id' => $bookingId
+            ];
+        }, $newBookingIds);
+
+        if (!empty($insertData)) {
+            DB::table('list_hotels')->insert($insertData);
         }
-
-
-        // Добавление отеля в список
-        DB::table('list_hotels')->insert([
-            'list_id' => $validatedData['list_id'],
-            'booking_id' => $validatedData['booking_id']
-        ]);
 
         // Возврат успешного ответа
         return response()->json([
-            'message' => 'Hotel added to list successfully',
+            'message' => 'Hotels added to list successfully',
+            'added' => $newBookingIds,
+            'skipped' => $existingBookings,
         ], 201);
     }
 

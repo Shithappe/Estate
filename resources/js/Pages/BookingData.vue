@@ -88,7 +88,6 @@ const invertFilters = () => {
 }
 const closeFilters = () => {
     showFilters.value = false;
-    console.log(showFilters.value);
 }
 
 onMounted(() => {

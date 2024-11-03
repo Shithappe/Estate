@@ -11,11 +11,17 @@ const props = defineProps({
   booking_data: Object
 });
 
+const emits = defineEmits(['addToList']);
+
 const images = [...new Set([...strToArray(props.booking_data.static_images, 500), ...strToArray(props.booking_data.images, 500)])];
 
-onMounted(() => {
-  console.log(props.booking_data);
-});
+const handleAddToList = (items) => { 
+  emits('addToList', items);
+}
+
+// onMounted(() => {
+//   console.log(props.booking_data);
+// });
 
 </script>
 
@@ -39,8 +45,9 @@ onMounted(() => {
         <div class="text-2xl">{{ Math.round(booking_data.occupancy) }}%</div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <div>{{ booking_data.min_price }}-{{ booking_data.max_price }}</div>
+      <div>{{ booking_data.min_price }}-{{ booking_data.max_price }}</div>
+      <div class="flex items-center justify-end gap-x-2">
+        <button @click="handleAddToList(booking_data.id)" class="pt-1 px-2 bg-black text-white rounded-lg">Add to List</button>
         <Link :href="'booking_data/' + booking_data.id">
           <button class="pt-1 px-2 bg-black text-white rounded-lg">Details</button>
         </Link>

@@ -10,7 +10,7 @@ const props = defineProps({
         required: true,
     },
     itemId: {
-        type: [String, Number],
+        type: [String, Number, Array],
         required: true,
     },
     type: String,
@@ -74,7 +74,6 @@ const submitForm = async () => {
                 list_id: selectedListItem.value.id,
                 booking_id: props.itemId,
             });
-            console.log(response.data);
             closeModal();
         } catch (error) {
             if (error.response.status == 400) closeModal();

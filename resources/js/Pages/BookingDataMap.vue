@@ -15,17 +15,31 @@ import anotherCustomIcon from "@/assets/placeholder.png";
 
 import BottomSheet from '@/Components/BottomSheet.vue';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
+import AddToListModal from '@/Components/AddToListModal.vue';
 
 
 const props = defineProps({
+  auth: Object,
   locations: Array,
   countries: Object,
   cities: Array,
   types: Array,
-  facilities: Array
+  facilities: Array,
+  lists: {
+    type: Object,
+    default: null
+  }
 })
 
 const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
+const showAddToListModal = ref(false);
+const closeAddToListModal = () => { showAddToListModal.value = false; };
+const itemsToList = ref([])
+const addToList = (items) => {
+  itemsToList.value = items;
+  showAddToListModal.value = true;
+};
 
 const data = ref(props.locations);
 const locations = ref(null);
@@ -267,7 +281,7 @@ const closeBottom = () => {
 </script>
 
 <template>
-  <SimpleAppLayout title="Map of units - ">
+  <SimpleAppLayout title="Map of complex - ">
 
     <div class="relative w-full h-full">
       <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
@@ -281,7 +295,7 @@ const closeBottom = () => {
         enter-from-class="translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
         leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
         leave-to-class="translate-x-full opacity-0">
-        <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
+        <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" @addToList="addToList" />
       </transition>
 
         <BottomSheet v-if="(booking_data || locations) && !isDesktop && showBottomData" :mode="booking_data" @closeBottom="closeBottom">
@@ -295,8 +309,8 @@ const closeBottom = () => {
 
           <template #body>
             <div>
-              <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
-              <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
+              <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" @addToList="addToList" />
+              <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" @addToList="addToList" />
             </div>
           </template>
         </BottomSheet>
@@ -325,6 +339,16 @@ const closeBottom = () => {
         <span class="mx-auto">{{ radius }} km</span>
         <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
       </div>
+
+      <AddToListModal
+        v-if="props.lists && showAddToListModal"
+        :lists="props.lists.complex"
+        :itemId="itemsToList"
+        type='complex'
+        :auth="props.auth"
+        :show="showAddToListModal"
+        @close="closeAddToListModal"
+      />
 
       <div id="mapContainer" class="w-full h-screen z-0"></div>
     </div>
