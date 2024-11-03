@@ -14,7 +14,7 @@ const isBottomSheetOpen = ref(1);
 const calculateTranslateY = () => {
     if (isBottomSheetOpen.value == 0) return 90;
     if (isBottomSheetOpen.value == 1) return 60;
-    if (isBottomSheetOpen.value == 2) return 5;
+    if (isBottomSheetOpen.value == 2) return 10;
 };
 
 watch(() => props.mode, () => {

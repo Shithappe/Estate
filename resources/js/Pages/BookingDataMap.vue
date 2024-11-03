@@ -1,5 +1,6 @@
 <script setup>
 import { defineProps, ref, onMounted, watch } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import SideLBarMap from '@/Components/SideLBarMap.vue';
 import SideRBarMap from '@/Components/SideRBarMap.vue';
@@ -13,6 +14,7 @@ import markerIcon from "@/assets/pin.png";
 import anotherCustomIcon from "@/assets/placeholder.png";
 
 import BottomSheet from '@/Components/BottomSheet.vue';
+import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 
 
 const props = defineProps({
@@ -265,65 +267,68 @@ const closeBottom = () => {
 </script>
 
 <template>
-  <div class="relative w-full h-full">
-    <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
-      enter-from-class="-translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
-      leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
-      leave-to-class="-translate-x-full opacity-0">
-      <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
-    </transition>
+  <SimpleAppLayout title="Map of units - ">
 
-    <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
-      enter-from-class="translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
-      leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
-      leave-to-class="translate-x-full opacity-0">
-      <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
-    </transition>
+    <div class="relative w-full h-full">
+      <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
+        enter-from-class="-translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
+        leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
+        leave-to-class="-translate-x-full opacity-0">
+        <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
+      </transition>
 
-      <BottomSheet v-if="(booking_data || locations) && !isDesktop && showBottomData" :mode="booking_data" @closeBottom="closeBottom">
-        <template #top>
-          <div v-if="locations"
-            class="absolute z-10 top-4 w-1/2 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
-            <span class="mx-auto">{{ radius }} km</span>
-            <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
-          </div>
-        </template>
+      <transition v-if="isDesktop" enter-active-class="transition ease-out duration-300"
+        enter-from-class="translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100"
+        leave-active-class="transition ease-in duration-300" leave-from-class="translate-x-0 opacity-100"
+        leave-to-class="translate-x-full opacity-0">
+        <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
+      </transition>
 
-        <template #body>
-          <div>
-            <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
-            <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
-          </div>
-        </template>
-      </BottomSheet>
+        <BottomSheet v-if="(booking_data || locations) && !isDesktop && showBottomData" :mode="booking_data" @closeBottom="closeBottom">
+          <template #top>
+            <div v-if="locations"
+              class="absolute z-10 top-4 w-1/2 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
+              <span class="mx-auto">{{ radius }} km</span>
+              <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
+            </div>
+          </template>
 
-    <SideBarFilters :show="showFilters" :map="true" :countries="props.countries" :types="props.types"
-            :facilities="props.facilities" @applyFilters="applyFilters" @closeBottom="closeBottom" />
+          <template #body>
+            <div>
+              <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
+              <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
+            </div>
+          </template>
+        </BottomSheet>
 
-    <div class="absolute z-10 top-3 flex flex-col gap-y-2"
-      :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }"
-    >
-      <button
-        class="px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
-        :class="{ 'text-slate-100 bg-black': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters }"
-        @click="() => { closeBottom(); showFilters = !showFilters; }">
-        <Lucide icon="Filter" />
-      </button>
+      <SideBarFilters :show="showFilters" :map="true" :countries="props.countries" :types="props.types"
+              :facilities="props.facilities" @applyFilters="applyFilters" @closeBottom="closeBottom" />
 
-      <a href="/"
-        class="px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4">
-        <Lucide icon="ArrowLeftCircle" />
-      </a>
+      <div class="absolute z-10 top-3 flex flex-col gap-y-2"
+        :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }"
+      >
+        <button
+          class="px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
+          :class="{ 'text-slate-100 bg-black': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters }"
+          @click="() => { closeBottom(); showFilters = !showFilters; }">
+          <Lucide icon="Filter" />
+        </button>
+
+        <a href="/"
+          class="px-2 py-2 rounded-lg shadow-lg backdrop-filter backdrop-blur-md bg-gray-100 cursor-pointer bg-opacity-30 hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4">
+          <Lucide icon="ArrowLeftCircle" />
+        </a>
+      </div>
+
+
+      <div v-if="locations && (!showBottomData || isDesktop)" class="absolute z-10 bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
+        <span class="mx-auto">{{ radius }} km</span>
+        <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
+      </div>
+
+      <div id="mapContainer" class="w-full h-screen z-0"></div>
     </div>
-
-
-    <div v-if="locations && (!showBottomData || isDesktop)" class="absolute z-10 bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
-      <span class="mx-auto">{{ radius }} km</span>
-      <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
-    </div>
-
-    <div id="mapContainer" class="w-full h-screen z-0"></div>
-  </div>
+  </SimpleAppLayout>
 </template>
 
 
