@@ -31,6 +31,7 @@ const selectCoord = ref(null);
 const booking_data = ref(null);
 const dataLoaded = ref(false);
 const showFilters = ref(false);
+const showBottomData = ref(false);
 const radius = ref(1);
 
 const markers = [];
@@ -113,9 +114,6 @@ const addMarkers = (data) => {
     });
     markers.push(marker);
     marker.addTo(markerCluster);
-
-
-
     marker.myId = item.id;
 
     marker.on('click', (e) => {
@@ -123,8 +121,14 @@ const addMarkers = (data) => {
       const markerId = clickedMarker.myId;
 
       if (selectedMarker.value !== null) {
-        selectedMarker.value.setIcon(customIcon); // Изменить на изначальную иконку
+        // Вернуть предыдущий маркер в кластер и установить оригинальную иконку
+        markerCluster.addLayer(selectedMarker.value);
+        selectedMarker.value.setIcon(customIcon);
       }
+
+      // Удалить текущий маркер из кластера
+      markerCluster.removeLayer(clickedMarker);
+      clickedMarker.addTo(map); // Добавить на карту отдельно
 
       fetchData(markerId);
 
@@ -141,15 +145,13 @@ const addMarkers = (data) => {
         fillOpacity: 0.2, // Прозрачность заливки окружности
       }).addTo(map);
 
-
       showFilters.value = false;
-      // Плавное перемещение к маркеру с использованием метода flyTo
       map.flyTo(markerCoords, 16, {
         duration: 2,
-        easeLinearity: 0.5
+        easeLinearity: 0.5,
       });
 
-      // Cсылка на старый маркер
+      // Сохранить ссылку на выбранный маркер
       selectedMarker.value = clickedMarker;
 
       const anotherIcon = L.icon({
@@ -163,7 +165,8 @@ const addMarkers = (data) => {
       reDrawCircle();
     });
   });
-}
+};
+
 
 watch(data, (newData) => {
   // Remove existing markers from the map
@@ -185,7 +188,7 @@ const customIcon = L.icon({
 
 // Создание кластеризатора маркеров
 const markerCluster = L.markerClusterGroup({
-  maxClusterRadius: 40, // Расстояние с которого маркеры объединяются 
+  maxClusterRadius: 50, // Расстояние с которого маркеры объединяются 
 });
 
 let selectedMarker = ref(null);
@@ -195,6 +198,7 @@ onMounted(() => {
   L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(map);
 
   map.on('click', (e) => {
+    showBottomData.value = true;
     // Проверяем, был ли клик выполнен вне маркера
     if (e.originalEvent.target.classList.contains('leaflet-marker-icon')) {
       return; // Если клик выполнен на маркере, ничего не делаем
@@ -202,7 +206,7 @@ onMounted(() => {
 
     // Если клик выполнен вне маркера, выполните нужные действия здесь
     selectCoord.value = [e.latlng.lat, e.latlng.lng];
-    reDrawCircle()
+    reDrawCircle();
 
     // Например, можно сбросить выбранный маркер, если таковой был сохранен
     if (selectedMarker.value !== null) {
@@ -252,8 +256,9 @@ async function fetchData(markerId) {
   }
 }
 
-const closeFilters = () => {
+const closeBottom = () => {
   showFilters.value = false;
+  showBottomData.value = false;
 }
 
 </script>
@@ -274,20 +279,34 @@ const closeFilters = () => {
       <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
     </transition>
 
-    <BottomSheet v-if="(booking_data || locations) && !isDesktop" :mode="booking_data">
-      <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
-      <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
-    </BottomSheet>
+      <BottomSheet v-if="(booking_data || locations) && !isDesktop && showBottomData" :mode="booking_data" @closeBottom="closeBottom">
+        
+        <template #top>
+          <div v-if="locations"
+            class="absolute z-10 top-4 w-1/2 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
+            <span class="mx-auto">{{ radius }} km</span>
+            <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
+          </div>
+        </template>
+
+        <template #body>
+          <div>
+            <SideLBarMap v-if="booking_data && dataLoaded" :booking_data="booking_data" />
+            <SideRBarMap v-if="locations" :booking_data="locations" @bookingClick="handleBookingClick" />
+          </div>
+        </template>
+      </BottomSheet>
 
     <SideBarFilters :show="showFilters" :map="true" :countries="props.countries" :types="props.types"
-            :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeFilters" />
+            :facilities="props.facilities" @applyFilters="applyFilters" @closeBottom="closeBottom" />
 
     <div class="absolute z-10 top-3 flex flex-col gap-y-2"
-      :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }">
+      :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }"
+    >
       <button
         class="px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
         :class="{ 'text-slate-100 bg-black': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters }"
-        @click="() => { showFilters = !showFilters }">
+        @click="() => { closeBottom(); showFilters = !showFilters; }">
         <Lucide icon="Filter" />
       </button>
 
@@ -298,8 +317,7 @@ const closeFilters = () => {
     </div>
 
 
-    <div v-if="locations"
-      class="absolute z-10 bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
+    <div v-if="locations && !showBottomData" class="absolute z-10 bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg flex flex-col shadow-lg backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30 overflow-auto">
       <span class="mx-auto">{{ radius }} km</span>
       <input type="range" min="0.5" max="10" step="0.5" v-model="radius" @input="reDrawCircle">
     </div>
