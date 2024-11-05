@@ -97,20 +97,18 @@ const removeFromList = async (id) => {
             </template>
         </carousel>
 
-        <div class="relative col-span-3 h-80 mx-3 pt-2 pb-2">
+        <div class="relative col-span-3 h-96 mx-3 pt-2 pb-2">
             <div class="flex flex-col relative">
                 <div class="flex items-center justify-between mb-1">
-                    <Link class="text-xl font-semibold hover:text-blue-800" :href="'/booking_data/' + item.id">{{ item.title }}</Link>
+                    <Link class="text-xl font-semibold hover:text-blue-800 line-clamp-2" :href="'/booking_data/' + item.id">{{ item.title }}</Link>
                 </div>
+                
                 <div v-if="item.star" class="flex gap-x-1">
                     <Lucide v-for="(star, index) in item.star" :key="index" class="w-5 h-5 fill-black" icon="Star" />
                     <div>{{ item.score }}</div>
                 </div>
             </div>
 
-            <button v-if="props.auth?.user && props.lists" @click.stop="openAddToListModal" class="absolute top-0 right-0.5 pt-3 rounded-lg">
-                <Lucide class="w-6 h-6" icon="BookmarkPlus" />
-            </button>
 
             <div class="flex items-center justify-between text-md mb-1 pr-3">
                 <div class="flex items-center gap-1">
@@ -159,52 +157,58 @@ const removeFromList = async (id) => {
                     <div v-if="!loading">{{ item.min_price }} - {{ item.max_price }}</div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>
-                
-                <!-- <div v-if="item.min_price && item.max_price" class="flex items-center justify-between">
+
+                <!-- если min === max отрисовуем только один -->
+                <div v-if="item.min_price && item.max_price && item.min_price === item.max_price" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
-                        <Lucide class="w-5 h-5" icon="Up" />
+                        <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
                         <span>Income</span>
                     </div>
-                    <div v-if="!loading">min ${{ item.count_rooms * item.min_price }} max ${{ item.count_rooms * item.max_price }}</div>
+                    <div v-if="!loading">${{ item.count_rooms * item.max_price }}</div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
-                </div> -->
+                </div>
+
+                <div v-else-if="item.min_price && item.max_price" class="flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-x-2">
+                            <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
+                            <span>Min Income</span>
+                        </div>
+                        <div v-if="!loading">${{ item.count_rooms * item.min_price }}</div>
+                        <div v-else class="loading px-1 text-slate-500">Price</div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-x-2">
+                            <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
+                            <span>Max Income </span>
+                        </div>
+                        <div v-if="!loading"> ${{ item.count_rooms * item.max_price }}</div>
+                        <div v-else class="loading px-1 text-slate-500">Price</div>
+                    </div>
+                </div>
+
 
                 <div v-if="item.forecast_price" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5" icon="Receipt" />
-                        <span>Price reccent</span>
+                        <span>Recommended price</span>
                     </div>
                     <div>${{ addDots(item.forecast_price) }}</div>
                 </div>
                 
             </div>
 
-            <!-- <button @click="openModal" class="w-full p-2 text-slate-900 bg-slate-100 border-2 border-slate-400 rounded-lg">Buy object</button> -->
-            <!-- <div class="absolute bottom-3 w-full flex flex-col gap-y-2">
-
-                <Link v-if="!props.auth?.user || !props.lists" :href="'booking_data/' + item.id">
-                    <button class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">See Details</button>
-                </Link>
-
-                <div v-else class="flex gap-x-0.5">
-                    <Link :href="'booking_data/' + item.id" class="w-4/5">
-                        <button class="w-full flex justify-center gap-1 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">
-                            See Details
-                        </button>
-                    </Link>
-
-                    <button @click.stop="openAddToListModal" class="w-1/5 flex items-center justify-center text-slate-100 bg-slate-900 rounded-lg">
-                        <Lucide class="w-5 h-5" icon="BookmarkPlus" />
-                    </button>
-                </div>
-            </div> -->
-
-            <div class="w-full absolute bottom-3">
-                <div class="w-full relative flex">
-                    <Link :href="'booking_data/' + item.id" class="btn-left ml-0.5" style="text-indent: -15px;">Details</Link>
-                    <button @click.stop="openAddToListModal" class="btn-right -ml-6" style="text-indent: 15px;">Buy</button>
-                </div>
+            <div class="absolute bottom-3 w-full flex justify-between gap-x-0.5">
+                <Link :href="'booking_data/' + item.id" class="flex-auto bg-gray-900 text-white py-3 px-4 rounded-l-lg text-center hover:bg-black hover:shadow-lg transition duration-300">Details</Link>
+                
+                <button @click.stop="openAddToListModal" class="flex-auto bg-gray-900 text-white py-3 px-4 text-center hover:bg-black hover:shadow-lg transition duration-300">Buy</button>
+                
+                <button v-if="props.auth?.user && props.lists" @click.stop="openAddToListModal" class="bg-gray-900 p-3 rounded-r-lg hover:bg-black hover:shadow-lg transition duration-300">
+                    <Lucide class="w-5 h-5 text-white" icon="BookmarkPlus" />
+                </button>
             </div>
+
 
             <FormSubmissions :booking_id="props.item.id" target="buy" title="Buy investment property in Bali with passive income" des="" :show="showModal" @close="closeModal" />
         </div>
@@ -226,46 +230,6 @@ const removeFromList = async (id) => {
 
 
 <style scoped>
-/* Общие стили для обеих кнопок */
-.btn-left, .btn-right {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 600%;
-    padding: 15px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #f1f1f1;
-    background-color: #1f2937;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-}
-
-/* Левая кнопка */
-.btn-left {
-    clip-path: polygon(0 0, 100% 0%, 81% 100%, 0% 100%);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-}
-
-.btn-left:hover {
-    background-color: #374151;
-    transform: scale(1.05);
-}
-
-/* Правая кнопка */
-.btn-right {
-    clip-path: polygon(19% 0, 100% 0%, 100% 100%, 0% 100%);
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-
-.btn-right:hover {
-    background-color: #374151;
-    transform: scale(1.05);
-}
-
 .loading {
     z-index: 2;
     /* color: transparent; */
