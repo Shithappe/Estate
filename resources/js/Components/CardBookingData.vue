@@ -107,6 +107,11 @@ const removeFromList = async (id) => {
                     <Lucide v-for="(star, index) in item.star" :key="index" class="w-5 h-5 fill-black" icon="Star" />
                     <div>{{ item.score }}</div>
                 </div>
+                <!-- <div v-else>
+                    <div class="flex items-center gap-1">
+                        <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
+                    </div>
+                </div> -->
             </div>
 
 
@@ -154,12 +159,12 @@ const removeFromList = async (id) => {
                         <Lucide class="w-5 h-5" icon="DollarSign" />
                         <span>Prices per night</span>
                     </div>
-                    <div v-if="!loading">{{ item.min_price }} - {{ item.max_price }}</div>
+                    <div v-if="!loading">${{ item.min_price }} - ${{ item.max_price }}</div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>
 
                 <!-- если min === max отрисовуем только один -->
-                <div v-if="item.min_price && item.max_price && item.min_price === item.max_price" class="flex items-center justify-between">
+                <div v-if="item.min_price && item.max_price && item.min_price === item.max_price && item.count_rooms" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
                         <span>Income</span>
@@ -168,7 +173,7 @@ const removeFromList = async (id) => {
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>
 
-                <div v-else-if="item.min_price && item.max_price" class="flex flex-col">
+                <div v-else-if="item.min_price && item.max_price && item.count_rooms" class="flex flex-col">
                     <div class="flex items-center justify-between">
                         <div class="flex gap-x-2">
                             <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
@@ -202,7 +207,7 @@ const removeFromList = async (id) => {
             <div class="absolute bottom-3 w-full flex justify-between gap-x-0.5">
                 <Link :href="'booking_data/' + item.id" class="flex-auto bg-gray-900 text-white py-3 px-4 rounded-l-lg text-center hover:bg-black hover:shadow-lg transition duration-300">Details</Link>
                 
-                <button @click.stop="openAddToListModal" class="flex-auto bg-gray-900 text-white py-3 px-4 text-center hover:bg-black hover:shadow-lg transition duration-300">Buy</button>
+                <button @click.stop="openAddToListModal" class="flex-auto bg-gray-900 text-white py-3 px-4 text-center hover:bg-black hover:shadow-lg transition duration-300" :class="{ 'rounded-r-lg':!props.lists }">Buy</button>
                 
                 <button v-if="props.auth?.user && props.lists" @click.stop="openAddToListModal" class="bg-gray-900 p-3 rounded-r-lg hover:bg-black hover:shadow-lg transition duration-300">
                     <Lucide class="w-5 h-5 text-white" icon="BookmarkPlus" />

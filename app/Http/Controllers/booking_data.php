@@ -912,7 +912,9 @@ class booking_data extends Controller
     
         // Возврат шаблона Inertia с данными списка
         return Inertia::render('ListShowBookingData', [
-            'list' => $list
+            'is_share'=> true,
+            'list' => $list,
+            'lists' => $this->getLists(auth()->id())
         ]);
     }
     
