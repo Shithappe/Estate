@@ -103,15 +103,12 @@ const removeFromList = async (id) => {
                     <Link class="text-xl font-semibold hover:text-blue-800 line-clamp-2" :href="'/booking_data/' + item.id">{{ item.title }}</Link>
                 </div>
                 
-                <div v-if="item.star" class="flex gap-x-1">
-                    <Lucide v-for="(star, index) in item.star" :key="index" class="w-5 h-5 fill-black" icon="Star" />
+                <div class="flex gap-x-1">
+                    <Lucide 
+                        v-for="(star, index) in 5" :key="index" class="w-5 h-5" :class="{ 'fill-black': index < item.star }" icon="Star" 
+                    />
                     <div>{{ item.score }}</div>
                 </div>
-                <!-- <div v-else>
-                    <div class="flex items-center gap-1">
-                        <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
-                    </div>
-                </div> -->
             </div>
 
 
@@ -121,9 +118,6 @@ const removeFromList = async (id) => {
                 </div>
                 <div class="flex items-center gap-1">
                     <Lucide class="w-5 h-5" icon="Hotel" /> {{ item.type }}
-                </div>
-                <div v-if="!item.star && item.score" class="flex items-center gap-1">
-                    <Lucide class="w-5 h-5" icon="Star" /> {{ item.score }}
                 </div>
             </div>
 
@@ -148,7 +142,7 @@ const removeFromList = async (id) => {
                 <div class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5" icon="Zap" />
-                        <span>Occupancy</span>
+                        <span>Average occupancy</span>
                     </div>
                     <div v-if="!loading" class="ml-auto">{{ Math.round(item.occupancy) >= 0 ? Math.round(item.occupancy) + '%' : 'N/A' }}</div>
                     <div v-else class="loading px-1 text-slate-500 ml-auto">Occupancy</div>
@@ -164,35 +158,17 @@ const removeFromList = async (id) => {
                 </div>
 
                 <!-- если min === max отрисовуем только один -->
-                <div v-if="item.min_price && item.max_price && item.min_price === item.max_price && item.count_rooms" class="flex items-center justify-between">
+                <div v-if="(item.min_price || item.max_price) && item.count_rooms" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
                         <span>Income</span>
                     </div>
-                    <div v-if="!loading">${{ item.count_rooms * item.max_price }}</div>
+                    <div v-if="!loading">
+                        <div v-if="item.min_price === item.max_price">${{ item.count_rooms * item.max_price }}</div>
+                        <div v-else>${{ item.count_rooms * item.min_price }} - ${{ item.count_rooms * item.max_price }}</div>    
+                    </div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>
-
-                <div v-else-if="item.min_price && item.max_price && item.count_rooms" class="flex flex-col">
-                    <div class="flex items-center justify-between">
-                        <div class="flex gap-x-2">
-                            <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
-                            <span>Min Income</span>
-                        </div>
-                        <div v-if="!loading">${{ item.count_rooms * item.min_price }}</div>
-                        <div v-else class="loading px-1 text-slate-500">Price</div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex gap-x-2">
-                            <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
-                            <span>Max Income </span>
-                        </div>
-                        <div v-if="!loading"> ${{ item.count_rooms * item.max_price }}</div>
-                        <div v-else class="loading px-1 text-slate-500">Price</div>
-                    </div>
-                </div>
-
 
                 <div v-if="item.forecast_price" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
