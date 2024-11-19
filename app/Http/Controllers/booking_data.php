@@ -169,11 +169,13 @@ class booking_data extends Controller
             )
             ->where('r2d.booking_id', $bookingId)
             ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
-                return $query->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate]);
+                // return $query->whereBetween('r2d.checkin', [$checkinDate, $checkoutDate]);
+                return $query->where('r2d.checkin', '>=', $checkinDate)
+                 ->where('r2d.checkin', '<=', $checkoutDate);
             })
-            ->groupBy('r2d.room_id', 'ri.room_type', 'ri.price', 'ri.active')
+            ->groupBy('r2d.room_id')
             ->get();
-    
+
         return $this->calculateOccupancy($rooms, $bookingTitle, $sortResults);
     }
     
@@ -210,6 +212,7 @@ class booking_data extends Controller
     // Функция для расчета занятости и создания итогового массива
     private function calculateOccupancy($rooms, $bookingTitle, $sortResults)
     {
+        // return $rooms;
         $roomsArray = [];
         foreach ($rooms as $room) {
             $sum = $room->sum;

@@ -226,9 +226,9 @@ onMounted(() => {
                         <DateRangePicker v-model="dateRange" />
 
                         <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
-                        <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p>
+                        <!-- <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p> -->
 
-                        <RoomInfo v-if="rooms" :rooms="rooms" :lists="lists" :auth="auth" />
+                        <RoomInfo class="mt-4" v-if="rooms" :rooms="rooms" :lists="lists" :auth="auth" />
 
                         <Map :locations="mapLocations" />
                         <!-- <div id="mapContainer" style="z-index: 0; width: 100%; height: 500px"></div> -->

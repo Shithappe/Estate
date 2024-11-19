@@ -60,7 +60,7 @@ const removeFromList = async (id) => {
           </button>
 
             <div class="flex items-center justify-between">
-              <div class="text-2xl">{{ room.room_type }}</div>
+              <div class="text-2xl line-clamp-1">{{ room.room_type }}</div>
               <div class="flex gap-x-4">
                 <div v-if="room.hasOwnProperty('active') && room.active == false" class="text-sm text-slate-500">
                   hidden by owner
@@ -80,7 +80,7 @@ const removeFromList = async (id) => {
                 </div>
                 <div class="flex gap-x-1">
                     <Lucide class="w-5 h-5" icon="Zap" />
-                    <span>Occupancy {{ room.occupancy > 0 ? Math.round(room.occupancy) + '%' : 'N/A' }}</span>
+                    <span>Occupancy {{ room.occupancy >= 0 ? Math.round(room.occupancy) + '%' : 'N/A' }}</span>
                 </div>
                 <div class="flex gap-x-1">
                   <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
