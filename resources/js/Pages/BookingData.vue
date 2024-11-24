@@ -97,38 +97,42 @@ onMounted(() => {
 
 <template>
     <SimpleAppLayout title="">
+        <template #header>
+            <span class="ms:ml-0 lg:mx-auto text-sm">Data is displayed according to the hotel's occupancy on <a class="underline" href="https://www.booking.com/index.en-gb.html" target="_blank">Booking.com</a></span>
+        </template>
 
         <SideBarFilters :show="showFilters" :countries="props.countries" :types="props.types"
             :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="invertFilters" />
 
-        <div class="w-full px-4 py-6 mx-auto"
-            :class="{ 'lg:w-4/5 lg:float-right lg:pl-24': showFilters, 'lg:px-24 lg:max-w-8xl': !showFilters }">
+            <div class="w-full px-4 py-6 mx-auto"
+                :class="{ 'lg:w-4/5 lg:float-right lg:pl-24': showFilters, 'lg:px-24 lg:max-w-8xl': !showFilters }">
+                
+                <div class="flex items-center justify-center gap-4 mx-auto w-full" :class="{ 'xl:pl-4 2xl:pl-10': showFilters }">
+                    
+                    <button
+                        class="p-2 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
+                        :class="{ 'shadow-lg text-slate-100 bg-black': showFilters }"
+                        @click="invertFilters">
+                        <Lucide icon="Filter" />
+                    </button>
 
-            <div class="flex ml-4" :class="{ 'xl:pl-4 2xl:pl-10': showFilters }">
-                <button
-                    class="px-2 py-0 rounded-lg shadow hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out text-md"
-                    :class="{ 'shadow-lg text-slate-100 bg-black': showFilters }"
-                    @click="invertFilters">
-                    <Lucide icon="Filter" />
-                    <!-- {{  showFilters }} -->
-                </button>
-
-                <div class="history relative w-full lg:max-w-4xl flex mx-4 transition duration-150 ease-in-out">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none">
-                        <Lucide icon="Search" />
+                    <!-- Поле поиска -->
+                    <div class="history relative w-full lg:max-w-4xl flex items-center">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none">
+                            <Lucide icon="Search" />
+                        </div>
+                        <input ref="searchInput" type="search" v-model="selectedTitle" @keyup.enter="applyFilters"
+                            @focus="showHistory = true"
+                            class="block w-full p-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
+                            placeholder="The Slow..." required>
+                        <button @click="applyFilters"
+                            class="text-white absolute end-px inset-y-px bg-blue-700 focus:outline-none font-medium rounded-lg text-md px-4 py-2">Search</button>
+                        <ul v-if="history.length > 0 && showHistory" @blur="showHistory = false"
+                            class="history absolute bg-white mt-12 w-full rounded-md shadow-lg z-10">
+                            <li v-for="(item, index) in history" :key="index" class="p-2 hover:bg-gray-100 cursor-pointer"
+                                @click="() => { selectedTitle = item; applyFilters() }">{{ item }}</li>
+                        </ul>
                     </div>
-                    <input ref="searchInput" type="search" v-model="selectedTitle" @keyup.enter="applyFilters"
-                        @focus="showHistory = true"
-                        class="block w-full p-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
-                        placeholder="The Slow..." required>
-                    <button @click="applyFilters"
-                        class="text-white absolute end-px inset-y-px bg-blue-700 focus:outline-none font-medium rounded-lg text-md px-4 py-2">Search</button>
-                    <ul v-if="history.length > 0 && showHistory" @blur="showHistory = false"
-                        class="history absolute bg-white mt-12 w-full rounded-md shadow-lg z-10">
-                        <li v-for="(item, index) in history" :key="index" class="p-2 hover:bg-gray-100 cursor-pointer"
-                            @click="() => { selectedTitle = item; applyFilters() }">{{ item }}</li>
-                    </ul>
-                </div>
 
             </div>
 

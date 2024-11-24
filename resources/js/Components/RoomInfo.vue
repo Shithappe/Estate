@@ -72,8 +72,10 @@ const removeFromList = async (id) => {
             <Lucide class="w-6 h-6 mb-1" icon="BookmarkPlus" />
           </button>
         </div>
-        <div v-if="room.hasOwnProperty('active') && room.active == false" class="w-full text-right text-sm text-slate-500">hidden by owner</div>
-
+        <div class="w-full text-right text-sm text-slate-500">
+            <span v-if="room.hasOwnProperty('active') && room.active == false">hidden by owner</span>
+            <span v-else style="visibility: hidden;">placeholder</span>
+        </div>
         <div class="flex flex-col">
           <div class="flex items-center justify-between">
             <div class="flex gap-x-1">
