@@ -164,17 +164,18 @@ class booking_data extends Controller
                 DB::raw('COUNT(r2d.available_rooms) AS count'),
                 DB::raw('MAX(ri.max_available) AS max_available'),
                 'ri.room_type',
-                'ri.price',
+                DB::raw('MAX(COALESCE(r2d.price, ri.price)) AS price'),
                 'ri.active'
             )
             ->where('r2d.booking_id', $bookingId)
             ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
-                // return $query->whereBetween('r2d.checkin', [$checkinDate, $checkoutDate]);
                 return $query->where('r2d.checkin', '>=', $checkinDate)
                  ->where('r2d.checkin', '<=', $checkoutDate);
             })
-            ->groupBy('r2d.room_id')
+            ->groupBy('r2d.room_id', 'ri.active')
             ->get();
+
+        // return $rooms;
 
         return $this->calculateOccupancy($rooms, $bookingTitle, $sortResults);
     }
