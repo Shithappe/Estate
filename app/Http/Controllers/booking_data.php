@@ -39,7 +39,16 @@ class booking_data extends Controller
                     'booking_data.max_price',
                     'booking_data.star', 
                     'booking_data.score',
-                    'booking_data.forecast_price',
+                    // 'booking_data.forecast_price',
+                    DB::raw('
+                        ROUND(
+                            IF(
+                                booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
+                                (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
+                                booking_data.forecast_price
+                            ) / 1000
+                        ) * 1000 as forecast_price
+                    '),
                     DB::raw('COUNT(rooms.id) as types_rooms'),
                     DB::raw('SUM(rooms.max_available) as count_rooms'),
                     // DB::raw('AVG(rooms.occupancy) as occupancy')
@@ -164,7 +173,7 @@ class booking_data extends Controller
                 DB::raw('COUNT(r2d.available_rooms) AS count'),
                 DB::raw('MAX(ri.max_available) AS max_available'),
                 'ri.room_type',
-                DB::raw('MAX(COALESCE(r2d.price, ri.price)) AS price'),
+                DB::raw('ROUND(AVG(COALESCE(r2d.price, ri.price))) AS price'),
                 'ri.active'
             )
             ->where('r2d.booking_id', $bookingId)
@@ -539,6 +548,7 @@ class booking_data extends Controller
                 'r2.room_id',
                 'ri.room_type',
                 'r2.available_rooms',
+                'r2.price',
                 'r2.checkin',
                 'r2.checkout'
             )

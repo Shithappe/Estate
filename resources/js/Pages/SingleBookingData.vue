@@ -294,6 +294,7 @@ onMounted(() => {
                                     <tr>
                                         <th>Room type</th>
                                         <th>Available rooms</th>
+                                        <th>Price</th>
                                         <th>Checkin</th>
                                         <th>Checkout</th>
                                     </tr>
@@ -302,6 +303,7 @@ onMounted(() => {
                                     <tr v-for="book in allData.rooms_2_day" :key="book.id">
                                         <td>{{ book.room_type }}</td>
                                         <td>{{ book.available_rooms }}</td>
+                                        <td>{{ book.price }}</td>
                                         <td>{{ book.checkin }}</td>
                                         <td>{{ book.checkout }}</td>
                                     </tr>

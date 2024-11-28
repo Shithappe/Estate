@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import Lucide from '@/Components/Lucide.vue';
 import Modal from '@/Components/Modal.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import axios from 'axios';
@@ -77,7 +78,7 @@ const submitForm = async () => {
             closeModal();
         } catch (error) {
             if (error.response.status == 400) closeModal();
-            console.error('alredy in list', error);
+            console.error('already in list', error);
         }
     }
 };
@@ -86,7 +87,10 @@ const submitForm = async () => {
 <template>
     <Modal maxWidth="sm" :show="show" @close="closeModal">
         <template #default>
-            <div class="p-6 bg-white rounded-lg">
+            <div class="p-6 bg-white rounded-lg relative">
+                <div class="absolute -top-2 -right-2 bg-gray-100 rounded-lg shadow cursor-pointer" @click="closeModal">
+                    <Lucide class="text-gray-700 w-7 h-7" icon="X" />
+                </div>
                 <h2 class="text-lg font-semibold">Add to list</h2>
                 <form @submit.prevent="submitForm" class="mt-4">
                     <!-- Добавление нового списка -->
