@@ -174,7 +174,8 @@ class booking_data extends Controller
                 DB::raw('MAX(ri.max_available) AS max_available'),
                 'ri.room_type',
                 DB::raw('ROUND(AVG(COALESCE(r2d.price, ri.price))) AS price'),
-                'ri.active'
+                'ri.active',
+                DB::raw('COUNT(*) AS record_count'),
             )
             ->where('r2d.booking_id', $bookingId)
             ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
@@ -240,7 +241,7 @@ class booking_data extends Controller
                 'active' => $room->active,
                 'price' => $room->price,
                 'occupancy' => round($occupancy),
-                'profit' => $sum * $room->price,
+                'profit' => round($room->record_count * $occupancy / 100 * $room->price),
                 'booking_title' => $room->booking_title ?? $bookingTitle // Используем booking_title из JOIN или переданное значение
             ];
         }

@@ -173,7 +173,7 @@ const removeFromList = async (id) => {
                 <div v-if="item.forecast_price" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5" icon="Receipt" />
-                        <span>Recommended price</span>
+                        <span>Estimated price</span>
                     </div>
                     <div>${{ addDots(item.forecast_price) }}</div>
                 </div>
