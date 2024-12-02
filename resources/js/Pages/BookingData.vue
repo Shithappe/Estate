@@ -128,7 +128,7 @@ onMounted(() => {
                         <button @click="applyFilters"
                             class="text-white absolute end-px inset-y-px bg-blue-700 focus:outline-none font-medium rounded-lg text-md px-4 py-2">Search</button>
                         <ul v-if="history.length > 0 && showHistory" @blur="showHistory = false"
-                            class="history absolute bg-white mt-12 w-full rounded-md shadow-lg z-10">
+                            class="absolute top-full left-0 bg-white w-full rounded-md shadow-lg z-20">
                             <li v-for="(item, index) in history" :key="index" class="p-2 hover:bg-gray-100 cursor-pointer"
                                 @click="() => { selectedTitle = item; applyFilters() }">{{ item }}</li>
                         </ul>
