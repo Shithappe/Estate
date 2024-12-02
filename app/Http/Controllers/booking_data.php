@@ -553,11 +553,10 @@ class booking_data extends Controller
                 'r2.checkin',
                 'r2.checkout'
             )
+            ->orderBy('r2.checkin', 'desc')
             ->get();
 
         return [
-            // "booking_data" => $booking_data
-            // "facilities" => $facilities,
             "rooms" => $rooms,
             "rooms_2_day" => $rooms_2_day
           ];
