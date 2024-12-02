@@ -161,7 +161,7 @@ const removeFromList = async (id) => {
                 <div v-if="(item.min_price || item.max_price) && item.count_rooms" class="flex items-center justify-between">
                     <div class="flex gap-x-2">
                         <Lucide class="w-5 h-5 mt-0.5" icon="TrendingUp" />
-                        <span>Income</span>
+                        <span>Rental Income</span>
                     </div>
                     <div v-if="!loading">
                         <div v-if="item.min_price === item.max_price">${{ item.count_rooms * item.max_price }}</div>

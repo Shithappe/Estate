@@ -29,32 +29,32 @@ class booking_data extends Controller
     public function index(Request $request)
     {
         $data = DB::table('booking_data')
-            ->select('booking_data.id', 
-                    'booking_data.static_images',
-                    'booking_data.images',
-                    'booking_data.title', 
-                    'booking_data.city', 
-                    'booking_data.type', 
-                    'booking_data.min_price',
-                    'booking_data.max_price',
-                    'booking_data.star', 
-                    'booking_data.score',
-                    // 'booking_data.forecast_price',
-                    DB::raw('
-                        ROUND(
-                            IF(
-                                booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
-                                (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
-                                booking_data.forecast_price
-                            ) / 1000
-                        ) * 1000 as forecast_price
-                    '),
-                    DB::raw('COUNT(rooms.id) as types_rooms'),
-                    DB::raw('SUM(rooms.max_available) as count_rooms'),
-                    // DB::raw('AVG(rooms.occupancy) as occupancy')
-                    'booking_data.occupancy as occupancy',
-                    )
-            ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
+            ->select(
+                'booking_data.id', 
+                'booking_data.static_images',
+                'booking_data.images',
+                'booking_data.title', 
+                'booking_data.city', 
+                'booking_data.type', 
+                'booking_data.min_price',
+                'booking_data.max_price',
+                'booking_data.star', 
+                'booking_data.score',
+                DB::raw('
+                    ROUND(
+                        IF(
+                            booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
+                            (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
+                            booking_data.forecast_price
+                        ) / 1000
+                    ) * 1000 as forecast_price
+                '),
+                DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
+                DB::raw('SUM(rooms_id.max_available) as count_rooms'),
+                'booking_data.occupancy as occupancy'
+                // DB::raw('COUNT(rooms_id.room_id) as rental_income'),
+            )
+            ->leftJoin('rooms_id', 'booking_data.id', '=', 'rooms_id.booking_id')
             ->orderByRaw('
                 CASE 
                     WHEN booking_data.priority > 0 THEN booking_data.priority
@@ -66,6 +66,7 @@ class booking_data extends Controller
             ->orderBy('booking_data.score', 'desc')
             ->groupBy('booking_data.id')
             ->paginate(12);
+
 
 
             $minutes = 1440;
@@ -534,11 +535,6 @@ class booking_data extends Controller
     public function get_all(Request $request)
     {
         $booking_id = $request->id;
-        // $booking_data = DB::table('booking_data')->where('id', $booking_id)->get();
-
-        // $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');
-        // $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');
-
         $rooms = DB::table('rooms_id')->where('booking_id', $booking_id)->get();
         $rooms_2_day = DB::table('rooms_2_day as r2')
             ->join('rooms_id as ri', 'r2.room_id', '=', 'ri.room_id')
