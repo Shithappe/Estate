@@ -105,7 +105,10 @@ const removeFromList = async (id) => {
                 
                 <div class="flex gap-x-1">
                     <Lucide 
-                        v-for="(star, index) in 5" :key="index" class="w-5 h-5" :class="{ 'fill-black': index < item.star }" icon="Star" 
+                        v-for="(star, index) in 5" :key="index" 
+                        class="w-5 h-5"  
+                        :class="{ 'fill-black': index < item.star }"
+                        icon="Star" 
                     />
                     <div>{{ item.score }}</div>
                 </div>
@@ -165,7 +168,7 @@ const removeFromList = async (id) => {
                     </div>
                     <div v-if="!loading">
                         <div v-if="item.min_price === item.max_price">${{ item.count_rooms * item.max_price }}</div>
-                        <div v-else>${{ item.count_rooms * item.min_price }} - ${{ item.count_rooms * item.max_price }}</div>    
+                        <div v-else>${{ addDots(item.count_rooms * item.min_price) }} - ${{ addDots(item.count_rooms * item.max_price) }}</div>    
                     </div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>
