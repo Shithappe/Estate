@@ -210,7 +210,8 @@ class booking_data extends Controller
                     'ri.room_type',
                     'ri.price',
                     'ri.active',
-                    'bd.title as booking_title'
+                    'bd.title as booking_title',
+                    DB::raw('COUNT(r2d.id) AS record_count'),
                 )
                 ->whereIn('r2d.room_id', $roomIds)
                 ->whereBetween('r2d.created_at', [$checkinDate, $checkoutDate])
