@@ -176,6 +176,15 @@ class booking_data extends Controller
                 'ri.room_type',
                 DB::raw('ROUND(AVG(COALESCE(r2d.price, ri.price))) AS price'),
                 'ri.active',
+                DB::raw('
+                    ROUND(
+                        IF(
+                            ri.estimated_price IS NULL OR ri.estimated_price = "",
+                            (ri.occupancy / 100) * 365 * ri.price * 10 * 0.5,
+                            ri.estimated_price
+                        )
+                    ) as estimated_price
+                '),
                 DB::raw('COUNT(*) AS record_count'),
             )
             ->where('r2d.booking_id', $bookingId)
@@ -210,6 +219,15 @@ class booking_data extends Controller
                     'ri.room_type',
                     'ri.price',
                     'ri.active',
+                    DB::raw('
+                        ROUND(
+                            IF(
+                                ri.estimated_price IS NULL OR ri.estimated_price = "",
+                                (ri.occupancy / 100) * 365 * ri.price * 10 * 0.5,
+                                ri.estimated_price
+                            )
+                        ) as estimated_price
+                    '),
                     'bd.title as booking_title',
                     DB::raw('COUNT(r2d.id) AS record_count'),
                 )
@@ -244,6 +262,7 @@ class booking_data extends Controller
                 'price' => $room->price,
                 'occupancy' => round($occupancy),
                 'profit' => round($room->record_count * $occupancy / 100 * $room->price),
+                'estimated_price' => $room->estimated_price,
                 'booking_title' => $room->booking_title ?? $bookingTitle // Используем booking_title из JOIN или переданное значение
             ];
         }

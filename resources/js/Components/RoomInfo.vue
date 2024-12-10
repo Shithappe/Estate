@@ -93,6 +93,13 @@ const removeFromList = async (id) => {
               </div>
               <div>${{ room.profit }}</div>
             </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-x-1">
+                <Lucide class="w-5 h-5" icon="Receipt" />
+                <div>Estimated price</div>
+              </div>
+              <div>${{ room.estimated_price }}</div>
+            </div>
           </div>
 
         </div>
