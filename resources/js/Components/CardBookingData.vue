@@ -7,6 +7,7 @@ import { Carousel, Slide, Navigation } from 'vue3-carousel';
 import AddToListModal from '@/Components/AddToListModal.vue';
 import FormSubmissions from '@/Components/FormSubmissions.vue';
 import { strToArray } from '@/Utils/strToArray.js';
+import { addDots } from '@/Utils/addDots.js';
 
 const props = defineProps({
     item: Object,
@@ -39,21 +40,6 @@ const openCart = () => {
 };
 
 const images = [...new Set([...strToArray(props.item.static_images, 500), ...strToArray(props.item.images, 500)])];
-
-const addDots = (str) => {
-    str = String(str)
-    // Преобразуем строку в массив символов и перевернем его
-    let reversed = str.split('').reverse().join('');
-
-    // Используем регулярное выражение для добавления точек через каждые три символа
-    let withDots = reversed.replace(/(\d{3})/g, '$1.');
-
-    // Удалим последнюю точку, если она есть, и перевернем строку обратно
-    withDots = withDots.split('').reverse().join('');
-    if (withDots.startsWith('.')) withDots = withDots.slice(1);
-
-    return withDots;
-}
 
 const openAddToListModal = () => {
     showAddToListModal.value = true;

@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import Lucide from '@/Components/Lucide.vue';
 import AddToListModal from '@/Components/AddToListModal.vue';
+import { addDots } from '@/Utils/addDots.js';
 
 
 const props = defineProps({
@@ -91,14 +92,14 @@ const removeFromList = async (id) => {
                 <Lucide class="w-5 h-5" icon="TrendingUp" />
                 <div>Rental income</div>
               </div>
-              <div>${{ room.profit }}</div>
+              <div>${{ addDots(room.profit) }}</div>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex gap-x-1">
                 <Lucide class="w-5 h-5" icon="Receipt" />
                 <div>Estimated price</div>
               </div>
-              <div>${{ room.estimated_price }}</div>
+              <div>${{ addDots(room.estimated_price) }}</div>
             </div>
           </div>
 
