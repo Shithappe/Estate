@@ -89,7 +89,7 @@ const removeFromList = async (id) => {
             <div class="flex items-center justify-between">
               <div class="flex gap-x-1">
                 <Lucide class="w-5 h-5" icon="TrendingUp" />
-                <div>Profit</div>
+                <div>Rental income</div>
               </div>
               <div>${{ room.profit }}</div>
             </div>
