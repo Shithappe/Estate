@@ -65,7 +65,7 @@ const removeFromList = async (id) => {
         :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }" @click="openCart">
 
         <button
-            v-if="!props.lists"
+            v-if="listId"
             @click="removeFromList(item.id)"
             class="absolute -top-2 -right-2 bg-slate-400 text-white shadow-lg rounded-full w-5 h-5 flex items-center justify-center z-10"
             aria-label="Close"

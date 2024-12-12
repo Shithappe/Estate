@@ -107,9 +107,7 @@ onMounted(() => {
     const startDate = moment().subtract(1, 'month');
     dateRange.value = `${startDate.format('DD MMM YYYY')} ~ ${endDate.format('DD MMM YYYY')}`;
 
-    // console.log('list id: ', props.list.id);
-    // console.log('list id: ', props.list);
-    
+    // console.log(props);
 });
 
 const selectOption = (option) => { selectedOption.value = option }
@@ -237,7 +235,7 @@ const closeAddToListModal = () => { showAddToListModal.value = false; };
                 </div>
 
                 <div v-if="selectedOption == 'Complexes'" class="my-8 flex-col gap-y-4">
-                    <div class="flex justify-center mx-auto">
+                    <div class="flex justify-center mx-auto mb-4">
                     <div class="history relative w-full lg:max-w-4xl flex mx-4 transition duration-150 ease-in-out">
                         <div class="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none">
                         <Lucide icon="Search" />
@@ -257,6 +255,7 @@ const closeAddToListModal = () => { showAddToListModal.value = false; };
                         :listId="props.list.id"
                         :item="item"
                         :auth="auth"
+                        :lists="lists"
                         @removeItem="removeItemFromList"
                     />
                     </div>
