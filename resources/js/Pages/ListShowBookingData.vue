@@ -107,7 +107,8 @@ onMounted(() => {
     const startDate = moment().subtract(1, 'month');
     dateRange.value = `${startDate.format('DD MMM YYYY')} ~ ${endDate.format('DD MMM YYYY')}`;
 
-    console.log('list id: ', props.list.id);
+    // console.log('list id: ', props.list.id);
+    // console.log('list id: ', props.list);
     
 });
 
