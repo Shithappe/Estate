@@ -46,8 +46,8 @@ class booking_data extends Controller
                             booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
                             (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
                             booking_data.forecast_price
-                        ) / 1000
-                    ) * 1000 as forecast_price
+                        )
+                    ) as forecast_price
                 '),
                 DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
                 DB::raw('SUM(rooms_id.max_available) as count_rooms'),
@@ -437,8 +437,8 @@ class booking_data extends Controller
                             booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
                             (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
                             booking_data.forecast_price
-                        ) / 1000
-                    ) * 1000 as forecast_price
+                        )
+                    ) as forecast_price
                 '),
         )
         ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
