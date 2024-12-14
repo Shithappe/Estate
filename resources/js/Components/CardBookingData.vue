@@ -170,9 +170,9 @@ const removeFromList = async (id) => {
             </div>
 
             <div class="absolute bottom-3 w-full flex justify-between gap-x-0.5">
-                <Link :href="'booking_data/' + item.id" class="flex-auto bg-gray-900 text-white py-3 px-4 rounded-l-lg text-center hover:bg-black hover:shadow-lg transition duration-300">Details</Link>
+                <Link :href="'/booking_data/' + item.id" class="flex-auto bg-gray-900 text-white py-3 px-4 rounded-l-lg text-center hover:bg-black hover:shadow-lg transition duration-300">Details</Link>
                 
-                <button @click.stop="openAddToListModal" class="flex-auto bg-gray-900 text-white py-3 px-4 text-center hover:bg-black hover:shadow-lg transition duration-300" :class="{ 'rounded-r-lg':!props.lists }">Buy</button>
+                <button @click.stop="openAddToListModal" class="flex-auto bg-gray-900 text-white py-3 px-4 text-center hover:bg-black hover:shadow-lg transition duration-300" :class="{ 'rounded-r-lg': !props.auth?.user || !props.lists }">Buy</button>
                 
                 <button v-if="props.auth?.user && props.lists" @click.stop="openAddToListModal" class="bg-gray-900 p-3 rounded-r-lg hover:bg-black hover:shadow-lg transition duration-300">
                     <Lucide class="w-5 h-5 text-white" icon="BookmarkPlus" />
