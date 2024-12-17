@@ -17,7 +17,11 @@ const props = defineProps({
         type: Object,
         default: null
     },
-    listId: Number
+    listId: Number,
+    isShare: {
+        type: Boolean,
+        default: false
+    },
 });
 
 const showModal = ref(false);
@@ -65,7 +69,7 @@ const removeFromList = async (id) => {
         :class="{ 'bg-green-200 hover:bg-green-300': props.item.selected }" @click="openCart">
 
         <button
-            v-if="listId"
+            v-if="listId && !isShare"
             @click="removeFromList(item.id)"
             class="absolute -top-2 -right-2 bg-slate-400 text-white shadow-lg rounded-full w-5 h-5 flex items-center justify-center z-10"
             aria-label="Close"

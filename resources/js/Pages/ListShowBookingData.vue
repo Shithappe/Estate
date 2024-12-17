@@ -256,6 +256,7 @@ const closeAddToListModal = () => { showAddToListModal.value = false; };
                         :item="item"
                         :auth="auth"
                         :lists="lists"
+                        :isShare="props.is_share"
                         @removeItem="removeItemFromList"
                     />
                     </div>

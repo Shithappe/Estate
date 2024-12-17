@@ -965,10 +965,44 @@ class booking_data extends Controller
         if ($list->type == 'complex') {
             $items = DB::table('list_hotels')
                 ->join('booking_data', 'list_hotels.booking_id', '=', 'booking_data.id')
+                ->leftJoin('rooms_id', 'booking_data.id', '=', 'rooms_id.booking_id')
                 ->where('list_hotels.list_id', $list->id)
-                ->select('booking_data.*')
+                ->select(
+                    'booking_data.id',
+                    'booking_data.static_images',
+                    'booking_data.images',
+                    'booking_data.title',
+                    'booking_data.city',
+                    'booking_data.type',
+                    'booking_data.min_price',
+                    'booking_data.max_price',
+                    'booking_data.star',
+                    'booking_data.score',
+                    DB::raw('
+                        ROUND(
+                            IF(
+                                booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
+                                (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
+                                booking_data.forecast_price
+                            )
+                        ) as forecast_price
+                    '),
+                    DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
+                    DB::raw('SUM(rooms_id.max_available) as count_rooms'),
+                    'booking_data.occupancy as occupancy'
+                )
+                ->orderByRaw('
+                    CASE
+                        WHEN booking_data.priority > 0 THEN booking_data.priority
+                        ELSE 0
+                    END DESC
+                ')
+                ->orderBy('booking_data.star', 'desc')
+                ->orderBy('booking_data.review_count', 'desc')
+                ->orderBy('booking_data.score', 'desc')
+                ->groupBy('booking_data.id')
                 ->get();
-    
+        
             $list->items = $items;
         }
     
