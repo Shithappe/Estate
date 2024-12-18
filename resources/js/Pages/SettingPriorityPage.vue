@@ -76,27 +76,46 @@ const columnDefs = ref([
 
 const rowData = ref(props.priority);
 
-const detailCellRendererParams = {
-  detailGridOptions: {
+const detailGridOptions = {
     columnDefs: [
-      { field: "room_id", flex: 0.2 },
-      { field: "room_type", flex: 1 },
-      { 
-        field: "estimated_price", 
-        flex: 0.5, 
-        editable: true,
-        cellEditor: 'agNumberCellEditor', 
-        cellRenderer: (params) => {
-            return params.value ?? '-';
-        },
-      }
+        { field: "room_id", flex: 0.2 },
+        { field: "room_type", flex: 1 },
+        { 
+            field: "estimated_price", 
+            flex: 0.5, 
+            editable: true,
+            cellEditor: 'agNumberCellEditor', 
+            cellRenderer: (params) => {
+                return params.value ?? '-';
+            },
+        }
     ],
     headerHeight: 38,
-  },
-  getDetailRowData: ({
-    successCallback,
-    data: { rooms },
-  }) => successCallback(rooms),
+    // Add this to ensure cell editing events are captured
+    stopEditingWhenCellsLoseFocus: true,
+    onCellEditingStopped: (params) => {
+        // Log to verify the event is being triggered
+        console.log('Cell editing stopped:', params);
+
+        // Check if the edited column is estimated_price
+        if (params.column.getColId() === 'estimated_price') {
+            selectRoom.value = {
+                room_id: params.data.room_id,
+                estimated_price: params.data.estimated_price
+            };
+            
+            // Call updateRoom
+            updateRoom();
+        }
+    }
+};
+
+const detailCellRendererParams = {
+    detailGridOptions: detailGridOptions,
+    getDetailRowData: ({
+        successCallback,
+        data: { rooms },
+    }) => successCallback(rooms),
 };
 
 const selectBooking = ref({
