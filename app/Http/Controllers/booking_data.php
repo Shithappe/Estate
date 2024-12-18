@@ -453,11 +453,6 @@ class booking_data extends Controller
             'booking_data.occupancy'
         );
     
-        // Default sort if no filterSort provided
-        // if (empty($filterSort)) {
-        //     $query->orderBy('star', 'desc')->orderBy('review_count', 'desc')->orderBy('score', 'desc');
-        // }
-    
         // Apply filters
         if (!empty($filterTitle)) {
             $query->where('title', 'like', '%' . $filterTitle . '%');
@@ -525,13 +520,11 @@ class booking_data extends Controller
 
     public function update_booking (Request $request)
     {
-        if ($request->id && $request->show_priority) {
-            DB::table('booking_data')->where('id', $request->id)->update(['priority' => $request->priority]);
-        }
-
-        if ($request->id && $request->show_forecast_price) {
-            DB::table('booking_data')->where('id', $request->id)->update(['forecast_price' => $request->forecast_price]);
-        }
+        DB::table('booking_data')->where('id', $request->id)
+            ->update([
+                'priority' => $request->priority,
+                'forecast_price' => $request->forecast_price
+            ]);
 
         return DB::table('booking_data')
             ->where('priority', '>', 0)
