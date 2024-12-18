@@ -505,16 +505,28 @@ class booking_data extends Controller
     
         return $data;
     }
-        
-    public function setting_priority () 
-    {
+    
+    // setting_priority
+    private function getPriorityBooking() {
         $priority = DB::table('booking_data')
                     ->where('priority', '>', 0)
                     ->orderBy('priority', 'desc')
                     ->get();
 
+        foreach ($priority as $item) {
+            $item->rooms = DB::table('rooms_id')
+                        ->select('room_id', 'room_type', 'estimated_price')
+                        ->where('booking_id', $item->id)
+                        ->get();
+        }
+
+        return $priority;
+    }
+
+    public function setting_priority () 
+    {
         return Inertia::render('SettingPriorityPage', [
-            'priority' => $priority
+            'priority' => $this->getPriorityBooking()
         ]);
     }
 
@@ -526,10 +538,17 @@ class booking_data extends Controller
                 'forecast_price' => $request->forecast_price
             ]);
 
-        return DB::table('booking_data')
-            ->where('priority', '>', 0)
-            ->orderBy('priority', 'desc')
-            ->get();
+        return $this->getPriorityBooking();
+    }
+    
+    public function setEstimatedPriceForRoom (Request $request)
+    {
+        DB::table('rooms_id')->where('room_id', $request->room_id)
+            ->update([
+                'estimated_price' => $request->estimated_price
+            ]);
+
+        return $this->getPriorityBooking();
     }
 
     public function get_report(Request $request)

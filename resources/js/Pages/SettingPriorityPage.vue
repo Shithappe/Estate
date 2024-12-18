@@ -3,15 +3,15 @@ import { ref, defineProps, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import Modal from '@/Components/Modal.vue';
-import Lucide from '@/Components/Lucide.vue';
 import draggable from 'vuedraggable';
 import { strToArray } from '@/Utils/strToArray.js';
 import { checkImages } from '@/Utils/checkImages.js';
 import { AgGridVue } from 'ag-grid-vue3';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { MasterDetailModule } from 'ag-grid-enterprise'; 
 
 // Явная регистрация модулей
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([AllCommunityModule, MasterDetailModule]);
 
 const props = defineProps({
     priority: {
@@ -26,7 +26,8 @@ const columnDefs = ref([
         headerName: 'ID',
         width: 100,
         sortable: true,
-        filter: true
+        filter: true,
+        cellRenderer: "agGroupCellRenderer"
     },
     {
         field: 'title',
@@ -40,7 +41,7 @@ const columnDefs = ref([
         editable: true,
         width: 150,
         cellRenderer: (params) => {
-            return params.value ?? '';
+            return params.value ?? '-';
         },
         cellEditor: 'agNumberCellEditor',
         sortable: true,
@@ -52,7 +53,7 @@ const columnDefs = ref([
         editable: true,
         width: 150,
         cellRenderer: (params) => {
-            return params.value ?? '';
+            return params.value ?? '-';
         },
         cellEditor: 'agNumberCellEditor',
         sortable: true,
@@ -75,11 +76,38 @@ const columnDefs = ref([
 
 const rowData = ref(props.priority);
 
+const detailCellRendererParams = {
+  detailGridOptions: {
+    columnDefs: [
+      { field: "room_id", flex: 0.2 },
+      { field: "room_type", flex: 1 },
+      { 
+        field: "estimated_price", 
+        flex: 0.5, 
+        editable: true,
+        cellEditor: 'agNumberCellEditor', 
+        cellRenderer: (params) => {
+            return params.value ?? '-';
+        },
+      }
+    ],
+    headerHeight: 38,
+  },
+  getDetailRowData: ({
+    successCallback,
+    data: { rooms },
+  }) => successCallback(rooms),
+};
 
-const selectItem = ref({
+const selectBooking = ref({
     id: null,
     priority: null,
     forecast_price: null
+});
+
+const selectRoom = ref({
+    room_id: null,
+    estimated_price: null
 });
 
 const onCellClicked = (event) => {
@@ -89,20 +117,29 @@ const onCellClicked = (event) => {
 };
 
 const onCellEditingStopped = async (event) => {
+    console.log(event.column.getColId());
     if (['priority', 'forecast_price'].includes(event.column.getColId())) {
-        selectItem.value = {
+        selectBooking.value = {
             id: event.data.id,
             priority: event.data.priority,
             forecast_price: event.data.forecast_price
         };
-        await submitForm();
+        await updateBooking();
     }
+    if (event.column.getColId() === 'estimated_price') {
+            selectRoom.value = {
+                room_id: event.data.room_id,
+                estimated_price: event.data.estimated_price
+            };
+            await updateRoom();
+        }
 };
 
-
 // onMounted(() => {
-//     console.log(props.priority);
+    // console.log(props.priority);
 // })
+
+
 // Остальные методы остаются без изменений
 const initializeImages = async (item) => {
     modalItem.value.images = await checkImages([...new Set([...strToArray(item.static_images, 500), ...strToArray(item.images, 500)])]);
@@ -134,18 +171,32 @@ const saveImages = async () => {
     modalItem.value = null;
 }
 
-const submitForm = async () => {
+const updateBooking = async () => {
     try {
-        const response = await axios.post('/api/update_booking', selectItem.value);
+        const response = await axios.post('/api/update_booking', selectBooking.value);
         rowData.value = response.data;
 
-        selectItem.value = {
+        selectBooking.value = {
             id: null,
             priority: null,
             forecast_price: null
         };
     } catch (error) {
         console.error('Error:', error);
+    }
+};
+
+const updateRoom = async () => {
+    try {
+        const response = await axios.post('/api/set_estimated_price_for_room', selectRoom.value);
+        rowData.value = response.data;
+        
+        selectRoom.value = {
+            room_id: null,
+            estimated_price: null
+        };
+    } catch (error) {
+        console.error('Error updating room:', error);
     }
 };
 
@@ -192,7 +243,6 @@ const removePhoto = () => {
             <div class="flex gap-x-6 mb-2">
                 <span class="text-2xl font-semibold">Priority & Forecast price</span>
             </div>
-
                 <AgGridVue
                     style="height: 500px"
                     class="ag-theme-alpine"
@@ -203,6 +253,9 @@ const removePhoto = () => {
                         sortable: true,
                         filter: true
                     }"
+                    :masterDetail="true"
+                    :detailRowAutoHeight="true"
+                    :detailCellRendererParams="detailCellRendererParams"
                     @cell-clicked="onCellClicked"
                     @cell-editing-stopped="onCellEditingStopped"
                 />

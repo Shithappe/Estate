@@ -36,6 +36,7 @@ Route::post('/booking_data_filters', [booking_data::class, 'booking_data_filters
 Route::post('/booking_data-map', [booking_data::class, 'booking_data_map']);
 
 Route::post('/update_booking', [booking_data::class, 'update_booking']);
+Route::post('/set_estimated_price_for_room', [booking_data::class, 'setEstimatedPriceForRoom']);
 Route::post('/change_images_order', [booking_data::class, 'change_images_order']);
 
 Route::post('/for_extension', [booking_data::class, 'for_extension']);
