@@ -23,7 +23,11 @@ const selectedCountry = ref(JSON.parse(localStorage.getItem('selectedCountry')))
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
 const selectedTypes = ref(JSON.parse(localStorage.getItem('selectedTypes')));
 const selectedFacilities = ref(JSON.parse(localStorage.getItem('selectedFacilities')));
-const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JSON.parse(localStorage.getItem('selectedPrice')) : { min: null, max: null });
+const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JSON.parse(localStorage.getItem('selectedPrice')) : 
+  { 
+    min_min: null, min_max: null, // min price
+    max_min: null, max_max: null  // max price
+  });
 const selectedSort = ref(JSON.parse(localStorage.getItem('selectedSort')));
 
 
@@ -43,7 +47,18 @@ const selectFacilities = () => {
   localStorage.setItem('selectedFacilities', JSON.stringify(selectedFacilities.value));
 };
 
+const validatePrice = () => {
+      const { min_min, min_max, max_min, max_max } = selectedPrice.value;
+
+      // Ensure logical order of ranges
+      if (min_min < 0) selectedPrice.value.min_min = 0;
+      if (min_max < min_min) selectedPrice.value.min_max = min_min;
+      if (max_min < min_max) selectedPrice.value.max_min = min_max;
+      if (max_max < max_min) selectedPrice.value.max_max = max_min;
+    }
 const selectPrice = () => {
+  validatePrice();
+  console.log(selectedPrice.value);
   localStorage.setItem('selectedPrice', JSON.stringify(selectedPrice.value));
 };
 
@@ -138,14 +153,26 @@ let updatedCountries = Object.keys(props.countries).filter(country => country !=
     </div>
 
     <div>
-      <label>Price</label>
+      <label>Min Price</label>
       <div class="flex">
-        <input type="number" placeholder="Min Price" min="0" :max="selectedPrice.max"
-          v-model="selectedPrice.min" @change="selectPrice"
+        <input type="number" placeholder="Min" min="0" :max="selectedPrice.min_max"
+          v-model="selectedPrice.min_min" @change="selectPrice"
           class="border border-gray-300 rounded-l py-2 px-8 focus:outline-none focus:z-10 focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
 
-        <input type="number" placeholder="Max Price" :min="selectedPrice.min" 
-          v-model="selectedPrice.max" @change="selectPrice"
+        <input type="number" placeholder="Max" :min="selectedPrice.min_min && 0" :max="selectedPrice.max_min"
+          v-model="selectedPrice.min_max" @change="selectPrice"
+          class="border border-gray-300 rounded-r py-3 px-8 focus:outline-none focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
+      </div>
+    </div>
+    <div>
+      <label>Max Price</label>
+      <div class="flex">
+        <input type="number" placeholder="Min" :min="selectedPrice.min_max && selectedPrice.min_min && 0" :max="selectedPrice.max_max"
+          v-model="selectedPrice.max_min" @change="selectPrice"
+          class="border border-gray-300 rounded-l py-2 px-8 focus:outline-none focus:z-10 focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
+
+        <input type="number" placeholder="Max" :min="selectedPrice.max_min && selectedPrice.min_max && selectedPrice.min_min && 0" 
+          v-model="selectedPrice.max_max" @change="selectPrice"
           class="border border-gray-300 rounded-r py-3 px-8 focus:outline-none focus:ring focus:border-blue-300 bg-transparent block w-full appearance-none leading-5 transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
       </div>
     </div>

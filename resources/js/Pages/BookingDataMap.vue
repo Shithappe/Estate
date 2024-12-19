@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
 import SideLBarMap from '@/Components/SideLBarMap.vue';

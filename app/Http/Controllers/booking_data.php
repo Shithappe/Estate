@@ -287,14 +287,14 @@ class booking_data extends Controller
     public function booking_data_map(Request $request)
     {
         $data = $request->json()->all();
-
+    
         $filterCity = !empty($data['city']) ? $data['city'] : [];
         $filterType = !empty($data['type']) ? $data['type'] : [];
         $filterFacilities = !empty($data['facilities']) ? $data['facilities'] : [];
         $filterPrice = !empty($data['price']) ? $data['price'] : [];
-
+    
         $query = DB::table('booking_data');
-
+    
         if (!empty($filterCity)) $query->whereIn('city', $filterCity);
         if (!empty($filterType)) $query->whereIn('type', $filterType);
         if (!empty($filterFacilities)) {
@@ -310,16 +310,16 @@ class booking_data extends Controller
         if (!empty($filterPrice)) {
             if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
             if (isset($filterPrice['max'])) $query->where('price', '<=', $filterPrice['max']);
-        }
-
-
+                }
+    
+    
         $filteredData = $query->select('id', 'title', 'occupancy', 'price', 'location')->get();
 
         $coordinatesArray = [];
-
+    
         foreach ($filteredData as $coord) {
             $coords = explode(',', $coord->location);
-
+    
             if (count($coords) >= 2) {
                 $coordinatesArray[] = [
                     'id' => $coord->id,
@@ -330,13 +330,13 @@ class booking_data extends Controller
                 ];
             }
         }
-
+    
         if ($data) {
             return $coordinatesArray;
         }
-
+    
         $minutes = 1440;
-
+    
         $countries = Cache::remember('countries', $minutes, function () {
             return DB::table('booking_data')
                 ->select('country', 'city')
@@ -347,7 +347,7 @@ class booking_data extends Controller
                     return $item->pluck('city')->toArray();
                 });
         });
-        
+    
         $cities = Cache::remember('cities', $minutes, function () {
             return DB::table('booking_data')
                 ->select('city')
@@ -355,7 +355,7 @@ class booking_data extends Controller
                 ->pluck('city')
                 ->toArray();
         });
-        
+    
         $types = Cache::remember('types', $minutes, function () {
             return DB::table('booking_data')
                 ->select('type')
@@ -363,11 +363,11 @@ class booking_data extends Controller
                 ->pluck('type')
                 ->toArray();
         });
-        
+    
         $facilities = Cache::remember('facilities', $minutes, function () {
             return DB::table('facilities')->get();
         });
-
+    
         return Inertia::render('BookingDataMap', [
             'locations' => $coordinatesArray,
             'countries' => $countries,
@@ -377,7 +377,7 @@ class booking_data extends Controller
             'lists' => $this->getLists(auth()->id())
         ]);
     }
-
+    
 
     public function booking_data_map_card ($booking_id)
     {
@@ -409,29 +409,29 @@ class booking_data extends Controller
     {
         $data = $request->json()->all();
     
-        $filterTitle = $data['title'];
-        $filterCountry = $data['country'];
-        $filterCity = $data['city'];
-        $filterType = $data['type'];
-        $filterFacilities = $data['facilities'];
-        $filterPrice = $data['price'];
-        $filterSort = $data['sort'];
+        $filterTitle = $data['title'] ?? null;
+        $filterCountry = $data['country'] ?? null;
+        $filterCity = $data['city'] ?? null;
+        $filterType = $data['type'] ?? null;
+        $filterFacilities = $data['facilities'] ?? null;
+        $filterPrice = $data['price'] ?? null;
+        $filterSort = $data['sort'] ?? null;
     
         $query = DB::table('booking_data')
-        ->select(
-            'booking_data.id',
-            'booking_data.images',
-            'booking_data.title',
-            'booking_data.city',
-            'booking_data.type',
-            'booking_data.star',
-            'booking_data.score',
-            DB::raw('COUNT(rooms.id) as types_rooms'),
-            DB::raw('SUM(rooms.max_available) as count_rooms'),
-            DB::raw('MIN(rooms.price) as min_price'),
-            DB::raw('MAX(rooms.price) as max_price'),
-            'booking_data.occupancy as occupancy',
-            DB::raw('
+            ->select(
+                'booking_data.id',
+                'booking_data.images',
+                'booking_data.title',
+                'booking_data.city',
+                'booking_data.type',
+                'booking_data.star',
+                'booking_data.score',
+                DB::raw('COUNT(rooms.id) as types_rooms'),
+                DB::raw('SUM(rooms.max_available) as count_rooms'),
+                DB::raw('MIN(rooms.price) as min_price'),
+                DB::raw('MAX(rooms.price) as max_price'),
+                'booking_data.occupancy as occupancy',
+                DB::raw('
                     ROUND(
                         IF(
                             booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
@@ -471,19 +471,27 @@ class booking_data extends Controller
                 $query->whereIn('facilities_id', $filterFacilities);
             });
         }
+    
+        // Фильтрация по цене
         if (!empty($filterPrice)) {
-            if (isset($filterPrice['min'])) {
-                $query->having('min_price', '>=', $filterPrice['min']);
+            if (isset($filterPrice['min_min'])) {
+                $query->having('min_price', '>=', $filterPrice['min_min']);
             }
-            if (isset($filterPrice['max'])) {
-                $query->having('max_price', '<=', $filterPrice['max']);
+            if (isset($filterPrice['min_max'])) {
+                $query->having('min_price', '<=', $filterPrice['min_max']);
+            }
+            if (isset($filterPrice['max_min'])) {
+                $query->having('max_price', '>=', $filterPrice['max_min']);
+            }
+            if (isset($filterPrice['max_max'])) {
+                $query->having('max_price', '<=', $filterPrice['max_max']);
             }
         }
     
-        // Apply sorting
+        // Сортировка
         if (!empty($filterSort)) {
             if ($filterSort == 'price') {
-                $query->orderBy('min_price', 'desc');  // Sort by min price instead of price
+                $query->orderBy('min_price', 'asc');
             } elseif ($filterSort == 'rate') {
                 $query->orderBy('score', 'desc');
             } elseif ($filterSort == 'occupancy') {
@@ -494,11 +502,13 @@ class booking_data extends Controller
                 $query->orderByRaw('SUM(rooms.max_available) DESC');
             }
         }
-
+    
+        // Добавление дефолтной сортировки
         $query->orderBy('review_count', 'desc')->orderBy('score', 'desc')->orderBy('star', 'desc');
     
-        $data = $query->groupBy('booking_data.id')->paginate(12);
+        $data = $query->paginate(12);
     
+        // Добавляем комнаты для каждого объекта
         foreach ($data as $item) {
             $item->rooms = DB::table('rooms')->where('booking_id', $item->id)->get();
         }

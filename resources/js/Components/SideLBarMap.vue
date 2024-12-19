@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { strToArray } from '@/Utils/strToArray.js';
 import { Link } from '@inertiajs/vue3';
 import Lucide from '@/Components/Lucide.vue';
