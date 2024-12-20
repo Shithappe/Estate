@@ -55,6 +55,8 @@ let map = null;
 let circle = null;
 
 const applyFilters = async () => {
+  closeBottom(); // hide bottom
+
   try {
     const response = await axios.post("/api/booking_data-map", {
       'city': JSON.parse(localStorage.getItem('selectedCity')),
@@ -316,7 +318,7 @@ const closeBottom = () => {
         </BottomSheet>
 
       <SideBarFilters :show="showFilters" :map="true" :countries="props.countries" :types="props.types"
-              :facilities="props.facilities" @applyFilters="applyFilters" @closeBottom="closeBottom" />
+              :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="closeBottom" />
 
       <div class="absolute z-10 top-3 flex flex-col gap-y-2"
         :class="{ 'sm:left-0 lg:left-96': showFilters || (booking_data && dataLoaded) }"

@@ -47,6 +47,8 @@ const closeHistory = (event) => {
 };
 
 const applyFilters = async () => {
+    closeFilters(); // hide filters
+
     // add title to history
     showHistory.value = false;
     if (selectedTitle.value.length > 0 && !history.value.includes(selectedTitle.value)) {
@@ -84,7 +86,7 @@ const applyFilters = async () => {
 
 const invertFilters = () => {
     showFilters.value = !showFilters.value;
-    // console.log(showFilters.value);
+    console.log('close filters', showFilters.value);
 }
 const closeFilters = () => {
     showFilters.value = false;

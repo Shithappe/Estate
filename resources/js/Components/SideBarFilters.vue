@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 
-const emits = defineEmits(['applyFilters', 'closeBottom']);
+const emits = defineEmits(['applyFilters', 'closeFilters']);
 
 const selectedCountry = ref(JSON.parse(localStorage.getItem('selectedCountry')));
 const selectedCity = ref(JSON.parse(localStorage.getItem('selectedCity')));
@@ -124,7 +124,7 @@ let updatedCountries = Object.keys(props.countries).filter(country => country !=
   <div v-if="props.show"
     class="fixed lg:absolute z-10 bottom-0 w-full lg:w-1/4 min-w-96 lg:h-screen flex flex-col gap-y-2 p-2 pr-4 lg:border-r bg-white"
     :class="{ 'lg:top-0 backdrop-filter backdrop-blur-md bg-gray-400 bg-opacity-30': props.map, 'lg:top-16': isDesktop && !props.map }">
-    <div v-if="!isDesktop" class="absolute -top-4 right-2 bg-gray-200 rounded-lg shadow-lg" @click="() => {emits('closeBottom')}">
+    <div v-if="!isDesktop" class="absolute -top-4 right-2 bg-gray-200 rounded-lg shadow-lg" @click="() => {emits('closeFilters')}">
       <Lucide class="text-gray-700 w-8 h-8" icon="X" />
     </div>
 
