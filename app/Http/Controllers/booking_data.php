@@ -293,7 +293,8 @@ class booking_data extends Controller
         $filterFacilities = $data['facilities'] ?? null;
         $filterPrice = $data['price'] ?? null;
     
-        $query = DB::table('booking_data');
+        $query = DB::table('booking_data')
+            ->select('id', 'title', 'occupancy', 'price', 'min_price', 'max_price', 'location');
     
         if (!empty($filterCity)) $query->whereIn('city', $filterCity);
         if (!empty($filterType)) $query->whereIn('type', $filterType);
@@ -308,12 +309,14 @@ class booking_data extends Controller
             }
         }
         if (!empty($filterPrice)) {
-            if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
-            if (isset($filterPrice['max'])) $query->where('price', '<=', $filterPrice['max']);
+            if (isset($filterPrice['min_min'])) $query->where('min_price', '>=', $filterPrice['min_min']);
+            if (isset($filterPrice['min_max'])) $query->where('min_price', '<=', $filterPrice['min_max']);
+            if (isset($filterPrice['max_min'])) $query->where('max_price', '>=', $filterPrice['max_min']);
+            if (isset($filterPrice['max_max'])) $query->where('max_price', '<=', $filterPrice['max_max']);
         }
     
     
-        $filteredData = $query->select('id', 'title', 'occupancy', 'price', 'location')->get();
+        $filteredData = $query->get();
 
         $coordinatesArray = [];
     
