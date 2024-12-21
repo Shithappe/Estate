@@ -287,11 +287,11 @@ class booking_data extends Controller
     public function booking_data_map(Request $request)
     {
         $data = $request->json()->all();
-    
-        $filterCity = !empty($data['city']) ? $data['city'] : [];
-        $filterType = !empty($data['type']) ? $data['type'] : [];
-        $filterFacilities = !empty($data['facilities']) ? $data['facilities'] : [];
-        $filterPrice = !empty($data['price']) ? $data['price'] : [];
+
+        $filterCity = $data['city'] ?? null;
+        $filterType = $data['type'] ?? null;
+        $filterFacilities = $data['facilities'] ?? null;
+        $filterPrice = $data['price'] ?? null;
     
         $query = DB::table('booking_data');
     
@@ -310,7 +310,7 @@ class booking_data extends Controller
         if (!empty($filterPrice)) {
             if (isset($filterPrice['min'])) $query->where('price', '>=', $filterPrice['min']);
             if (isset($filterPrice['max'])) $query->where('price', '<=', $filterPrice['max']);
-                }
+        }
     
     
         $filteredData = $query->select('id', 'title', 'occupancy', 'price', 'location')->get();
@@ -426,45 +426,47 @@ class booking_data extends Controller
                 'booking_data.type',
                 'booking_data.star',
                 'booking_data.score',
-                DB::raw('COUNT(rooms.id) as types_rooms'),
-                DB::raw('SUM(rooms.max_available) as count_rooms'),
-                DB::raw('MIN(rooms.price) as min_price'),
-                DB::raw('MAX(rooms.price) as max_price'),
+                'booking_data.min_price',  // Берем напрямую из booking_data
+                'booking_data.max_price',  // Берем напрямую из booking_data
+                DB::raw('COUNT(rooms_id.room_id) as types_rooms'), // Изменено на rooms_id.room_id
+                DB::raw('SUM(rooms_id.max_available) as count_rooms'), // Изменено на rooms_id
                 'booking_data.occupancy as occupancy',
                 DB::raw('
                     ROUND(
                         IF(
                             booking_data.forecast_price IS NULL OR booking_data.forecast_price = "",
-                            (booking_data.occupancy / 100) * 365 * ((booking_data.min_price + booking_data.max_price) / 2) * 10 * 0.5,
+                            (booking_data.occupancy / 100) * 365 * ((MIN(rooms_id.price) + MAX(rooms_id.price)) / 2) * 10 * 0.5,
                             booking_data.forecast_price
                         )
                     ) as forecast_price
-                '),
-        )
-        ->leftJoin('rooms', 'booking_data.id', '=', 'rooms.booking_id')
-        ->groupBy(
-            'booking_data.id', // оставляем только одно упоминание booking_data.id
-            'booking_data.images',
-            'booking_data.title',
-            'booking_data.city',
-            'booking_data.type',
-            'booking_data.star',
-            'booking_data.score',
-            'booking_data.occupancy'
-        );
+                ')
+            )
+            ->leftJoin('rooms_id', 'booking_data.id', '=', 'rooms_id.booking_id') // Изменено на rooms_id
+            ->groupBy(
+                'booking_data.id',
+                'booking_data.images',
+                'booking_data.title',
+                'booking_data.city',
+                'booking_data.type',
+                'booking_data.star',
+                'booking_data.score',
+                'booking_data.min_price', // Добавлено
+                'booking_data.max_price', // Добавлено
+                'booking_data.occupancy'
+            );
     
         // Apply filters
         if (!empty($filterTitle)) {
-            $query->where('title', 'like', '%' . $filterTitle . '%');
+            $query->where('booking_data.title', 'like', '%' . $filterTitle . '%');
         }
         if (!empty($filterCountry)) {
-            $query->where('country', $filterCountry);
+            $query->where('booking_data.country', $filterCountry);
         }
         if (!empty($filterCity)) {
-            $query->whereIn('city', $filterCity);
+            $query->whereIn('booking_data.city', $filterCity);
         }
         if (!empty($filterType)) {
-            $query->whereIn('type', $filterType);
+            $query->whereIn('booking_data.type', $filterType);
         }
         if (!empty($filterFacilities)) {
             $query->whereHas('facilities', function ($query) use ($filterFacilities) {
@@ -497,21 +499,23 @@ class booking_data extends Controller
             } elseif ($filterSort == 'occupancy') {
                 $query->orderBy('booking_data.occupancy', 'desc');
             } elseif ($filterSort == 'room_type') {
-                $query->orderByRaw('COUNT(DISTINCT rooms.room_type) DESC');
+                $query->orderByRaw('COUNT(DISTINCT rooms_id.room_type) DESC');
             } elseif ($filterSort == 'room_count') {
-                $query->orderByRaw('SUM(rooms.max_available) DESC');
+                $query->orderByRaw('SUM(rooms_id.max_available) DESC');
             }
         }
     
         // Добавление дефолтной сортировки
-        $query->orderBy('review_count', 'desc')->orderBy('score', 'desc')->orderBy('star', 'desc');
+        $query->orderBy('review_count', 'desc')
+              ->orderBy('score', 'desc')
+              ->orderBy('star', 'desc');
     
         $data = $query->paginate(12);
     
         // Добавляем комнаты для каждого объекта
-        foreach ($data as $item) {
-            $item->rooms = DB::table('rooms')->where('booking_id', $item->id)->get();
-        }
+        // foreach ($data as $item) {
+        //     $item->rooms = DB::table('rooms_id')->where('booking_id', $item->id)->get();
+        // }
     
         return $data;
     }
