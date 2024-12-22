@@ -259,6 +259,7 @@ class booking_data extends Controller
                 'room_id' => $room->room_id,
                 'room_type' => $room->room_type,
                 'active' => $room->active,
+                'record_count' => $room->record_count,
                 'price' => $room->price,
                 'occupancy' => round($occupancy),
                 'profit' => round($room->record_count * $occupancy / 100 * $room->price),
