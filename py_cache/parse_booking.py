@@ -31,55 +31,48 @@ def closeBanner():
     close_button.click()
     logger.info("Баннер закрыт!")
 
-def scroll_to_element(css_selector):
-    # Прокручиваем страницу к элементу
-    element = driver.find_element(By.CSS_SELECTOR, css_selector)
-    driver.execute_script("arguments[0].scrollIntoView();", element)
-    time.sleep(2)  # Ждем 2 секунды для загрузки новых элементов
-
 def scroll_down():
-    # Прокручиваем страницу вниз
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight / 2);")
-    time.sleep(2)  # Ждем 2 секунды для загрузки новых элементов
+    # Прокручиваем страницу вниз на половину высоты страницы
+    driver.execute_script("window.scrollBy(0, window.innerHeight / 2);")
 
-def click_element(css_selector):
+def click_element(xpath):
     # Кликаем по элементу
-    element = driver.find_element(By.CSS_SELECTOR, css_selector)
+    element = driver.find_element(By.XPATH, xpath)
     element.click()
     time.sleep(2)  # Ждем 2 секунды для загрузки новых элементов
 
 def collect_links():
-        global previous_count
-        # Используем CSS-селектор для поиска всех элементов с атрибутом data-testid="title-link"
-        elements = driver.find_elements(By.CSS_SELECTOR, '[data-testid="title-link"]')
+    # Используем CSS-селектор для поиска всех элементов с атрибутом data-testid="title-link"
+    elements = driver.find_elements(By.CSS_SELECTOR, '[data-testid="title-link"]')
 
-        logger.info(f"Найдено {len(elements)} элементов.")
+    logger.info(f"Найдено {len(elements)} элементов.")
 
-        for index, element in enumerate(elements):
-            try:
-                href = element.get_attribute('href')  # Получаем href
+    for index, element in enumerate(elements):
+        try:
+            href = element.get_attribute('href')  # Получаем href
 
-                if href:
-                    # Убираем query parameters из URL
-                    clean_url = href.split('?')[0]
+            if href:
+                # Убираем query parameters из URL
+                clean_url = href.split('?')[0]
 
-                    # Заменяем .*.html на .en-gb.html
-                    modified_url = re.sub(r'\.\w{2,3}\.html', '.en-gb.html', clean_url)
+                # Заменяем .*.html на .en-gb.html
+                modified_url = re.sub(r'\.\w{2,3}\.html', '.en-gb.html', clean_url)
 
-                    # Добавляем уникальные ссылки в множество
-                    unique_links.add(modified_url)
+                # Добавляем уникальные ссылки в множество
+                unique_links.add(modified_url)
 
-                    logger.info(f"Ссылка {index + 1}: {modified_url}")
-            except Exception as e:
-                logger.warning(f"Не удалось обработать элемент {index + 1}: {e}")
+                logger.info(f"Ссылка {index + 1}: {modified_url}")
+        except Exception as e:
+            logger.warning(f"Не удалось обработать элемент {index + 1}: {e}")
 
-        # Обновляем количество элементов
-        previous_count = len(elements)
+    return len(elements)
 
+def is_end_of_page():
+    # Проверяем, достигли ли конца страницы
+    return driver.execute_script("return window.innerHeight + window.scrollY") >= driver.execute_script("return document.body.scrollHeight")
 
 unique_links = set()
 previous_count = 0
-
 
 try:
     # Переходим по ссылке
@@ -88,20 +81,27 @@ try:
     time.sleep(2)  # Ждем загрузки страницы
     closeBanner()
 
-    scroll_down()
     # Первый сбор ссылок
-    collect_links()
+    previous_count = collect_links()
 
-    # Скроллинг к элементу и сбор новых ссылок
-    scroll_to_element('button[type="button"] span:contains("Load more results")')
+    while True:
+        scroll_down()
+        new_count = collect_links()
 
-    # Проверяем количество элементов
-    new_elements = driver.find_elements(By.CSS_SELECTOR, '[data-testid="title-link"]')
-    if len(new_elements) != previous_count:
-        collect_links()
-    else:
-        click_element('button[type="button"] span:contains("Load more results")')
-        collect_links()
+        if new_count == previous_count and is_end_of_page():
+            # Если количество элементов не изменилось и достигнут конец страницы, кликаем по кнопке "Load more results"
+            try:
+                click_element('//button[contains(.,"Load more results")]')
+                previous_count = collect_links()  # Обновляем количество элементов после клика
+            except Exception as e:
+                logger.warning(f"Не удалось найти кнопку 'Load more results': {e}")
+                break
+        else:
+            previous_count = new_count
+
+        # Проверяем, достигли ли конца страницы
+        if is_end_of_page():
+            break
 
     # Вывод всех уникальных ссылок
     logger.info(f"Всего уникальных ссылок: {len(unique_links)}")
