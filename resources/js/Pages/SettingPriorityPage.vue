@@ -24,7 +24,7 @@ const columnDefs = ref([
     {
         field: 'id',
         headerName: 'ID',
-        width: 100,
+        width: 120,
         sortable: true,
         filter: true,
         cellRenderer: "agGroupCellRenderer"
@@ -254,6 +254,18 @@ const removePhoto = () => {
         dragItem.value = null;
     }
 };
+
+const findBooking = ref(null);
+const findingBooking = async () => {
+    try {
+        const response = await axios.post(`/api/find_booking/`, {
+            value: findBooking.value
+        });
+        rowData.value = response.data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
 </script>
 
 <template>
@@ -261,6 +273,10 @@ const removePhoto = () => {
         <div class="max-w-6xl mt-8 mx-auto sm:px-6 lg:px-8">
             <div class="flex gap-x-6 mb-2">
                 <span class="text-2xl font-semibold">Priority & Forecast price</span>
+            </div>
+            <div class="flex gap-x-4 mb-2">
+                <input type="text" class="w-1/2 p-2 border border-gray-300 rounded-lg" v-model="findBooking" placeholder="Find by ID or Title..." />
+                <button class="px-4 py-2 border border-gray-300 rounded-lg" @click="findingBooking">Find</button>
             </div>
                 <AgGridVue
                     style="height: 500px"

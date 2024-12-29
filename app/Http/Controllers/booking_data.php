@@ -525,27 +525,59 @@ class booking_data extends Controller
     }
     
     // setting_priority
-    private function getPriorityBooking() {
-        $priority = DB::table('booking_data')
-                    ->where('priority', '>', 0)
-                    ->orderBy('priority', 'desc')
-                    ->get();
-
-        foreach ($priority as $item) {
-            $item->rooms = DB::table('rooms_id')
-                        ->select('room_id', 'room_type', 'estimated_price')
-                        ->where('booking_id', $item->id)
-                        ->get();
+    private function getPriorityBooking($additionalElement = null) {
+        // Получаем отели, которые соответствуют условиям
+        $hotels = DB::table('booking_data as bd')
+            ->leftJoin('rooms_id as ri', 'bd.id', '=', 'ri.booking_id')
+            ->select('bd.*')
+            ->where(function ($query) {
+                $query->whereNotNull('bd.forecast_price')
+                      ->orWhere('bd.priority', '>', 0)
+                      ->orWhereNotNull('ri.estimated_price');
+            })
+            ->groupBy('bd.id')
+            ->orderBy('bd.priority', 'desc')
+            ->get();
+    
+        // Для каждого отеля получаем все его комнаты
+        foreach ($hotels as $hotel) {
+            $hotel->rooms = DB::table('rooms_id')
+                ->select('room_id', 'room_type', 'estimated_price')
+                ->where('booking_id', $hotel->id)
+                ->get();
         }
-
-        return $priority;
+    
+        // Если передан дополнительный элемент, добавляем его в начало массива
+        if ($additionalElement !== null) {
+            $additionalHotel = DB::table('booking_data')
+                ->where('id', $additionalElement)
+                ->orWhere('title', $additionalElement)
+                ->first();
+    
+            if ($additionalHotel) {
+                $additionalHotel->rooms = DB::table('rooms_id')
+                    ->select('room_id', 'room_type', 'estimated_price')
+                    ->where('booking_id', $additionalHotel->id)
+                    ->get();
+    
+                $hotels->prepend($additionalHotel);
+            }
+        }
+    
+        return $hotels;
     }
+    
 
     public function setting_priority () 
     {
         return Inertia::render('SettingPriorityPage', [
             'priority' => $this->getPriorityBooking()
         ]);
+    }
+
+    public function findBooking(Request $request)
+    {
+        return $this->getPriorityBooking($request->input('value'));
     }
 
     public function update_booking (Request $request)
