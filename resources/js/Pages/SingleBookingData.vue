@@ -159,6 +159,13 @@ onMounted(() => {
             </h2>
         </template>
 
+        <Head :title="book.title">
+            <meta name="description" :content="book.title">
+            <meta property="og:site_name" content="Estate market">
+            <meta property="og:image" :content="filteredImages[0]">
+            <meta property="og:url" :content="window.location.href">
+        </Head>
+
         <div class="mx-2 py-2 lg:py-6">
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
                 <div>

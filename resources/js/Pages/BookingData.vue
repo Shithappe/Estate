@@ -1,4 +1,5 @@
 <script setup>
+import { Head } from '@inertiajs/vue3'
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
@@ -102,6 +103,10 @@ onMounted(() => {
         <template #header>
             <span class="ms:ml-0 lg:mx-auto text-sm">Data is displayed according to the hotel's occupancy on <a class="underline" href="https://www.booking.com/index.en-gb.html" target="_blank">Booking.com</a></span>
         </template>
+
+        <Head>
+            <meta name="description" content="Info about Estate">
+        </Head>
 
         <SideBarFilters :show="showFilters" :countries="props.countries" :types="props.types"
             :facilities="props.facilities" @applyFilters="applyFilters" @closeFilters="invertFilters" />
