@@ -127,7 +127,14 @@ class booking_data extends Controller
         return Inertia::render('SingleBookingData', [
             'booking' => $booking,
             'lists' => $this->getLists(auth()->id()),
-            'facilities' => $facilities
+            'facilities' => $facilities,
+            'meta' => [
+                'og:title' => $booking[0]->title,
+                'og:description' => 'desc ' . $booking[0]->title,
+                // 'og:image' => $booking[0]->image[0],
+                'og:url' => url()->current(),
+                'og:type' => 'website',
+            ],
         ]);
     } 
 
@@ -188,12 +195,41 @@ class booking_data extends Controller
                 DB::raw('COUNT(*) AS record_count'),
             )
             ->where('r2d.booking_id', $bookingId)
-            ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
-                return $query->where('r2d.checkin', '>=', $checkinDate)
-                 ->where('r2d.checkin', '<=', $checkoutDate);
-            })
-            ->groupBy('r2d.room_id', 'ri.active')
+            ->whereBetween('r2d.checkin', [$checkinDate, $checkoutDate])
+            // ->when($checkinDate && $checkoutDate, function ($query) use ($checkinDate, $checkoutDate) {
+            //     return $query->where('r2d.checkin', '>=', $checkinDate)
+            //      ->where('r2d.checkin', '<=', $checkoutDate);
+            // })
+            ->groupBy('r2d.room_id')
             ->get();
+
+        $roomsOutOfRange = DB::table('rooms_2_day as r2d')
+            ->join('rooms_id as ri', 'r2d.room_id', '=', 'ri.room_id')
+            ->select('r2d.room_id',
+                DB::raw('SUM(r2d.available_rooms) AS sum'),
+                DB::raw('COUNT(r2d.available_rooms) AS count'),
+                DB::raw('MAX(ri.max_available) AS max_available'),
+                'ri.room_type',
+                DB::raw('ROUND(AVG(COALESCE(r2d.price, ri.price))) AS price'),
+                'ri.active',
+                DB::raw('
+                    ROUND(
+                        IF(
+                            ri.estimated_price IS NULL OR ri.estimated_price = "",
+                            (ri.occupancy / 100) * 365 * ri.price * 10 * 0.5,
+                            ri.estimated_price
+                        )
+                    ) as estimated_price
+                '),
+                DB::raw('COUNT(*) AS record_count'),
+                DB::raw("'out_of_range' as range_status") // Пометка для вне диапазона
+            )
+            ->where('r2d.booking_id', $bookingId)
+            ->whereNotBetween('r2d.checkin', [$checkinDate, $checkoutDate])
+            ->groupBy('r2d.room_id')
+            ->get();
+
+        $rooms = $rooms->merge($roomsOutOfRange)->unique('room_id');
 
         // return $rooms;
 
@@ -251,8 +287,12 @@ class booking_data extends Controller
             $maxAvailable = $room->max_available;
 
             // Расчет занятости
-            $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
-            if ($occupancy < 0) $occupancy = -1;
+            $occupancy = 100;
+            if (isset($room->range_status) && $room->range_status === 'out_of_range') {
+                $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
+                if ($occupancy < 0) $occupancy = -1;
+            }
+            
 
             // Добавляем результат в массив
             $roomsArray[] = [
