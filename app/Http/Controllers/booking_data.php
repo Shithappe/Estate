@@ -470,10 +470,10 @@ class booking_data extends Controller
                 'booking_data.type',
                 'booking_data.star',
                 'booking_data.score',
-                'booking_data.min_price',  // Берем напрямую из booking_data
-                'booking_data.max_price',  // Берем напрямую из booking_data
-                DB::raw('COUNT(rooms_id.room_id) as types_rooms'), // Изменено на rooms_id.room_id
-                DB::raw('SUM(rooms_id.max_available) as count_rooms'), // Изменено на rooms_id
+                'booking_data.min_price',
+                'booking_data.max_price',
+                DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
+                DB::raw('SUM(rooms_id.max_available) as count_rooms'),
                 'booking_data.occupancy as occupancy',
                 DB::raw('
                     ROUND(
@@ -485,7 +485,7 @@ class booking_data extends Controller
                     ) as forecast_price
                 ')
             )
-            ->leftJoin('rooms_id', 'booking_data.id', '=', 'rooms_id.booking_id') // Изменено на rooms_id
+            ->leftJoin('rooms_id', 'booking_data.id', '=', 'rooms_id.booking_id')
             ->groupBy(
                 'booking_data.id',
                 'booking_data.images',
@@ -494,10 +494,12 @@ class booking_data extends Controller
                 'booking_data.type',
                 'booking_data.star',
                 'booking_data.score',
-                'booking_data.min_price', // Добавлено
-                'booking_data.max_price', // Добавлено
+                'booking_data.min_price',
+                'booking_data.max_price',
                 'booking_data.occupancy'
             );
+
+        $query->havingRaw('min_price IS NOT NULL')->havingRaw('max_price IS NOT NULL');
     
         // Apply filters
         if (!empty($filterTitle)) {
@@ -537,7 +539,7 @@ class booking_data extends Controller
         // Сортировка
         if (!empty($filterSort)) {
             if ($filterSort == 'price') {
-                $query->orderBy('min_price', 'asc');
+                $query->orderBy('min_price', 'desc');
             } elseif ($filterSort == 'rate') {
                 $query->orderBy('score', 'desc');
             } elseif ($filterSort == 'occupancy') {
