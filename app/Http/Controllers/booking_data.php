@@ -231,8 +231,6 @@ class booking_data extends Controller
 
         $rooms = $rooms->merge($roomsOutOfRange)->unique('room_id');
 
-        // return $rooms;
-
         return $this->calculateOccupancy($rooms, $bookingTitle, $sortResults);
     }
     
@@ -287,8 +285,10 @@ class booking_data extends Controller
             $maxAvailable = $room->max_available;
 
             // Расчет занятости
-            $occupancy = 100;
             if (isset($room->range_status) && $room->range_status === 'out_of_range') {
+                $occupancy = 100;
+            }
+            else {
                 $occupancy = ((($maxAvailable - ($sum / $count)) / $maxAvailable) * 100);
                 if ($occupancy < 0) $occupancy = -1;
             }
