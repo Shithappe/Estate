@@ -6,6 +6,7 @@ use Inertia\Inertia;
 
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\booking_data;
+use App\Http\Controllers\SettingPriorityController;
 
 
 /*
@@ -56,7 +57,7 @@ Route::get('/booking_data/{booking_id}', [booking_data::class, 'booking_page']);
 
 Route::get('/booking_data-map', [booking_data::class, 'booking_data_map']);
 
-Route::get('/setting_priority', [booking_data::class, 'setting_priority']);
+Route::get('/setting_priority', [SettingPriorityController::class, 'setting_priority']);
 
 Route::post('/get-report', [booking_data::class, 'get_report']);
 Route::get('/get-report', function () {

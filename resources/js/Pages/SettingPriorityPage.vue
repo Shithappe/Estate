@@ -1,8 +1,9 @@
 <script setup>
 import { ref, defineProps, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
-import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
+import Lucide from '@/Components/Lucide.vue';
 import Modal from '@/Components/Modal.vue';
+import SimpleAppLayout from '@/Layouts/SimpleAppLayout.vue';
 import draggable from 'vuedraggable';
 import { strToArray } from '@/Utils/strToArray.js';
 import { checkImages } from '@/Utils/checkImages.js';
@@ -71,6 +72,8 @@ const columnDefs = ref([
             // return `<Lucide class="w-5 h-5" icon="Images" />`;
         },
         cellStyle: { textAlign: 'center' },
+        sortable: false,
+        filter: false
     }
 ]);
 
@@ -165,15 +168,21 @@ const initializeImages = async (item) => {
 };
 
 const modalItem = ref(null);
-const show = ref(false);
+const showImageReplace = ref(false);
+const showAddBooking = ref(false);
+const newBooking = ref('');
+
 const openModal = (item) => {
-    show.value = true;
+    showImageReplace.value = true;
     modalItem.value = item;
     initializeImages(item);
     modalItem.value.images = [...new Set([...strToArray(item.static_images, 500), ...strToArray(item.images, 500)])];
 }
 
-const closeModal = () => { show.value = false; modalItem.value = null; }
+const closeModal = () => { 
+    showAddBooking.value = false; newBooking.value = null; 
+    showImageReplace.value = false; modalItem.value = null; 
+}
 
 const saveImages = async () => {
     try {
@@ -186,9 +195,19 @@ const saveImages = async () => {
         console.error(error);
     }
 
-    show.value = false;
-    modalItem.value = null;
+    closeModal();
 }
+
+const addingBooking = async () => {
+    try {
+        const response = await axios.post('/api/add_booking', {
+            link: newBooking.value
+        });
+        closeModal();
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
 
 const updateBooking = async () => {
     try {
@@ -274,9 +293,12 @@ const findingBooking = async () => {
             <div class="flex gap-x-6 mb-2">
                 <span class="text-2xl font-semibold">Priority & Forecast price</span>
             </div>
-            <div class="flex gap-x-4 mb-2">
-                <input type="text" class="w-1/2 p-2 border border-gray-300 rounded-lg" v-model="findBooking" placeholder="Find by ID or Title..." />
-                <button class="px-4 py-2 border border-gray-300 rounded-lg" @click="findingBooking">Find</button>
+            <div class="w-full flex gap-x-2 justify-between mb-2">
+                <div class="flex gap-x-2 flex-grow">
+                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" v-model="findBooking" placeholder="Find by ID or Title..." />
+                    <button class="px-4 py-2 border border-gray-300 rounded-lg" @click="findingBooking">Find</button>
+                </div>
+                <button class="px-4 py-2 border border-gray-300 rounded-lg" @click="showAddBooking = true">Add Booking</button>
             </div>
                 <AgGridVue
                     style="height: 500px"
@@ -296,7 +318,7 @@ const findingBooking = async () => {
                 />
         </div>
 
-        <Modal maxWidth="2xl" :show="show" @close="closeModal">
+        <Modal maxWidth="2xl" :show="showImageReplace" @close="closeModal">
             <template v-slot>
                 <div class="row">
                     <div class="col-6">
@@ -338,5 +360,27 @@ const findingBooking = async () => {
                 </div>
             </template>
         </Modal>
+
+        <Modal maxWidth="sm" :show="showAddBooking" @close="closeModal">
+        <template #default>
+            <div class="p-6 bg-white rounded-lg relative">
+                <div class="absolute -top-2 -right-2 bg-gray-100 rounded-lg shadow cursor-pointer" @click="closeModal">
+                    <Lucide class="text-gray-700 w-7 h-7" icon="X" />
+                </div>
+                <h2 class="text-lg font-semibold">Add Booking</h2>
+                    <div class="mb-2">
+                        <input type="text" v-model="newBooking"
+                            class="bg-slate-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Enter a link for new item" />
+                        <button @click="addingBooking"
+                            class="mt-2 w-full flex justify-center gap-1 p-2 text-md font-medium text-slate-100 bg-green-500 rounded-lg">
+                            Add
+                        </button>
+
+                        <p class="mt-3 text-sm text-slate-500">After submitting, try to find the item, after a few minutes the addition will complete</p>
+                    </div>
+            </div>
+        </template>
+    </Modal>
     </SimpleAppLayout>
 </template>

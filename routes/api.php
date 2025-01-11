@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\booking_data;
+use App\Http\Controllers\SettingPriorityController;
 
 
 /*
@@ -35,10 +36,11 @@ Route::get('/get_nearby_location', [booking_data::class, 'get_nearby_location'])
 Route::post('/booking_data_filters', [booking_data::class, 'booking_data_filters']);
 Route::post('/booking_data-map', [booking_data::class, 'booking_data_map']);
 
-Route::post('/find_booking', [booking_data::class, 'findBooking']);
-Route::post('/update_booking', [booking_data::class, 'update_booking']);
-Route::post('/set_estimated_price_for_room', [booking_data::class, 'setEstimatedPriceForRoom']);
-Route::post('/change_images_order', [booking_data::class, 'change_images_order']);
+Route::post('/find_booking', [SettingPriorityController::class, 'findBooking']);
+Route::post('/update_booking', [SettingPriorityController::class, 'update_booking']);
+Route::post('/set_estimated_price_for_room', [SettingPriorityController::class, 'setEstimatedPriceForRoom']);
+Route::post('/change_images_order', [SettingPriorityController::class, 'change_images_order']);
+Route::post('/add_booking', [SettingPriorityController::class, 'addBooking']);
 
 Route::post('/for_extension', [booking_data::class, 'for_extension']);
 Route::post('/form_submissions', [booking_data::class, 'form_submissions']);
