@@ -531,16 +531,21 @@ class booking_data extends Controller
     
         // Сортировка
         if (!empty($filterSort)) {
-            if ($filterSort == 'price') {
-                $query->orderBy('min_price', 'desc');
-            } elseif ($filterSort == 'rate') {
-                $query->orderBy('score', 'desc');
-            } elseif ($filterSort == 'occupancy') {
-                $query->orderBy('booking_data.occupancy', 'desc');
-            } elseif ($filterSort == 'room_type') {
-                $query->orderByRaw('COUNT(DISTINCT rooms_id.room_type) DESC');
-            } elseif ($filterSort == 'room_count') {
-                $query->orderByRaw('SUM(rooms_id.max_available) DESC');
+            $sortValue = $filterSort['value'] ?? null;
+            $orderBy = $filterSort['orderBy'] ?? 'desc';
+
+            
+            if ($sortValue == 'price') {
+                // dd($filterSort, $sortValue, $orderBy);
+                $query->orderBy('min_price', $orderBy);
+            } elseif ($sortValue == 'rate') {
+                $query->orderBy('score', $orderBy);
+            } elseif ($sortValue == 'occupancy') {
+                $query->orderBy('booking_data.occupancy', $orderBy);
+            } elseif ($sortValue == 'room_type') {
+                $query->orderByRaw($orderBy === 'asc' ? 'COUNT(DISTINCT rooms_id.room_type) ASC' : 'COUNT(DISTINCT rooms_id.room_type) DESC');
+            } elseif ($sortValue == 'room_count') {
+                $query->orderByRaw($orderBy === 'asc' ? 'SUM(rooms_id.max_available) ASC' : 'SUM(rooms_id.max_available) DESC');
             }
         }
 

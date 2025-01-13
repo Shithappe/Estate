@@ -28,8 +28,25 @@ const selectedPrice = ref(JSON.parse(localStorage.getItem('selectedPrice')) ? JS
     min_min: null, min_max: null, // min price
     max_min: null, max_max: null  // max price
   });
-const selectedSort = ref(JSON.parse(localStorage.getItem('selectedSort')));
+const selectedSort = ref(JSON.parse(localStorage.getItem('selectedSort')) || { value: null, orderBy: 'desc' });
 
+const toggleSort = (value) => {
+  if (!selectedSort.value) {
+    selectedSort.value = { value: null, orderBy: 'desc' };
+  }
+
+  if (selectedSort.value.value === value) {
+    if (selectedSort.value.orderBy === 'desc') {
+      selectedSort.value.orderBy = 'asc';
+    } else {
+      selectedSort.value = { value: null, orderBy: 'desc' };
+    }
+  } else {
+    selectedSort.value = { value, orderBy: 'desc' };
+  }
+
+  localStorage.setItem('selectedSort', JSON.stringify(selectedSort.value));
+};
 
 const selectCountry = () => {
   localStorage.setItem('selectedCountry', JSON.stringify(selectedCountry.value));
@@ -60,12 +77,6 @@ const selectPrice = () => {
   validatePrice();
   console.log(selectedPrice.value);
   localStorage.setItem('selectedPrice', JSON.stringify(selectedPrice.value));
-};
-
-const selectSort = (value) => {
-  if (selectedSort.value == value) value = null;
-  selectedSort.value = value;
-  localStorage.setItem('selectedSort', JSON.stringify(value));
 };
 
 const applyFilters = () => {
@@ -178,15 +189,27 @@ let updatedCountries = Object.keys(props.countries).filter(country => country !=
     </div>
 
     <div>
-      <label>Sort by</label>
-      <div class="w-full flex flex-wrap gap-1 text-gray-600">
-        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('occupancy')" :class="{ 'text-white bg-black': selectedSort === 'occupancy' }">Occupancy</span>
-        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('price')" :class="{ 'text-white bg-black': selectedSort === 'price' }">Price</span>
-        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('room_type')" :class="{ 'text-white bg-black': selectedSort === 'room_type' }">Room type</span>
-        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('room_count')" :class="{ 'text-white bg-black': selectedSort === 'room_count' }">Room count</span>
-        <span class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer" @click="selectSort('rate')" :class="{ 'text-white bg-black': selectedSort === 'rate' }">Rate</span>
-      </div>
+    <label>Sort by</label>
+    <div class="w-full flex flex-wrap gap-1 text-gray-600">
+      <!-- ['occupancy', 'price', 'room_type', 'room_count', 'rate'] -->
+      <span
+        v-for="option in ['occupancy', 'price', 'room_type', 'room_count']"
+        :key="option"
+        class="px-3 py-1.5 border border-gray-300 rounded cursor-pointer flex items-center gap-2"
+        @click="toggleSort(option)"
+        :class="{
+          'text-white bg-black': selectedSort.value === option,
+        }"
+      >
+        {{ option.replace('_', ' ') }}
+        <Lucide
+          v-if="selectedSort.value === option"
+          :icon="selectedSort.orderBy == 'asc' ? 'ArrowDown' : 'ArrowUp'"
+          class="w-4 h-4"
+        />
+      </span>
     </div>
+  </div>
 
     <button @click="applyFilters" class="mt-6 p-3 text-md font-medium text-slate-100 bg-slate-900 rounded-lg">Apply
       Filters</button>
