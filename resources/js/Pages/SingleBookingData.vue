@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, Head, usePage } from '@inertiajs/vue3';
 
 import moment from 'moment';
 import Lucide from '@/Components/Lucide.vue';
@@ -151,20 +151,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <SimpleAppLayout :title="book.title + ' -'">
+    <SimpleAppLayout :title="book.title + ' -'" :image="filteredImages[0]">
         <template #header>
             <h2 class="flex gap-x-2 font-semibold text-xl text-gray-800 leading-tight">
                 <Link href="/"><Lucide icon="ArrowLeft" /></Link>
                 <div>{{ book.title }}</div>
             </h2>
         </template>
-
-        <Head :title="book.title">
-            <meta name="description" :content="book.title">
-            <meta property="og:site_name" content="Estate market">
-            <meta property="og:image" :content="filteredImages[0]">
-            <meta property="og:url" :content="window.location.href">
-        </Head>
 
         <div class="mx-2 py-2 lg:py-6">
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
@@ -234,7 +227,7 @@ onMounted(() => {
 
                         <!-- <p class="mt-1 text-red-500 text-xs">The service shows the occupancy of the object, which is carried out through Booking.com service. Direct rentals are not taken into account here.</p> -->
                         <!-- <p class="mt-1 text-red-500 text-xs">Technical works are in progress, temporary absence of results is possible.</p> -->
-                        <p class="mt-1 text-md">Data is displayed according to the hotel's occupancy on <a class="underline" href="https://www.booking.com/index.en-gb.html" target="_blank">Booking.com</a></p>
+                        <p class="mt-1 text-md">Data is displayed according to the hotel's occupancy on <a class="underline" :href="`${book.link}?checkin=${formatDateForLink(today)}&checkout=${formatDateForLink(tomorrow)}`" target="_blank" rel="noopener noreferrer">Booking.com</a></p>
 
                         <RoomInfo class="mt-2" v-if="rooms" :rooms="rooms" :lists="lists" :auth="auth" />
 
