@@ -31,6 +31,7 @@ class booking_data extends Controller
         $data = DB::table('booking_data')
             ->select(
                 'booking_data.id', 
+                'booking_data.slug',
                 'booking_data.static_images',
                 'booking_data.images',
                 'booking_data.title', 
@@ -114,9 +115,27 @@ class booking_data extends Controller
         ]);
     }
 
+    public function getComplexPage($slug)
+    {
+        $booking = DB::table('booking_data')->where('slug', $slug)->first();
+        if (!$booking) return redirect('/');
+
+        // Получение id из booking_facilities для заданного booking_id
+        $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking->id)->pluck('facilities_id');
+ 
+        // Получение названий удобств из facilities на основе полученных id
+        $facilities = DB::table('facilities')->whereIn('id', $facilityIds)->pluck('title');        
+
+        return Inertia::render('SingleBookingData', [
+            'booking' => $booking,
+            'lists' => $this->getLists(auth()->id()),
+            'facilities' => $facilities,
+        ]);
+    } 
+
     public function booking_page($booking_id)
     {
-        $booking = DB::table('booking_data')->where('id', $booking_id)->get();
+        $booking = DB::table('booking_data')->where('id', $booking_id)->first();
 
         // Получение id из booking_facilities для заданного booking_id
         $facilityIds = DB::table('booking_facilities')->where('booking_id', $booking_id)->pluck('facilities_id');

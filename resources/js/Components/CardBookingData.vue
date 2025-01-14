@@ -45,6 +45,8 @@ const openCart = () => {
 
 const images = [...new Set([...strToArray(props.item.static_images, 500), ...strToArray(props.item.images, 500)])];
 
+const complexLink = `/complex/${props.item.slug}`;
+
 const openAddToListModal = () => {
     showAddToListModal.value = true;
 };
@@ -90,7 +92,7 @@ const removeFromList = async (id) => {
         <div class="relative col-span-3 h-96 mx-3 pt-2 pb-2">
             <div class="flex flex-col relative">
                 <div class="flex items-center justify-between mb-1">
-                    <Link class="text-xl font-semibold hover:text-blue-800 line-clamp-2" :href="'/booking_data/' + item.id">{{ item.title }}</Link>
+                    <Link class="text-xl font-semibold hover:text-blue-800 line-clamp-2" :href="complexLink">{{ item.title }}</Link>
                 </div>
                 
                 <div class="flex gap-x-1">
@@ -174,7 +176,7 @@ const removeFromList = async (id) => {
             </div>
 
             <div class="absolute bottom-3 w-full flex justify-between gap-x-0.5">
-                <Link :href="'/booking_data/' + item.id" class="flex-auto bg-gray-900 text-white py-3 px-4 rounded-l-lg text-center hover:bg-black hover:shadow-lg transition duration-300">Details</Link>
+                <Link :href="complexLink" class="flex-auto bg-gray-900 text-white py-3 px-4 rounded-l-lg text-center hover:bg-black hover:shadow-lg transition duration-300">Details</Link>
                 
                 <button @click.stop="openAddToListModal" class="flex-auto bg-gray-900 text-white py-3 px-4 text-center hover:bg-black hover:shadow-lg transition duration-300" :class="{ 'rounded-r-lg': !props.auth?.user || !props.lists }">Buy</button>
                 

@@ -42,7 +42,7 @@ const openAddToListModal = () => {
     showAddToListModal.value = true;
 };
 
-const book = props.booking[0];
+const book = props.booking;
 const rooms = ref(null);
 const dateRange = ref('');
 
