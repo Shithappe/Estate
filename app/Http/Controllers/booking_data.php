@@ -130,6 +130,12 @@ class booking_data extends Controller
             'booking' => $booking,
             'lists' => $this->getLists(auth()->id()),
             'facilities' => $facilities,
+            'meta' => [
+                'og:title' => $booking->title,
+                'og:description' => 'Estate market is a platform for real estate analysis and investment. We provide a wide range of tools for real estate analysis, investment, and management.',
+                'og:image' => explode(',', $booking->images)[0],
+                'og:url' => 'https://estatemarket.io/complex/' . $slug
+            ],
         ]);
     } 
 

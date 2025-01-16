@@ -151,7 +151,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SimpleAppLayout :title="book.title + ' -'" :image="filteredImages[0]">
+    <SimpleAppLayout>
         <template #header>
             <h2 class="flex gap-x-2 font-semibold text-xl text-gray-800 leading-tight">
                 <Link href="/"><Lucide icon="ArrowLeft" /></Link>

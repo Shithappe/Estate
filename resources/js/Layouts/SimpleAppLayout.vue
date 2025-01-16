@@ -5,10 +5,6 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import FormSubmissions from '@/Components/FormSubmissions.vue';
 
-defineProps({
-    title: String,
-});
-
 const showModal = ref(false);
 const openModal = () => { showModal.value = true; };
 const closeModal = () => { showModal.value = false; };
@@ -23,9 +19,6 @@ const logout = () => {
 
 <template>
     <div>
-
-        <Head :title="title" />
-
         <nav class="text-slate-200 bg-slate-800 border-b border-gray-100">
             <div class="mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
