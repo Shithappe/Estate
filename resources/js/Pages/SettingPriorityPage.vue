@@ -171,6 +171,8 @@ const modalItem = ref(null);
 const showImageReplace = ref(false);
 const showAddBooking = ref(false);
 const newBooking = ref('');
+const isLoading = ref(false);
+const bookingLink = ref(null);
 
 const openModal = (item) => {
     showImageReplace.value = true;
@@ -182,6 +184,8 @@ const openModal = (item) => {
 const closeModal = () => { 
     showAddBooking.value = false; newBooking.value = null; 
     showImageReplace.value = false; modalItem.value = null; 
+    bookingLink.value = null;
+    isLoading.value = false;
 }
 
 const saveImages = async () => {
@@ -200,12 +204,15 @@ const saveImages = async () => {
 
 const addingBooking = async () => {
     try {
+        isLoading.value = true;
         const response = await axios.post('/api/add_booking', {
             link: newBooking.value
         });
-        closeModal();
+        bookingLink.value = response.data.link;
     } catch (error) {
         console.error('Error:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -362,25 +369,37 @@ const findingBooking = async () => {
         </Modal>
 
         <Modal maxWidth="sm" :show="showAddBooking" @close="closeModal">
-        <template #default>
-            <div class="p-6 bg-white rounded-lg relative">
-                <div class="absolute -top-2 -right-2 bg-gray-100 rounded-lg shadow cursor-pointer" @click="closeModal">
-                    <Lucide class="text-gray-700 w-7 h-7" icon="X" />
-                </div>
-                <h2 class="text-lg font-semibold">Add Booking</h2>
+            <template #default>
+                <div class="p-6 bg-white rounded-lg relative">
+                    <div class="absolute -top-2 -right-2 bg-gray-100 rounded-lg shadow cursor-pointer" @click="closeModal">
+                        <Lucide class="text-gray-700 w-7 h-7" icon="X" />
+                    </div>
+                    <h2 class="text-lg font-semibold">Add Booking</h2>
                     <div class="mb-2">
                         <input type="text" v-model="newBooking"
                             class="bg-slate-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Enter a link for new item" />
-                        <button @click="addingBooking"
-                            class="mt-2 w-full flex justify-center gap-1 p-2 text-md font-medium text-slate-100 bg-green-500 rounded-lg">
-                            Add
-                        </button>
+                        
+                        <div v-if="!bookingLink" class="mt-2">
+                            <button @click="addingBooking"
+                                :disabled="isLoading"
+                                class="w-full flex justify-center gap-1 p-2 text-md font-medium text-slate-100 bg-green-500 rounded-lg disabled:bg-green-300">
+                                <span v-if="!isLoading">Add</span>
+                                <span v-else>Processing...</span>
+                            </button>
+                        </div>
+                        
+                        <div v-else class="mt-2">
+                            <a :href="bookingLink" target="_blank" 
+                                class="block w-full text-center p-2 text-md font-medium text-blue-500 bg-blue-50 rounded-lg hover:bg-blue-100">
+                                Open Booking Link
+                            </a>
+                        </div>
 
-                        <p class="mt-3 text-sm text-slate-500">After submitting, try to find the item, after a few minutes the addition will complete</p>
+                        <p class="mt-3 text-sm text-slate-500">A few minutes after submitting, the addition will be complete</p>
                     </div>
-            </div>
-        </template>
-    </Modal>
+                </div>
+            </template>
+        </Modal>
     </SimpleAppLayout>
 </template>
