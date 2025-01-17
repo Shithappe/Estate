@@ -101,55 +101,65 @@ class SettingPriorityController extends Controller
         $pattern = '/(?<!\.en-gb)(\.\w+)?\.html$/';
         $modifiedUrl = preg_replace($pattern, '.en-gb.html', $cleanUrl);
 
-        if (preg_match('~\/([^\/]+)\.~', $url, $matches)) {
-                $slug = $matches[1];
+        if (preg_match('/\/hotel\/\w+\/([^.]+)/', $modifiedUrl, $matches)) {
+            $slug = $matches[1];
+        } else {
+            return response()->json([
+                'error' => 'Invalid URL format'
+            ], 400);
         }
 
-
         try {
-                $id = DB::table('booking_data')->insertGetId([
+            $id = DB::table('booking_data')->insertGetId([
                 'slug' => $slug,
                 'link' => $modifiedUrl
             ]);
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Проверяем код ошибки на дублирование записи
-            if ($e->errorInfo[1] == 1062) { // Код ошибки MySQL для уникального ключа
-                // Извлекаем ID записи с тем же `link`
-                $id = DB::table('booking_data')
-                    ->where('link', $modifiedUrl)
-                    ->value('id');
-
-            //    return response()->json([
-            //        'link' => url("booking_data/$id")
-            //    ]);
-            } else {
-                throw $e;
+    
+            // Подготавливаем команду
+            $arg = "-a mode=$id";
+            // $scrapy = "scrapy crawl";
+            $scrapy = "/usr/bin/proxychains /usr/local/bin/scrapy crawl";
+            $scriptPath = env('PARSE_PATH');
+            $command = "cd $scriptPath && $scrapy booking $arg && $scrapy rooms_id $arg";
+            
+            // Возвращаем ответ пользователю сразу
+            $response = response()->json([
+                'link' => url("complex/$slug")
+            ]);
+            
+            $response->send();
+            
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
             }
+            
+            exec($command, $output, $returnVar);
+            return;
+    
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                $existingSlug = DB::table('booking_data')
+                    ->where('link', $modifiedUrl)
+                    ->value('slug');
+    
+                return response()->json([
+                    'link' => url("complex/$existingSlug")
+                ]);
+            }
+            throw $e;
         }
 
-        // if (isset($id)) {
-        //     return response()->json([
-        //         'link' => url("booking_data/$id")
-        //     ]);
-        // }
+        // $arg = "-a mode=$id";
+        // $scrapy = "/usr/bin/proxychains /usr/local/bin/scrapy crawl";
+        // $scriptPath = env('PARSE_PATH');
 
-        $arg = "-a mode=$id";
-        $scrapy = "/usr/bin/proxychains /usr/local/bin/scrapy crawl";
-        $scriptPath = env('PARSE_PATH');
+        // $command = "cd $scriptPath && $scrapy booking $arg && $scrapy rooms_id $arg";
 
-        $command = "cd $scriptPath && $scrapy booking $arg && $scrapy rooms_id $arg";
-
-        // exec($command, $output, $returnVar);    
-
-       //return response()->json([
-        //        'link' => url("booking_data/$id")
-        //    ]);
-
-        // Возвращаем результат
-         return response()->json([
-             'url' => $modifiedUrl,
-             'command' => $command,
-             'output' => [$output, $returnVar]
-         ]);
+        // // Возвращаем результат
+        //  return response()->json([
+        //      'url' => $modifiedUrl,
+        //      'command' => $command,
+        //      'output' => [$output, $returnVar]
+        //  ]);
     }
 }
