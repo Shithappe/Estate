@@ -101,8 +101,14 @@ class SettingPriorityController extends Controller
         $pattern = '/(?<!\.en-gb)(\.\w+)?\.html$/';
         $modifiedUrl = preg_replace($pattern, '.en-gb.html', $cleanUrl);
 
+        if (preg_match('~\/([^\/]+)\.~', $url, $matches)) {
+                $slug = $matches[1];
+        }
+
+
         try {
-            $id = DB::table('booking_data')->insertGetId([
+                $id = DB::table('booking_data')->insertGetId([
+                'slug' => $slug,
                 'link' => $modifiedUrl
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
@@ -113,11 +119,10 @@ class SettingPriorityController extends Controller
                     ->where('link', $modifiedUrl)
                     ->value('id');
 
-                return response()->json([
-                    'link' => url("booking_data/$id")
-                ]);
+            //    return response()->json([
+            //        'link' => url("booking_data/$id")
+            //    ]);
             } else {
-                // Обработка других ошибок
                 throw $e;
             }
         }
@@ -129,22 +134,22 @@ class SettingPriorityController extends Controller
         // }
 
         $arg = "-a mode=$id";
-
+        $scrapy = "/usr/bin/proxychains /usr/local/bin/scrapy crawl";
         $scriptPath = env('PARSE_PATH');
 
-        $command = "cd $scriptPath && scrapy crawl booking $arg && scrapy crawl rooms_id $arg";
+        $command = "cd $scriptPath && $scrapy booking $arg && $scrapy rooms_id $arg";
 
-        $output = shell_exec($command);
+        // exec($command, $output, $returnVar);    
 
-        return response()->json([
-                'link' => url("booking_data/$id")
-            ]);
+       //return response()->json([
+        //        'link' => url("booking_data/$id")
+        //    ]);
 
         // Возвращаем результат
-        // return response()->json([
-        //     'url' => $modifiedUrl,
-        //     'command' => $command,
-        //     'output' => $output,
-        // ]);
+         return response()->json([
+             'url' => $modifiedUrl,
+             'command' => $command,
+             'output' => [$output, $returnVar]
+         ]);
     }
 }
