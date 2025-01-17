@@ -13,8 +13,7 @@
 
         @endphp
         
-        <!-- <title inertia>{{ config('app.name', 'EstateMaket') }}</title> -->
-        <title>{{ $title }}</title>
+        <title inertia>{{ $title }}</title>
         <meta name="description" content="{{ $meta['og:description'] }}">
         <meta property="og:title" content="{{ $meta['og:title'] }}">
         <meta property="og:description" content="{{ $meta['og:description'] }}">
