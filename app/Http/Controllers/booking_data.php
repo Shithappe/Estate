@@ -482,6 +482,7 @@ class booking_data extends Controller
         $query = DB::table('booking_data')
             ->select(
                 'booking_data.id',
+                'booking_data.slug',
                 'booking_data.images',
                 'booking_data.title',
                 'booking_data.city',
