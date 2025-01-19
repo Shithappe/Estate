@@ -45,7 +45,7 @@ const openCart = () => {
 
 const images = [...new Set([...strToArray(props.item.static_images, 500), ...strToArray(props.item.images, 500)])];
 
-const complexLink = `/complex/${props.item.slug}`;
+const complexLink = props.item.slug ? `/complex/${props.item.slug}` : `/booking_data/${props.item.id}`;
 
 const openAddToListModal = () => {
     showAddToListModal.value = true;
