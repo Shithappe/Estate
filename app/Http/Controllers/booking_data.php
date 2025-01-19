@@ -872,6 +872,7 @@ class booking_data extends Controller
                 ->where('list_hotels.list_id', $list_id)
                 ->select(
                     'booking_data.id',
+                    'booking_data.slug',
                     'booking_data.static_images',
                     'booking_data.images',
                     'booking_data.title',
