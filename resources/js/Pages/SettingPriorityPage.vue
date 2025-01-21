@@ -61,6 +61,7 @@ const columnDefs = ref([
         filter: true
     },
     {
+        field: 'Actions',
         headerName: 'Actions',
         width: 100,
         // cellRendererFramework: {
@@ -133,7 +134,7 @@ const selectRoom = ref({
 });
 
 const onCellClicked = (event) => {
-    if (event.column.getColId() === 'static_images') {
+    if (event.column.getColId() === 'Actions') {
         openModal(event.data);
     }
 };
