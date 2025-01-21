@@ -20,7 +20,7 @@ const handleAddToList = (items) => {
   <div class="sm:block lg:absolute right-0 z-10 sm:w-full lg:w-1/5 h-screen shadow-lg md:backdrop-filter md:backdrop-blur-md md:bg-gray-400 md:bg-opacity-30 overflow-y-auto">
     <div class="relative flex flex-col gap-y-1 m-4">
 
-      <button @click="handleAddToList(booking_data)">
+      <button class="bg-black text-white px-2 py-1 rounded-lg" @click="handleAddToList(booking_data)" :disabled="booking_data.length === 0">
         Add to List {{ booking_data.length }} complex
       </button>
 

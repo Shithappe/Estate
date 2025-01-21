@@ -258,6 +258,66 @@ const handleBookingClick = (selectedBooking) => {
   });
 }
 
+const GotoLocation = () => {
+  const strLocation = prompt('Enter location in the format "8°25\'01.6"S 114°57\'46.7"E"');
+  if (strLocation) {
+    try {
+      const location = parseCoordinates(strLocation);
+      selectCoord.value = [location.latitude, location.longitude];
+      reDrawCircle();
+
+      const marker = L.marker([location.latitude, location.longitude], {
+        icon: customIcon,
+        title: `${strLocation}`,
+      });
+      markers.push(marker);
+      marker.myId = location.latitude;
+      marker.addTo(map); // Добавляем маркер на карту
+      map.flyTo({ lat: location.latitude, lng: location.longitude }, 18, {
+        duration: 2,
+        easeLinearity: 0.5
+      });
+    } catch (error) {
+      alert('Invalid coordinate format. Please enter coordinates in the format "8°25\'01.6"S 114°57\'46.7"E".');
+    }
+  }
+}
+
+function parseCoordinates(coordString) {
+  // Разбиваем строку на две части: широта и долгота
+  const [lat, lon] = coordString.split(' ');
+
+  // Функция для преобразования координат в десятичный формат
+  function toDecimal(coord) {
+    const match = coord.match(/(\d+)°(\d+)'([\d.]+)"([NSEW])/);
+    if (!match) {
+      throw new Error(`Invalid coordinate format: ${coord}`);
+    }
+
+    const degrees = parseFloat(match[1]);
+    const minutes = parseFloat(match[2]);
+    const seconds = parseFloat(match[3]);
+    const direction = match[4];
+
+    // Переводим в десятичный формат
+    let decimal = degrees + minutes / 60 + seconds / 3600;
+
+    // Учитываем направление
+    if (direction === 'S' || direction === 'W') {
+      decimal *= -1;
+    }
+
+    return decimal;
+  }
+
+  // Преобразуем широту и долготу
+  const latitude = toDecimal(lat);
+  const longitude = toDecimal(lon);
+
+  return { latitude, longitude };
+}
+
+
 async function fetchData(markerId) {
   try {
     showBottomData.value = true;
@@ -328,6 +388,13 @@ const closeBottom = () => {
           :class="{ 'text-slate-100 bg-black': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters }"
           @click="() => { closeBottom(); showFilters = !showFilters; }">
           <Lucide icon="Filter" />
+        </button>
+
+        <button
+          class="px-2 py-2 rounded-lg shadow-lg hover:shadow-lg hover:text-slate-100 hover:bg-black appearance-none leading-5 transition duration-300 ease-in-out overflow-auto transform translate-x-4"
+          :class="{ 'text-slate-100 bg-black': showFilters, 'backdrop-filter backdrop-blur-md bg-gray-100 bg-opacity-30': !showFilters }"
+          @click="GotoLocation">
+          <Lucide icon="MapPinned" />
         </button>
 
         <a href="/"
