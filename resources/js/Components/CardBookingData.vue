@@ -159,8 +159,8 @@ const removeFromList = async (id) => {
                         <span>Rental income</span>
                     </div>
                     <div v-if="!loading">
-                        <div v-if="item.min_price === item.max_price">${{ item.count_rooms * item.max_price }}</div>
-                        <div v-else>${{ addDots(item.count_rooms * item.min_price) }} - ${{ addDots(item.count_rooms * item.max_price) }}</div>    
+                        <div v-if="item.min_price === item.max_price">${{ item.rental_income_min }}</div>
+                        <div v-else>${{ addDots(item.rental_income_min) }} - ${{ addDots(item.rental_income_max) }}</div>    
                     </div>
                     <div v-else class="loading px-1 text-slate-500">Price</div>
                 </div>

@@ -41,6 +41,11 @@ class booking_data extends Controller
                 'booking_data.max_price',
                 'booking_data.star', 
                 'booking_data.score',
+                DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
+                DB::raw('SUM(rooms_id.max_available) as count_rooms'),
+                'booking_data.occupancy as occupancy',
+                DB::raw('ROUND(booking_data.min_price * (booking_data.occupancy / 100) * 30) AS rental_income_min'),
+                DB::raw('ROUND(booking_data.max_price * (booking_data.occupancy / 100) * 30) AS rental_income_max'),
                 DB::raw('
                     ROUND(
                         IF(
@@ -50,10 +55,6 @@ class booking_data extends Controller
                         )
                     ) as forecast_price
                 '),
-                DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
-                DB::raw('SUM(rooms_id.max_available) as count_rooms'),
-                'booking_data.occupancy as occupancy'
-                // DB::raw('COUNT(rooms_id.room_id) as rental_income'),
             )
             ->leftJoin('rooms_id', 'booking_data.id', '=', 'rooms_id.booking_id')
             ->orderByRaw('
@@ -69,6 +70,8 @@ class booking_data extends Controller
             ->paginate(12);
 
 
+            
+        return $data;
 
             $minutes = 1440;
 
@@ -104,6 +107,7 @@ class booking_data extends Controller
                 return DB::table('facilities')->get();
             });
 
+        
 
         return Inertia::render('BookingData', [
             'data' => $data,
@@ -494,6 +498,8 @@ class booking_data extends Controller
                 DB::raw('COUNT(rooms_id.room_id) as types_rooms'),
                 DB::raw('SUM(rooms_id.max_available) as count_rooms'),
                 'booking_data.occupancy as occupancy',
+                DB::raw('ROUND(booking_data.min_price * (booking_data.occupancy / 100) * 30) AS rental_income_min'),
+                DB::raw('ROUND(booking_data.max_price * (booking_data.occupancy / 100) * 30) AS rental_income_max'),
                 DB::raw('
                     ROUND(
                         IF(
