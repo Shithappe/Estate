@@ -69,10 +69,7 @@ class booking_data extends Controller
             ->groupBy('booking_data.id')
             ->paginate(12);
 
-
             
-        return $data;
-
             $minutes = 1440;
 
             $countries = Cache::remember('countries', $minutes, function () {
