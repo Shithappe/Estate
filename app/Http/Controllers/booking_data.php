@@ -240,7 +240,6 @@ class booking_data extends Controller
                         )
                     ) as estimated_price
                 '),
-                DB::raw('COUNT(*) AS record_count'),
                 DB::raw("'out_of_range' as range_status") // Пометка для вне диапазона
             )
             ->where('r2d.booking_id', $bookingId)
@@ -318,10 +317,10 @@ class booking_data extends Controller
                 'room_id' => $room->room_id,
                 'room_type' => $room->room_type,
                 'active' => $room->active,
-                'record_count' => $room->record_count,
+                'record_count' => $room->record_count ?? false,
                 'price' => $room->price,
                 'occupancy' => round($occupancy),
-                'profit' => round($room->record_count * $occupancy / 100 * $room->price),
+                'profit' => round($room->count * $occupancy / 100 * $room->price),
                 'estimated_price' => $room->estimated_price,
                 'booking_title' => $room->booking_title ?? $bookingTitle // Используем booking_title из JOIN или переданное значение
             ];

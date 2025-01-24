@@ -78,7 +78,7 @@ const removeFromList = async (id) => {
                 <Lucide class="w-5 h-5" icon="CalendarDays" />
                 <div>Available days for rent</div>
               </div>
-              <div>{{ room.record_count }}</div>
+              <div>{{ room.record_count ? room.record_count : '—' }}</div>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex gap-x-1">
